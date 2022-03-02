@@ -22,7 +22,7 @@ namespace Hotfix.Common
 		public AppBase currentApp = null;
 		//进度指示器,由调用者提供
 		public IShowDownloadProgress ips;
-		
+		public NetWorkController net = new NetWorkController();
 		public AppController()
 		{
 			ins = this;
@@ -41,7 +41,7 @@ namespace Hotfix.Common
 		public void Start()
 		{
 			conf.Start();
-			net_.Start(conf.hosts, conf.timeOut);
+			net.Start(conf.hosts, conf.timeOut);
 			SwitchGame(conf.defaultGame);
 		}
 
@@ -57,6 +57,6 @@ namespace Hotfix.Common
 			Globals.net.Stop();
 		}
 
-		NetWorkController net_ = new NetWorkController();
+		
 	}
 }

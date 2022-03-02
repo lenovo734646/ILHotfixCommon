@@ -26,6 +26,8 @@ namespace Hotfix.Common
 		public float timeOut = 5.0f;
 		public void Start()
 		{
+			hosts.Add("47.101.62.170", 16000);
+
 			{
 				GameConfig game = new GameConfig();
 				game.name = "HuanleBY";

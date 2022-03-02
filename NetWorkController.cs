@@ -16,7 +16,6 @@ namespace Hotfix.Common
 		INTERNAL_MSGID_JSONFORM = 0xCCCC,
 		INTERNAL_MSGID_BINFORM = 0xBBBB,
 		INTERNAL_MSGID_PB = 0xDDDD,
-		INTERNAL_MSGID_PB_STRINGHEADER = 0xDDDD,
 		INTERNAL_MSGID_PING = 0xFFFF,
 	}
 
@@ -25,45 +24,54 @@ namespace Hotfix.Common
 	{
 		public int cmd;
 		public string strCmd;
-		public string payload;
+		public byte[] payload;
+	}
+
+	public class MsgPbBase
+	{
+		public byte[] content;
+
+		public void SetProtoMessage(Google.Protobuf.IMessage proto)
+		{
+			int len = proto.CalculateSize();
+			content = new byte[len];
+			Google.Protobuf.CodedOutputStream stm = new Google.Protobuf.CodedOutputStream(content);
+			proto.WriteTo(stm);
+		}
+
 	}
 
 	//Protobuffer消息包
-	public class MsgPbForm
+	public class MsgPbForm : MsgPbBase
 	{
 		public short subCmd = 0;
-		public string content;
 		public void Read(BinaryStream stm)
 		{
 			//跳2个int,
 			stm.SetCurentRead(8);
 			subCmd = stm.ReadShort();
-			content = stm.ReadString();
+			content = stm.ReadArray(0);
 		}
 
 		public void Write(BinaryStream stm)
 		{
-			stm.SetCurentWrite(8);
-			stm.WriteShort(subCmd);
-			stm.WriteString(content);
-			int len = stm.DataLeft();
-			stm.SetCurentWrite(0);
-			stm.WriteInt(len);
+			stm.SetCurentWrite(4);
 			stm.WriteInt((int)INT_MSGID.INTERNAL_MSGID_PB);
-			stm.SetCurentWrite(len);
+			stm.WriteShort(subCmd);
+			stm.WriteArray(content, 0, content.Length);
+			stm.WriteDataLengthHeader();
 		}
 	}
 
 	//Protobuffer消息包
-	public class MsgPbFormStringHeaderReader
+	public class MsgPbFormStringHeader : MsgPbBase
 	{
-		public string protoName_;
-		public string content;
+		public string protoName;
 		public int encrypted;
 		public int controlFlag;
 
 		string randomKey_;
-		public MsgPbFormStringHeaderReader(string key)
+		public MsgPbFormStringHeader(string key)
 		{
 			randomKey_ = key;
 		}
@@ -96,7 +104,6 @@ namespace Hotfix.Common
 			}
 		}
 
-
 		public void Read(BinaryStream stm)
 		{
 			//跳2个int,
@@ -110,18 +117,37 @@ namespace Hotfix.Common
 			if (encrypted != 0) {
 				rc4Algorithm(Encoding.UTF8.GetBytes(randomKey_), span);
 			}
-			protoName_ = stm.ReadString(false);
-			content = stm.ReadString();
+			protoName = stm.ReadString(false);
+			content = stm.ReadArray(0);
+		}
+		public void Write(BinaryStream stm)
+		{
+			stm.SetCurentWrite(4);
+			if(randomKey_.Length == 0) {
+				encrypted = 0;
+			}
+			else {
+				encrypted = 1;
+			}
+
+			stm.WriteByte((byte)encrypted);
+			stm.WriteString(protoName);
+			stm.WriteArray(content, 0, content.Length);
+			//5字节以后的内容加密
+			if (encrypted == 1) {
+				var span = new Span<byte>(stm.buffer(), 5, stm.DataLeft());
+				rc4Algorithm(Encoding.UTF8.GetBytes(randomKey_), span);
+			}
+			stm.WriteDataLengthHeader();
 		}
 	}
-
-	//JSon消息包
+		//JSon消息包
 	public class MsgJsonForm
 	{
 		public short subCmd = 0;
 		public short isCompressed = 0;
 
-		public string content;
+		public byte[] content;
 
 		public void Read(BinaryStream stm)
 		{
@@ -129,20 +155,17 @@ namespace Hotfix.Common
 			stm.SetCurentRead(8);
 			subCmd = stm.ReadShort();
 			isCompressed = stm.ReadShort();
-			content = stm.ReadString();
+			content = stm.ReadArray(0);
 		}
 
 		public void Write(BinaryStream stm)
 		{
-			stm.SetCurentWrite(8);
+			stm.SetCurentWrite(4);
+			stm.WriteInt((int)INT_MSGID.INTERNAL_MSGID_JSONFORM);
 			stm.WriteShort(subCmd);
 			stm.WriteShort(0);
-			stm.WriteString(content);
-			int len = stm.DataLeft();
-			stm.SetCurentWrite(0);
-			stm.WriteInt(len);
-			stm.WriteInt((int)INT_MSGID.INTERNAL_MSGID_JSONFORM);
-			stm.SetCurentWrite(len);
+			stm.WriteArray(content, 0, content.Length);
+			stm.WriteDataLengthHeader();
 		}
 	}
 
@@ -159,7 +182,7 @@ namespace Hotfix.Common
 			sendStream_.ClearUsedData();
 			MsgJsonForm msg = new MsgJsonForm();
 			msg.subCmd = subCmd;
-			msg.content = json;
+			msg.content = Encoding.UTF8.GetBytes(json);
 			msg.Write(sendStream_);
 			Globals.net.SendMessage(sendStream_);
 		}
@@ -167,16 +190,33 @@ namespace Hotfix.Common
 		public void SendPing()
 		{
 			sendStream_.ClearUsedData();
-			sendStream_.WriteInt(8);
+			//先写个头长度占位
+			sendStream_.SetCurentWrite(4);
 			sendStream_.WriteInt((int)INT_MSGID.INTERNAL_MSGID_PING);
+			sendStream_.WriteDataLengthHeader();
 			Globals.net.SendMessage(sendStream_);
 		}
 
-		public void SendPb(short subCmd, byte[] data)
+		public void SendPb(short subCmd, Google.Protobuf.IMessage proto)
 		{
 			sendStream_.ClearUsedData();
-			sendStream_.WriteShort(subCmd);
-			sendStream_.WriteArray(data, 0, data.Length);
+			
+			MsgPbForm msg = new MsgPbForm();
+			msg.subCmd = subCmd;
+			msg.SetProtoMessage(proto);
+			msg.Write(sendStream_);
+
+			Globals.net.SendMessage(sendStream_);
+		}
+		public void SendPb2(string protoName, Google.Protobuf.IMessage proto)
+		{
+			sendStream_.ClearUsedData();
+			
+			MsgPbFormStringHeader msg = new MsgPbFormStringHeader(randomKey);
+			msg.protoName = protoName;
+			msg.SetProtoMessage(proto);
+			msg.Write(sendStream_);
+
 			Globals.net.SendMessage(sendStream_);
 		}
 
@@ -281,11 +321,11 @@ namespace Hotfix.Common
 				BinaryStream stmAck = new BinaryStream(data, data.Length);
 				Globals.net.SendMessage(stmAck);
 
-				MsgPbFormStringHeaderReader msg = new MsgPbFormStringHeaderReader(randomKey);
+				MsgPbFormStringHeader msg = new MsgPbFormStringHeader(randomKey);
 				msg.Read(stm);
 
 				NetEventArgs evt = new NetEventArgs();
-				evt.strCmd = msg.protoName_;
+				evt.strCmd = msg.protoName;
 				evt.payload = msg.content;
 				DispatchNetEvent_(evt);
 			}
