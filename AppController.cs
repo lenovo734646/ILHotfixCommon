@@ -1,4 +1,5 @@
 ﻿using AssemblyCommon;
+using Hotfix.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace Hotfix.Common
 		//进度指示器,由调用者提供
 		public IShowDownloadProgress ips;
 		public NetWorkController net = new NetWorkController();
+		public SelfPlayer self = new SelfPlayer();
 		public AppController()
 		{
 			ins = this;
@@ -33,7 +35,6 @@ namespace Hotfix.Common
 			if (currentApp != null) currentApp.Stop();
 			var gmconf = conf.FindGameConfig(to);
 			var entryClass = Type.GetType(gmconf.entryClass);
-
 			currentApp = (AppBase)Activator.CreateInstance(entryClass);
 			currentApp.Start();
 		}
@@ -56,7 +57,5 @@ namespace Hotfix.Common
 			if (currentApp != null) currentApp.Stop();
 			Globals.net.Stop();
 		}
-
-		
 	}
 }

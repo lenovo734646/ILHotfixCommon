@@ -70,8 +70,8 @@ namespace Hotfix.Common
 		public int encrypted;
 		public int controlFlag;
 
-		string randomKey_;
-		public MsgPbFormStringHeader(string key)
+		byte[] randomKey_;
+		public MsgPbFormStringHeader(byte[] key)
 		{
 			randomKey_ = key;
 		}
@@ -115,7 +115,7 @@ namespace Hotfix.Common
 			var span = new Span<byte>(stm.buffer(), stm.reader(), stm.BufferLeft());
 
 			if (encrypted != 0) {
-				rc4Algorithm(Encoding.UTF8.GetBytes(randomKey_), span);
+				rc4Algorithm(randomKey_, span);
 			}
 			protoName = stm.ReadString(false);
 			content = stm.ReadArray(0);
@@ -136,7 +136,7 @@ namespace Hotfix.Common
 			//5字节以后的内容加密
 			if (encrypted == 1) {
 				var span = new Span<byte>(stm.buffer(), 5, stm.DataLeft());
-				rc4Algorithm(Encoding.UTF8.GetBytes(randomKey_), span);
+				rc4Algorithm(randomKey_, span);
 			}
 			stm.WriteDataLengthHeader();
 		}
@@ -171,33 +171,35 @@ namespace Hotfix.Common
 
 	public class NetWorkController
 	{
-		public event EventHandler<NetEventArgs> msgHandler;
-		public event EventHandler<int> socketEventHandler;
-
-		string randomKey = "";
-		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
+		public event EventHandler<NetEventArgs> MsgHandler;
+		public enum EnState
+		{
+			Init,
+			HandshakeSucc,
+			AllConnectionLost,
+		}
 		//数据发送使用同步方式,省事,实际应用中没有发现问题
-		public void SendJson(short subCmd, string json)
+		public void SendJson(short subCmd, string json, MySocket sock = null)
 		{
 			sendStream_.ClearUsedData();
 			MsgJsonForm msg = new MsgJsonForm();
 			msg.subCmd = subCmd;
 			msg.content = Encoding.UTF8.GetBytes(json);
 			msg.Write(sendStream_);
-			Globals.net.SendMessage(sendStream_);
+			Globals.net.SendMessage(sendStream_, sock);
 		}
 
-		public void SendPing()
+		public void SendPing(MySocket sock = null)
 		{
 			sendStream_.ClearUsedData();
 			//先写个头长度占位
 			sendStream_.SetCurentWrite(4);
 			sendStream_.WriteInt((int)INT_MSGID.INTERNAL_MSGID_PING);
 			sendStream_.WriteDataLengthHeader();
-			Globals.net.SendMessage(sendStream_);
+			Globals.net.SendMessage(sendStream_, sock);
 		}
 
-		public void SendPb(short subCmd, Google.Protobuf.IMessage proto)
+		public void SendPb(short subCmd, Google.Protobuf.IMessage proto, MySocket sock = null)
 		{
 			sendStream_.ClearUsedData();
 			
@@ -206,18 +208,19 @@ namespace Hotfix.Common
 			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
-			Globals.net.SendMessage(sendStream_);
+			Globals.net.SendMessage(sendStream_, sock);
 		}
-		public void SendPb2(string protoName, Google.Protobuf.IMessage proto)
+
+		public void SendPb2(string protoName, Google.Protobuf.IMessage proto, MySocket sock)
 		{
 			sendStream_.ClearUsedData();
 			
-			MsgPbFormStringHeader msg = new MsgPbFormStringHeader(randomKey);
+			MsgPbFormStringHeader msg = new MsgPbFormStringHeader(sock.randomKey);
 			msg.protoName = protoName;
 			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
-			Globals.net.SendMessage(sendStream_);
+			Globals.net.SendMessage(sendStream_, sock);
 		}
 
 		public void HandleRawData(object sender, BinaryStream evt)
@@ -225,17 +228,31 @@ namespace Hotfix.Common
 			MySocket sock = sender as MySocket;
 			HandleDataFrame_(sock, evt);
 		}
-
+	
 		public void HandleSockEvent(object sender, MySocket.SocketState st)
 		{
-			//连接成功,这个事件每个socket会调一次
-			if(st == SocketState.WORKING) {
+			//连接成功,这个事件每个socket会调一次,立即进行握手协议
+			if (st == SocketState.WORKING) {
 				MySocket sock = (MySocket)sender;
+				FLLU3dHandshake handShake = new FLLU3dHandshake(sock);
 
+				handShake.Result += (obj, res) => {
+					if (res == (int)FLLU3dHandshake.State.Succ) {
+						state_ = EnState.HandshakeSucc;
+						handShake.Stop();
+					}
+					else if(res == (int)FLLU3dHandshake.State.Failed) {
+						handShake.Stop();
+					}
+				};
+				
+				handShake.Start();
 			}
 			//网络连接完全失败,这个是所有连接都失败之后调用的
 			else if(st == SocketState.FAILED) {
 
+				state_ = EnState.AllConnectionLost;
+				session_ = null;
 			}
 		}
 
@@ -248,27 +265,45 @@ namespace Hotfix.Common
 			Globals.net.Start(timeOut);
 		}
 
+		public void EnterGame(string game)
+		{
+			var gmconf = AppController.ins.conf.FindGameConfig(game);
+			if(gmconf.scriptType == GameConfig.ScriptType.Lua) {
+				
+				if (session_ != null) {
+					session_.Stop();
+				}
+
+				session_ = new FLLU3dSession();
+				session_.Start();
+				session_.EnterGame(game);
+			}
+		}
+
 		public void RegisterMsgHandler(EventHandler<NetEventArgs> handler)
 		{
-			msgHandler += handler;
+			MsgHandler += handler;
 		}
 
 		public void RemoveMsgHandler(EventHandler<NetEventArgs> handler)
 		{
-			msgHandler -= handler;
+			MsgHandler -= handler;
 		}
+
 		public void Update()
 		{
 			Globals.net.Update();
+			session_?.Update();
 		}
 
 		public void Stop()
 		{
 			Globals.net.RemoveRawDataHandler(HandleRawData);
 		}
-		void DispatchNetEvent_(NetEventArgs evt)
+
+		void DispatchNetMsgEvent_(MySocket s, NetEventArgs evt)
 		{
-			msgHandler.Invoke(this, evt);
+			MsgHandler.Invoke(s, evt);
 		}
 
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
@@ -285,12 +320,12 @@ namespace Hotfix.Common
 						NetEventArgs evt = new NetEventArgs();
 						evt.cmd = msg.subCmd;
 						evt.payload = msg.content;
-						DispatchNetEvent_(evt);
+						DispatchNetMsgEvent_(sock, evt);
 					}
 					break;
 					//系统PING
 					case (int)INT_MSGID.INTERNAL_MSGID_PING: {
-						SendPing();
+						
 					}
 					break;
 					//Protobuffer消息
@@ -301,7 +336,7 @@ namespace Hotfix.Common
 						NetEventArgs evt = new NetEventArgs();
 						evt.cmd = msg.subCmd;
 						evt.payload = msg.content;
-						DispatchNetEvent_(evt);
+						DispatchNetMsgEvent_(sock, evt);
 					}
 					break;
 					//二进制消息
@@ -319,19 +354,22 @@ namespace Hotfix.Common
 				byte[] data = new byte[5];
 				data[0] = 5; data[4] = 1 << 6;
 				BinaryStream stmAck = new BinaryStream(data, data.Length);
-				Globals.net.SendMessage(stmAck);
+				Globals.net.SendMessage(stmAck, sock);
 
-				MsgPbFormStringHeader msg = new MsgPbFormStringHeader(randomKey);
+				MsgPbFormStringHeader msg = new MsgPbFormStringHeader(sock.randomKey);
 				msg.Read(stm);
 
 				NetEventArgs evt = new NetEventArgs();
 				evt.strCmd = msg.protoName;
 				evt.payload = msg.content;
-				DispatchNetEvent_(evt);
+				DispatchNetMsgEvent_(sock, evt);
 			}
 			else {
 				Debug.LogWarning("Unknown protocol parser.");
 			}
 		}
+		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
+		FLLU3dSession session_;
+		EnState state_ = EnState.Init;
 	}
 }

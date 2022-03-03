@@ -14,7 +14,7 @@ namespace Hotfix.Model
 	public class PlayerBase
 	{
 		public string nickName;
-		public Dictionary<int, int> items = new Dictionary<int, int>();
+		public Dictionary<int, long> items = new Dictionary<int, long>();
 		public int iid;
 		public string uid;
 		public int lv;
@@ -37,5 +37,7 @@ namespace Hotfix.Model
 			}
 		} 
 		GamePlayer pp_ = null;
+
+		
 	}
 }

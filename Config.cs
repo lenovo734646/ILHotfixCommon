@@ -41,7 +41,7 @@ namespace Hotfix.Common
 				game.name = "Lobby";
 				game.folder = "Lobby";
 				game.entryClass = "Hotfix.Lobby.MyApp";
-				game.scriptType = GameConfig.ScriptType.CSharp;
+				game.scriptType = GameConfig.ScriptType.Lua;
 				games.Add(game.name, game);
 			}
 		}
@@ -57,5 +57,10 @@ namespace Hotfix.Common
 		}
 
 		public string defaultGame = "HuanleBY";
+
+		public string GetDeviceID()
+		{
+			return "";
+		}
 	}
 }
