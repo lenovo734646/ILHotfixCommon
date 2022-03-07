@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using static AssemblyCommon.MySocket;
 
 namespace Hotfix.Common
 {
-	enum INT_MSGID
+	public enum INT_MSGID
 	{
 		INTERNAL_MSGID_COMMONRP = 1001,
 		INTERNAL_MSGID_JSONFORM = 0xCCCC,
@@ -31,12 +32,9 @@ namespace Hotfix.Common
 	{
 		public byte[] content;
 
-		public void SetProtoMessage(Google.Protobuf.IMessage proto)
+		public void SetProtoMessage(byte[] proto)
 		{
-			int len = proto.CalculateSize();
-			content = new byte[len];
-			Google.Protobuf.CodedOutputStream stm = new Google.Protobuf.CodedOutputStream(content);
-			proto.WriteTo(stm);
+			content = proto;
 		}
 
 	}
@@ -76,7 +74,7 @@ namespace Hotfix.Common
 			randomKey_ = key;
 		}
 
-		static void rc4Algorithm(byte[] key, Span<byte> data)
+		static void rc4Algorithm(byte[] key, byte[] data, int offset)
 		{
 			int[] s = new int[256], k = new int[256];
 			int i = 0, j = 0, temp;
@@ -93,7 +91,7 @@ namespace Hotfix.Common
 			}
 
 			int x = 0, y = 0, t = 0;
-			for (i = 0; i < data.Length; i++) {
+			for (i = offset; i < data.Length; i++) {
 				x = (x + 1) & 0xff;
 				y = (y + s[x]) & 0xff;
 				temp = s[x];
@@ -112,10 +110,8 @@ namespace Hotfix.Common
 
 			encrypted = controlFlag & 0x3F;
 			controlFlag = controlFlag >> 6;
-			var span = new Span<byte>(stm.buffer(), stm.reader(), stm.BufferLeft());
-
 			if (encrypted != 0) {
-				rc4Algorithm(randomKey_, span);
+				rc4Algorithm(randomKey_, stm.buffer(), stm.reader());
 			}
 			protoName = stm.ReadString(false);
 			content = stm.ReadArray(0);
@@ -123,7 +119,7 @@ namespace Hotfix.Common
 		public void Write(BinaryStream stm)
 		{
 			stm.SetCurentWrite(4);
-			if(randomKey_.Length == 0) {
+			if (randomKey_.Length == 0) {
 				encrypted = 0;
 			}
 			else {
@@ -135,13 +131,13 @@ namespace Hotfix.Common
 			stm.WriteArray(content, 0, content.Length);
 			//5字节以后的内容加密
 			if (encrypted == 1) {
-				var span = new Span<byte>(stm.buffer(), 5, stm.DataLeft());
-				rc4Algorithm(randomKey_, span);
+				rc4Algorithm(randomKey_, stm.buffer(), stm.reader());
 			}
 			stm.WriteDataLengthHeader();
 		}
 	}
-		//JSon消息包
+
+	//JSon消息包
 	public class MsgJsonForm
 	{
 		public short subCmd = 0;
@@ -168,6 +164,7 @@ namespace Hotfix.Common
 			stm.WriteDataLengthHeader();
 		}
 	}
+
 
 	public class NetWorkController
 	{
@@ -199,25 +196,25 @@ namespace Hotfix.Common
 			Globals.net.SendMessage(sendStream_, sock);
 		}
 
-		public void SendPb(short subCmd, Google.Protobuf.IMessage proto, MySocket sock = null)
+		public void SendPb(short subCmd, DynamicProtoMessage proto, MySocket sock = null)
 		{
 			sendStream_.ClearUsedData();
 			
 			MsgPbForm msg = new MsgPbForm();
 			msg.subCmd = subCmd;
-			msg.SetProtoMessage(proto);
+			//msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
 			Globals.net.SendMessage(sendStream_, sock);
 		}
 
-		public void SendPb2(string protoName, Google.Protobuf.IMessage proto, MySocket sock)
+		public void SendPb2(string protoName, DynamicProtoMessage proto, MySocket sock)
 		{
 			sendStream_.ClearUsedData();
 			
 			MsgPbFormStringHeader msg = new MsgPbFormStringHeader(sock.randomKey);
 			msg.protoName = protoName;
-			msg.SetProtoMessage(proto);
+			//msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
 			Globals.net.SendMessage(sendStream_, sock);
@@ -256,13 +253,29 @@ namespace Hotfix.Common
 			}
 		}
 
-		public void Start(Dictionary<string, int> hosts, float timeOut)
+		void SaveProto_(string text, string fileName)
 		{
+			Directory.CreateDirectory(Application.persistentDataPath + "/Protos");
+			string strP = Application.persistentDataPath + "/Protos/" + fileName;
+			var fs = File.Open(strP, FileMode.OpenOrCreate);
+			UTF8Encoding temp = new UTF8Encoding(true);
+			var arr = temp.GetBytes(text);
+			fs.Write(arr, 0, arr.Length);
+			fs.Close();
+		}
+	
+		public IEnumerator Start(Dictionary<string, int> hosts, float timeOut)
+		{
+			ILRuntime_CLGT.Initlize();
+			ILRuntime_CLPF.Initlize();
+			ILRuntime_Global.Initlize();
+
 			Globals.net = new NetManager(ProtocolParser.PB_STRING_HEADER);
 			Globals.net.RegisterRawDataHandler(HandleRawData);
 			Globals.net.RegisterSockEventHandler(HandleSockEvent);
 			Globals.net.SetHostList(hosts);
 			Globals.net.Start(timeOut);
+			yield return 0;
 		}
 
 		public void EnterGame(string game)
@@ -292,18 +305,19 @@ namespace Hotfix.Common
 
 		public void Update()
 		{
-			Globals.net.Update();
+			Globals.net?.Update();
 			session_?.Update();
 		}
 
 		public void Stop()
 		{
 			Globals.net.RemoveRawDataHandler(HandleRawData);
+			Globals.net.Stop();
 		}
 
 		void DispatchNetMsgEvent_(MySocket s, NetEventArgs evt)
 		{
-			MsgHandler.Invoke(s, evt);
+			MsgHandler?.Invoke(s, evt);
 		}
 
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)

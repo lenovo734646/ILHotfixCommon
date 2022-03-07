@@ -1,39 +1,29 @@
 ﻿using AssemblyCommon;
 using Hotfix.Model;
+using ProtoBuf;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Hotfix.Common
 {
+	public class DynamicProtoMessage
+	{
+		public void Create(string a, string b) { }
+	}
 	public static class ProtoMessageCreator
 	{
-		public static Google.Protobuf.IMessage CreateMessage(string protoName)
+		public static object CreateMessage(string protoName, byte[] data)
 		{
-
-// 			if (protoName == "CLGT.HandAck") {
-// 				return new CLGT.HandAck();
-// 			}
-// 			else if (protoName == "CLGT.HandReq") {
-// 				return new CLGT.HandReq();
-// 			}
-// 			else if (protoName == "CLGT.KeepAliveAck") {
-// 				return new CLGT.KeepAliveAck();
-// 			}
-// 			else if (protoName == "CLGT.LoginAck") {
-// 				return new CLGT.LoginAck();
-// 			}
-// 			else if (protoName == "CLGT.DisconnectNtf") {
-// 				return new CLGT.DisconnectNtf();
-// 			}
-// 			else if (protoName == "CLGT.AccessServiceAck") {
-// 				return new CLGT.AccessServiceAck();
-// 			}
-
-			return null;
+			var lst = protoName.Split('.');
+			DynamicProtoMessage ret = new DynamicProtoMessage();
+			ret.Create(lst[0] + ".proto", protoName);
+			return ret;
 		}
 	}
 
@@ -82,18 +72,30 @@ namespace Hotfix.Common
 
 			AppController.ins.net.RegisterMsgHandler(OnMsg_);
 
-// 			CLGT.HandReq msg = new CLGT.HandReq();
-// 			msg.Platform = CLGT.HandReq.Types.PlatformType.Windows;
-// 			msg.Product = 1;
-// 			msg.Version = 1;
-// 			msg.Device = AppController.ins.conf.GetDeviceID();
-// 			msg.Channel = 1;
-// 			msg.Language = "ZH-CN";
-// 			msg.Country = "CN";
-// 			AppController.ins.net.SendPb2(msg.GetType().Name, msg, sock_);
+			// 			DynamicProtoMessage msg_proto = new DynamicProtoMessage();
+			// 			msg_proto.Create("CLGT.proto", "CLGT.HandReq");
+			// 
+ 			CLGT.HandReq msg = new CLGT.HandReq();
+
+			msg.platform = (int) 0;
+			msg.product = 1;
+			msg.version = 1;
+			msg.device = AppController.ins.conf.GetDeviceID();
+			msg.channel = 1;
+			msg.language = "ZH-CN";
+			msg.country = "CN";
+			MemoryStream stm = new MemoryStream(0xFFFF);
+			Serializer.Serialize(stm, msg);
+
+			Debug.Log("Update");
+
+// 			string json = LitJson.JsonMapper.ToJson(msg); //"{\"channel\":1,\"country\":\"CN\",\"device\":\"asdfagiio3aksdf\",\"platform\":1,\"version\":10}";//
+// 			msg_proto.FromJson(json);
+// 			
+//  			AppController.ins.net.SendPb2(msg_proto.msgName, msg_proto, sock_);
 		}
 
-		void HandleMessage_(string protoName, Google.Protobuf.IMessage pb)
+		void HandleMessage_(string protoName, DynamicProtoMessage pb)
 		{
 			if (protoName == "CLGT.HandAck") {
 // 				var pbthis = (CLGT.HandAck)(pb);
@@ -124,9 +126,9 @@ namespace Hotfix.Common
 			//不是我这个socket的消失就忽略
 			if (sock_ != sender) return;
 
-			var proto = ProtoMessageCreator.CreateMessage(evt.strCmd);
+			var proto = ProtoMessageCreator.CreateMessage(evt.strCmd, evt.payload);
 			if (proto == null) return;
-			HandleMessage_(evt.strCmd, proto);
+			//HandleMessage_(evt.strCmd, proto);
 		}
 
 		public void Stop()
@@ -218,21 +220,21 @@ namespace Hotfix.Common
 			state_ = st;
 		}
 
-		void HandleMessage_(string protoName, Google.Protobuf.IMessage pb)
+		void HandleMessage_(string protoName, DynamicProtoMessage pb)
 		{
 			//ping计时,统计服务器延时
-			if (protoName == "CLGT.KeepAliveAck") {
-				pingTimeCost += pingTimeCounter.Elapse();
-				pingTimeCounter.Restart();
-				pingCount++;
-			}
-			else if (protoName == "CLGT.DisconnectNtf") {
+// 			if (protoName == "CLGT.KeepAliveAck") {
+// 				pingTimeCost += pingTimeCounter.Elapse();
+// 				pingTimeCounter.Restart();
+// 				pingCount++;
+// 			}
+// 			else if (protoName == "CLGT.DisconnectNtf") {
 // 				var pbthis = (CLGT.DisconnectNtf)(pb);
 // 				errCode = pbthis.Code;
 // 				SetState(EnState.Disconnected);
 // 				Result?.Invoke(this, (int)state_);
-			}
-			else if (protoName == "CLGT.AccessServiceAck") {
+// 			}
+// 			else if (protoName == "CLGT.AccessServiceAck") {
 // 				var pbthis = (CLGT.AccessServiceAck)(pb);
 // 				errCode = pbthis.Errcode;
 // 				string gameData = pbthis.GameData;
@@ -244,8 +246,8 @@ namespace Hotfix.Common
 // 					SetState(EnState.AcquireServiceFailed);
 // 					Result?.Invoke(this, (int)state_);
 // 				}
-			}
-			else if (protoName == gameName_ + ".EnterRoomAck") {
+// 			}
+// 			else if (protoName == gameName_ + ".EnterRoomAck") {
 // 				var pbthis = (CLSLWH.EnterRoomAck)(pb);
 // 				if (pbthis.Errcode == 0) {
 // 					SetState(EnState.Gaming);
@@ -255,17 +257,17 @@ namespace Hotfix.Common
 // 					SetState(EnState.EnterRoomFailed);
 // 					Result?.Invoke(this, (int)state_);
 // 				}
-			}
-			else if (protoName == gameName_ + ".ExitRoomAck") {
-				
-			}
+// 			}
+// 			else if (protoName == gameName_ + ".ExitRoomAck") {
+// 				
+// 			}
 		}
 
 		void OnMsg_(object sender, NetEventArgs evt)
 		{
-			var proto = ProtoMessageCreator.CreateMessage(evt.strCmd);
+			var proto = ProtoMessageCreator.CreateMessage(evt.strCmd, evt.payload);
 			if (proto == null) return;
-			HandleMessage_(evt.strCmd, proto);
+			//HandleMessage_(evt.strCmd, proto);
 		}
 
 		void AquireService_()

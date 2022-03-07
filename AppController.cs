@@ -1,10 +1,13 @@
 ﻿using AssemblyCommon;
 using Hotfix.Model;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Hotfix.Common
 {
@@ -41,21 +44,27 @@ namespace Hotfix.Common
 
 		public void Start()
 		{
+			this.StartCor(DoStart_(), false);
+		}
+
+		IEnumerator DoStart_()
+		{
 			conf.Start();
-			net.Start(conf.hosts, conf.timeOut);
+			yield return net.Start(conf.hosts, conf.timeOut);
 			SwitchGame(conf.defaultGame);
+			yield return 0;
 		}
 
 		public void Update()
 		{
-			Globals.net.Update();
+			net.Update();
 			if(currentApp != null) currentApp.Update();
 		}
 
 		public void Stop()
 		{
 			if (currentApp != null) currentApp.Stop();
-			Globals.net.Stop();
+			net.Stop();
 		}
 	}
 }
