@@ -7,7 +7,7 @@ namespace CLGT
 {
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class HandReq
+    public partial class HandReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int platform { get; set; }
@@ -147,7 +147,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class HandAck
+    public partial class HandAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -235,7 +235,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class DisconnectNtf
+    public partial class DisconnectNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int code { get; set; }
@@ -288,7 +288,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ItemInfo
+    public partial class ItemInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int item_id { get; set; }
@@ -356,7 +356,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class LoginReq
+    public partial class LoginReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int login_type { get; set; }
@@ -369,7 +369,7 @@ namespace CLGT
             if(login_type != 0)
             {
                 writer.WriteTag(8);
-                writer.WriteInt32(login_type);
+                writer.WriteDouble(login_type);
             }
             if(token != "")
             {
@@ -422,7 +422,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AdminLoginReq
+    public partial class AdminLoginReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -460,7 +460,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class LoginAck
+    public partial class LoginAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1033,7 +1033,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccessServiceReq
+    public partial class AccessServiceReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string server_name { get; set; } = "";
@@ -1101,7 +1101,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccessServiceAck
+    public partial class AccessServiceAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1154,7 +1154,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class KeepAliveReq
+    public partial class KeepAliveReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -1177,7 +1177,7 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class KeepAliveAck
+    public partial class KeepAliveAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }

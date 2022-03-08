@@ -50,7 +50,6 @@ namespace Hotfix.Common
 		IEnumerator DoStart_()
 		{
 			conf.Start();
-			yield return net.Start(conf.hosts, conf.timeOut);
 			SwitchGame(conf.defaultGame);
 			yield return 0;
 		}

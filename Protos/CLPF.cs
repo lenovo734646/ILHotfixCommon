@@ -7,7 +7,7 @@ namespace CLPF
 {
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class LogoutReq
+    public partial class LogoutReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -30,7 +30,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class LogoutAck
+    public partial class LogoutAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -68,7 +68,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ResSyncNtf
+    public partial class ResSyncNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long diamond { get; set; }
@@ -136,7 +136,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ResChangedNtf
+    public partial class ResChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int res_type { get; set; }
@@ -234,7 +234,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ItemInfo
+    public partial class ItemInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int item_id { get; set; }
@@ -302,7 +302,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ItemGetListReq
+    public partial class ItemGetListReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -325,7 +325,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ItemGetListAck
+    public partial class ItemGetListAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.ItemInfo")]
         public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
@@ -373,7 +373,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ItemUseReq
+    public partial class ItemUseReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public ItemInfo item { get; set; }
@@ -449,7 +449,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ItemUseAck
+    public partial class ItemUseAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -487,7 +487,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ItemCountChangeNtf
+    public partial class ItemCountChangeNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.ItemInfo")]
         public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
@@ -535,7 +535,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ItemBuyReq
+    public partial class ItemBuyReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public ItemInfo item { get; set; }
@@ -581,7 +581,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ItemBuyAck
+    public partial class ItemBuyAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -642,7 +642,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShopBuyCountItem
+    public partial class ShopBuyCountItem : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int shop_id { get; set; }
@@ -695,7 +695,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeReq
+    public partial class RechargeReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int content_type { get; set; }
@@ -778,7 +778,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeAck
+    public partial class RechargeAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -846,7 +846,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeSuccessNtf
+    public partial class RechargeSuccessNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int content_type { get; set; }
@@ -924,7 +924,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeOrder
+    public partial class RechargeOrder : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string order_no { get; set; } = "";
@@ -1082,7 +1082,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeOrderQueryListReq
+    public partial class RechargeOrderQueryListReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -1105,7 +1105,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeOrderQueryListAck
+    public partial class RechargeOrderQueryListAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1168,7 +1168,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeOrderEvaluateReq
+    public partial class RechargeOrderEvaluateReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string order_no { get; set; } = "";
@@ -1236,7 +1236,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeOrderEvaluateAck
+    public partial class RechargeOrderEvaluateAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1274,7 +1274,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RankPlayerInfo
+    public partial class RankPlayerInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -1417,7 +1417,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GetRankListReq
+    public partial class GetRankListReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int rank_type { get; set; }
@@ -1455,7 +1455,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GetRankListAck
+    public partial class GetRankListAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1548,7 +1548,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class LevelExpChangedNtf
+    public partial class LevelExpChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long level_exp { get; set; }
@@ -1586,7 +1586,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class LevelUpNtf
+    public partial class LevelUpNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int level { get; set; }
@@ -1649,7 +1649,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class VipExpChangedNtf
+    public partial class VipExpChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int vip_level { get; set; }
@@ -1702,7 +1702,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ModifyNicknameReq
+    public partial class ModifyNicknameReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string new_nickname { get; set; } = "";
@@ -1740,7 +1740,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ModifyNicknameAck
+    public partial class ModifyNicknameAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1778,7 +1778,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ModifyHeadReq
+    public partial class ModifyHeadReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int new_head { get; set; }
@@ -1831,7 +1831,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ModifyHeadAck
+    public partial class ModifyHeadAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1869,7 +1869,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class QuerySignReq
+    public partial class QuerySignReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -1892,7 +1892,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class QuerySignAck
+    public partial class QuerySignAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int signed_count { get; set; }
@@ -1960,7 +1960,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ActSignReq
+    public partial class ActSignReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -1983,7 +1983,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ActSignAck
+    public partial class ActSignAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2046,7 +2046,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class QueryVipWheelReq
+    public partial class QueryVipWheelReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -2069,7 +2069,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class QueryVipWheelAck
+    public partial class QueryVipWheelAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int used_count { get; set; }
@@ -2122,7 +2122,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ActVipWheelReq
+    public partial class ActVipWheelReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -2145,7 +2145,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ActVipWheelAck
+    public partial class ActVipWheelAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2223,7 +2223,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailInfo
+    public partial class MailInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int id { get; set; }
@@ -2376,7 +2376,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailQueryAllIdsReq
+    public partial class MailQueryAllIdsReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -2399,7 +2399,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailQueryAllIdsAck
+    public partial class MailQueryAllIdsAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
         public global::System.Collections.Generic.List<int> array { get; private set; } = new global::System.Collections.Generic.List<int>();
@@ -2442,7 +2442,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailBatchQueryContentReq
+    public partial class MailBatchQueryContentReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
         public global::System.Collections.Generic.List<int> array { get; private set; } = new global::System.Collections.Generic.List<int>();
@@ -2500,7 +2500,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailBatchQueryContentAck
+    public partial class MailBatchQueryContentAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
         public global::System.Collections.Generic.List<int> invalid_array { get; private set; } = new global::System.Collections.Generic.List<int>();
@@ -2568,7 +2568,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailAccessReq
+    public partial class MailAccessReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int mail_id { get; set; }
@@ -2606,7 +2606,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailAccessAck
+    public partial class MailAccessAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public bool has_unread_mail { get; set; }
@@ -2644,7 +2644,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailFetchItemReq
+    public partial class MailFetchItemReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int mail_id { get; set; }
@@ -2682,7 +2682,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailFetchItemAck
+    public partial class MailFetchItemAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2760,7 +2760,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailRemoveReq
+    public partial class MailRemoveReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int remove_type { get; set; }
@@ -2818,7 +2818,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailRemoveAck
+    public partial class MailRemoveAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2891,7 +2891,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailArriveNtf
+    public partial class MailArriveNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public MailInfo mail_info { get; set; }
@@ -2937,7 +2937,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildInfo
+    public partial class GuildInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int id { get; set; }
@@ -3140,7 +3140,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildJoinItem
+    public partial class GuildJoinItem : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -3283,7 +3283,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildMember
+    public partial class GuildMember : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -3471,7 +3471,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedpacketMember
+    public partial class GuildRedpacketMember : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -3659,7 +3659,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagItem
+    public partial class GuildBagItem : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int item_id { get; set; }
@@ -3727,7 +3727,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagLog
+    public partial class GuildBagLog : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -3855,7 +3855,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildCreateReq
+    public partial class GuildCreateReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string name { get; set; } = "";
@@ -3953,7 +3953,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildCreateAck
+    public partial class GuildCreateAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -4014,7 +4014,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRecommendListReq
+    public partial class GuildQueryRecommendListReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -4037,7 +4037,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRecommendListAck
+    public partial class GuildQueryRecommendListAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.GuildInfo")]
         public global::System.Collections.Generic.List<GuildInfo> array { get; private set; } = new global::System.Collections.Generic.List<GuildInfo>();
@@ -4105,7 +4105,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildSearchReq
+    public partial class GuildSearchReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int guild_id { get; set; }
@@ -4143,7 +4143,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildSearchAck
+    public partial class GuildSearchAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -4219,7 +4219,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQuickJoinReq
+    public partial class GuildQuickJoinReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -4242,7 +4242,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQuickJoinAck
+    public partial class GuildQuickJoinAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -4303,7 +4303,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildJoinReq
+    public partial class GuildJoinReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int guild_id { get; set; }
@@ -4341,7 +4341,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildJoinAck
+    public partial class GuildJoinAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -4379,7 +4379,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryJoinListReq
+    public partial class GuildQueryJoinListReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -4402,7 +4402,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryJoinListAck
+    public partial class GuildQueryJoinListAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -4465,7 +4465,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildHandleJoinReq
+    public partial class GuildHandleJoinReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -4518,7 +4518,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildHandleJoinAck
+    public partial class GuildHandleJoinAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -4579,7 +4579,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildJoinResponseNtf
+    public partial class GuildJoinResponseNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int guild_id { get; set; }
@@ -4677,7 +4677,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildNewJoinRequestNtf
+    public partial class GuildNewJoinRequestNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -4730,7 +4730,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryInfoReq
+    public partial class GuildQueryInfoReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -4753,7 +4753,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryInfoAck
+    public partial class GuildQueryInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -4854,7 +4854,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildModifyInfoReq
+    public partial class GuildModifyInfoReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string name { get; set; } = "";
@@ -4967,7 +4967,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildModifyInfoAck
+    public partial class GuildModifyInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5005,7 +5005,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildModifyMemberJobReq
+    public partial class GuildModifyMemberJobReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -5058,7 +5058,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildModifyMemberJobAck
+    public partial class GuildModifyMemberJobAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5096,7 +5096,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildKickMemberReq
+    public partial class GuildKickMemberReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
         public global::System.Collections.Generic.List<int> id_array { get; private set; } = new global::System.Collections.Generic.List<int>();
@@ -5139,7 +5139,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildKickMemberAck
+    public partial class GuildKickMemberAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5177,7 +5177,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildKickMemberNtf
+    public partial class GuildKickMemberNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -5245,7 +5245,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildExitReq
+    public partial class GuildExitReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -5268,7 +5268,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildExitAck
+    public partial class GuildExitAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5306,7 +5306,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildUpgradeReq
+    public partial class GuildUpgradeReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -5329,7 +5329,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildUpgradeAck
+    public partial class GuildUpgradeAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5397,7 +5397,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryWelfareReq
+    public partial class GuildQueryWelfareReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -5420,7 +5420,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryWelfareAck
+    public partial class GuildQueryWelfareAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5503,7 +5503,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildFetchWelfareReq
+    public partial class GuildFetchWelfareReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -5526,7 +5526,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildFetchWelfareAck
+    public partial class GuildFetchWelfareAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5579,7 +5579,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketInfoReq
+    public partial class GuildQueryRedPacketInfoReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -5602,7 +5602,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketInfoAck
+    public partial class GuildQueryRedPacketInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5760,7 +5760,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketRankReq
+    public partial class GuildQueryRedPacketRankReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -5783,7 +5783,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketRankAck
+    public partial class GuildQueryRedPacketRankAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5846,7 +5846,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildActRedPacketReq
+    public partial class GuildActRedPacketReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -5869,7 +5869,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildActRedPacketAck
+    public partial class GuildActRedPacketAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -5922,7 +5922,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagQueryInfoReq
+    public partial class GuildBagQueryInfoReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -5945,7 +5945,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagQueryInfoAck
+    public partial class GuildBagQueryInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -6033,7 +6033,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagQueryLogReq
+    public partial class GuildBagQueryLogReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int page_index { get; set; }
@@ -6071,7 +6071,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagQueryLogAck
+    public partial class GuildBagQueryLogAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -6134,7 +6134,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagStoreItemReq
+    public partial class GuildBagStoreItemReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public ItemInfo item { get; set; }
@@ -6180,7 +6180,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagStoreItemAck
+    public partial class GuildBagStoreItemAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -6241,7 +6241,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagFetchItemReq
+    public partial class GuildBagFetchItemReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public ItemInfo item { get; set; }
@@ -6302,7 +6302,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagFetchItemAck
+    public partial class GuildBagFetchItemAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -6363,7 +6363,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagFetchItemNtf
+    public partial class GuildBagFetchItemNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public ItemInfo item { get; set; }
@@ -6409,7 +6409,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MessageBroadcastNtf
+    public partial class MessageBroadcastNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int type { get; set; }
@@ -6462,7 +6462,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskInfo
+    public partial class TaskInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int task_id { get; set; }
@@ -6515,7 +6515,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskQueryReq
+    public partial class TaskQueryReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -6538,7 +6538,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskQueryAck
+    public partial class TaskQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.TaskInfo")]
         public global::System.Collections.Generic.List<TaskInfo> task_info_array { get; private set; } = new global::System.Collections.Generic.List<TaskInfo>();
@@ -6656,7 +6656,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskFetchTaskRewardsReq
+    public partial class TaskFetchTaskRewardsReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int task_id { get; set; }
@@ -6694,7 +6694,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskFetchTaskRewardsAck
+    public partial class TaskFetchTaskRewardsAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -6757,7 +6757,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskFetchActiveRewardsReq
+    public partial class TaskFetchActiveRewardsReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int active_id { get; set; }
@@ -6795,7 +6795,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskFetchActiveRewardsAck
+    public partial class TaskFetchActiveRewardsAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -6858,7 +6858,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveData
+    public partial class TaskAchieveData : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int kind { get; set; }
@@ -6911,7 +6911,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveResetData
+    public partial class TaskAchieveResetData : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int kind { get; set; }
@@ -6964,7 +6964,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveQueryInfoReq
+    public partial class TaskAchieveQueryInfoReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -6987,7 +6987,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveQueryInfoAck
+    public partial class TaskAchieveQueryInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.TaskAchieveData")]
         public global::System.Collections.Generic.List<TaskAchieveData> data_array { get; private set; } = new global::System.Collections.Generic.List<TaskAchieveData>();
@@ -7080,7 +7080,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveFetchRewardReq
+    public partial class TaskAchieveFetchRewardReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int task_achieve_id { get; set; }
@@ -7118,7 +7118,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveFetchRewardAck
+    public partial class TaskAchieveFetchRewardAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -7181,7 +7181,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MonthCardFetchRewardReq
+    public partial class MonthCardFetchRewardReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -7204,7 +7204,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MonthCardFetchRewardAck
+    public partial class MonthCardFetchRewardAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -7267,7 +7267,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ReliefGoldFetchReq
+    public partial class ReliefGoldFetchReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -7290,7 +7290,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ReliefGoldFetchAck
+    public partial class ReliefGoldFetchAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -7343,7 +7343,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberQueryInfoReq
+    public partial class ShakeNumberQueryInfoReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -7366,7 +7366,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberQueryInfoAck
+    public partial class ShakeNumberQueryInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
         public global::System.Collections.Generic.List<int> shake_number_array { get; private set; } = new global::System.Collections.Generic.List<int>();
@@ -7439,7 +7439,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberActReq
+    public partial class ShakeNumberActReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -7462,7 +7462,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberActAck
+    public partial class ShakeNumberActAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -7515,7 +7515,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberFetchRewardReq
+    public partial class ShakeNumberFetchRewardReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -7538,7 +7538,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberFetchRewardAck
+    public partial class ShakeNumberFetchRewardAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -7591,7 +7591,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberFetchBoxRewardReq
+    public partial class ShakeNumberFetchBoxRewardReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int day { get; set; }
@@ -7629,7 +7629,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberFetchBoxRewardAck
+    public partial class ShakeNumberFetchBoxRewardAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -7692,7 +7692,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeDailyQueryReq
+    public partial class RechargeDailyQueryReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -7715,7 +7715,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeDailyQueryAck
+    public partial class RechargeDailyQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
         public global::System.Collections.Generic.List<int> finished_id_array { get; private set; } = new global::System.Collections.Generic.List<int>();
@@ -7758,7 +7758,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigQueryInfoReq
+    public partial class WelfarePigQueryInfoReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -7781,7 +7781,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigQueryInfoAck
+    public partial class WelfarePigQueryInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int welfare { get; set; }
@@ -7864,7 +7864,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigFetchMaterialReq
+    public partial class WelfarePigFetchMaterialReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -7887,7 +7887,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigFetchMaterialAck
+    public partial class WelfarePigFetchMaterialAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -7948,7 +7948,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigBrokenReq
+    public partial class WelfarePigBrokenReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -7971,83 +7971,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigBrokenAck
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long currency_delta { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(currency_delta != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(currency_delta);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            currency_delta = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            currency_delta = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigSearchReq
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigSearchAck
+    public partial class WelfarePigBrokenAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -8100,7 +8024,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class InvestGunQueryInfoReq
+    public partial class WelfarePigSearchReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -8123,7 +8047,83 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class InvestGunQueryInfoAck
+    public partial class WelfarePigSearchAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public long currency_delta { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(currency_delta != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt64(currency_delta);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            currency_delta = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            currency_delta = reader.ReadInt64();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class InvestGunQueryInfoReq : AssemblyCommon.IProtoMessage
+    {
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class InvestGunQueryInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int max_recharge_id { get; set; }
@@ -8196,7 +8196,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class InvestGunFetchRewardReq
+    public partial class InvestGunFetchRewardReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int gun_value { get; set; }
@@ -8234,7 +8234,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class InvestGunFetchRewardAck
+    public partial class InvestGunFetchRewardAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -8297,7 +8297,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class InvestCostQueryInfoReq
+    public partial class InvestCostQueryInfoReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -8320,7 +8320,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class InvestCostQueryInfoAck
+    public partial class InvestCostQueryInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public bool is_recharged { get; set; }
@@ -8393,7 +8393,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class InvestCostFetchRewardReq
+    public partial class InvestCostFetchRewardReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int reward_id { get; set; }
@@ -8431,7 +8431,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class InvestCostFetchRewardAck
+    public partial class InvestCostFetchRewardAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -8494,7 +8494,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FirstPackageFetchReq
+    public partial class FirstPackageFetchReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -8517,7 +8517,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FirstPackageFetchAck
+    public partial class FirstPackageFetchAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -8580,7 +8580,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AnnouncementChangedNtf
+    public partial class AnnouncementChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int content_type { get; set; }
@@ -8618,7 +8618,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class VipFillUpCurrencyNtf
+    public partial class VipFillUpCurrencyNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long currency_delta { get; set; }
@@ -8656,7 +8656,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsExchangeLog
+    public partial class RealGoodsExchangeLog : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int goods_id { get; set; }
@@ -8799,7 +8799,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsQueryAddressReq
+    public partial class RealGoodsQueryAddressReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -8822,7 +8822,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsQueryAddressAck
+    public partial class RealGoodsQueryAddressAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -8905,7 +8905,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsCreateOrderReq
+    public partial class RealGoodsCreateOrderReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int goods_id { get; set; }
@@ -8988,7 +8988,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsCreateOrderAck
+    public partial class RealGoodsCreateOrderAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -9026,7 +9026,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsQueryExchangeLogReq
+    public partial class RealGoodsQueryExchangeLogReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -9049,7 +9049,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsQueryExchangeLogAck
+    public partial class RealGoodsQueryExchangeLogAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.RealGoodsExchangeLog")]
         public global::System.Collections.Generic.List<RealGoodsExchangeLog> log_array { get; private set; } = new global::System.Collections.Generic.List<RealGoodsExchangeLog>();
@@ -9097,7 +9097,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuideDataQueryReq
+    public partial class GuideDataQueryReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -9120,7 +9120,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuideDataQueryAck
+    public partial class GuideDataQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
         public global::System.Collections.Generic.List<int> flag_array { get; private set; } = new global::System.Collections.Generic.List<int>();
@@ -9163,7 +9163,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuideDataActRpt
+    public partial class GuideDataActRpt : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int flag { get; set; }
@@ -9201,7 +9201,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ClientConfigPublishNtf
+    public partial class ClientConfigPublishNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string md5 { get; set; } = "";
@@ -9239,7 +9239,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class SubGamesOnlineCountInfo
+    public partial class SubGamesOnlineCountInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string service_name { get; set; } = "";
@@ -9292,7 +9292,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class SubGamesOnlineCountReq
+    public partial class SubGamesOnlineCountReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -9315,7 +9315,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class SubGamesOnlineCountAck
+    public partial class SubGamesOnlineCountAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.SubGamesOnlineCountInfo")]
         public global::System.Collections.Generic.List<SubGamesOnlineCountInfo> array { get; private set; } = new global::System.Collections.Generic.List<SubGamesOnlineCountInfo>();
@@ -9363,7 +9363,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CdkeyFetchRewardReq
+    public partial class CdkeyFetchRewardReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string code { get; set; } = "";
@@ -9401,7 +9401,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CdkeyFetchRewardAck
+    public partial class CdkeyFetchRewardAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -9464,7 +9464,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountBindStateReq
+    public partial class AccountBindStateReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -9487,7 +9487,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountBindStateAck
+    public partial class AccountBindStateAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -9545,7 +9545,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneBindReq
+    public partial class AccountPhoneBindReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string phone { get; set; } = "";
@@ -9658,7 +9658,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneBindAck
+    public partial class AccountPhoneBindAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -9696,7 +9696,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneChange1Req
+    public partial class AccountPhoneChange1Req : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string phone { get; set; } = "";
@@ -9794,7 +9794,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneChange1Ack
+    public partial class AccountPhoneChange1Ack : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -9832,7 +9832,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneChange2Req
+    public partial class AccountPhoneChange2Req : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string new_phone { get; set; } = "";
@@ -9930,7 +9930,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneChange2Ack
+    public partial class AccountPhoneChange2Ack : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -9968,7 +9968,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountUniformBindReq
+    public partial class AccountUniformBindReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string phone { get; set; } = "";
@@ -10096,7 +10096,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountUniformBindAck
+    public partial class AccountUniformBindAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -10134,7 +10134,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountUniformUnbindReq
+    public partial class AccountUniformUnbindReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string phone { get; set; } = "";
@@ -10247,7 +10247,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountUniformUnbindAck
+    public partial class AccountUniformUnbindAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -10285,7 +10285,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PlayerNicknameQueryReq
+    public partial class PlayerNicknameQueryReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -10323,7 +10323,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PlayerNicknameQueryAck
+    public partial class PlayerNicknameQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -10376,7 +10376,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankPasswordInitReq
+    public partial class BankPasswordInitReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string password { get; set; } = "";
@@ -10414,7 +10414,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankPasswordInitAck
+    public partial class BankPasswordInitAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -10452,7 +10452,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankPasswordVerifyReq
+    public partial class BankPasswordVerifyReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string password { get; set; } = "";
@@ -10490,7 +10490,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankPasswordVerifyAck
+    public partial class BankPasswordVerifyAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -10528,7 +10528,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankPasswordModifyReq
+    public partial class BankPasswordModifyReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string origin_password { get; set; } = "";
@@ -10581,7 +10581,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankPasswordModifyAck
+    public partial class BankPasswordModifyAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -10619,7 +10619,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankPasswordResetReq
+    public partial class BankPasswordResetReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string phone { get; set; } = "";
@@ -10732,7 +10732,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankPasswordResetAck
+    public partial class BankPasswordResetAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -10770,7 +10770,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemQueryReq
+    public partial class BankItemQueryReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -10793,7 +10793,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemQueryAck
+    public partial class BankItemQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -10856,7 +10856,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemStoreReq
+    public partial class BankItemStoreReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public ItemInfo item { get; set; }
@@ -10902,7 +10902,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemStoreAck
+    public partial class BankItemStoreAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -10940,7 +10940,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemFetchReq
+    public partial class BankItemFetchReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public ItemInfo item { get; set; }
@@ -10986,7 +10986,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemFetchAck
+    public partial class BankItemFetchAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -11024,7 +11024,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemSendReq
+    public partial class BankItemSendReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -11085,7 +11085,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemSendAck
+    public partial class BankItemSendAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -11123,7 +11123,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemLogInfo
+    public partial class BankItemLogInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int log_type { get; set; }
@@ -11244,7 +11244,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemLogQueryReq
+    public partial class BankItemLogQueryReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -11267,7 +11267,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemLogQueryAck
+    public partial class BankItemLogQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -11330,7 +11330,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemLogDetailQueryReq
+    public partial class BankItemLogDetailQueryReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int log_type { get; set; }
@@ -11428,7 +11428,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemLogDetailQueryAck
+    public partial class BankItemLogDetailQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -11491,7 +11491,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class LastGameQueryReq
+    public partial class LastGameQueryReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -11514,7 +11514,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class LastGameQueryAck
+    public partial class LastGameQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -11582,7 +11582,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RankRewardFetchReq
+    public partial class RankRewardFetchReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int rank_type { get; set; }
@@ -11620,7 +11620,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RankRewardFetchAck
+    public partial class RankRewardFetchAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -11683,7 +11683,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutBankCard
+    public partial class CashOutBankCard : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string bank_card_id { get; set; } = "";
@@ -11751,7 +11751,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutBindBankCardReq
+    public partial class CashOutBindBankCardReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public CashOutBankCard bank_card { get; set; }
@@ -11797,7 +11797,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutBindBankCardAck
+    public partial class CashOutBindBankCardAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -11835,7 +11835,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutQueryBankCardReq
+    public partial class CashOutQueryBankCardReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -11858,7 +11858,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutQueryBankCardAck
+    public partial class CashOutQueryBankCardAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -11919,7 +11919,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutCreateOrderReq
+    public partial class CashOutCreateOrderReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long item_count { get; set; }
@@ -11972,7 +11972,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutCreateOrderAck
+    public partial class CashOutCreateOrderAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -12010,7 +12010,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutLog
+    public partial class CashOutLog : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long item_count { get; set; }
@@ -12131,7 +12131,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutLogQueryReq
+    public partial class CashOutLogQueryReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -12154,7 +12154,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutLogQueryAck
+    public partial class CashOutLogQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.CashOutLog")]
         public global::System.Collections.Generic.List<CashOutLog> log_array { get; private set; } = new global::System.Collections.Generic.List<CashOutLog>();
@@ -12202,7 +12202,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class DdzMatchStartingNtf
+    public partial class DdzMatchStartingNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int config_id { get; set; }
@@ -12255,7 +12255,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MagicTradeInReq
+    public partial class MagicTradeInReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public ItemInfo item { get; set; }
@@ -12316,7 +12316,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MagicTradeInAck
+    public partial class MagicTradeInAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -12369,7 +12369,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MagicTradeOutReq
+    public partial class MagicTradeOutReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long item_count { get; set; }
@@ -12407,7 +12407,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MagicTradeOutAck
+    public partial class MagicTradeOutAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -12460,7 +12460,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WarheadExchangeReq
+    public partial class WarheadExchangeReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public ItemInfo item { get; set; }
@@ -12521,7 +12521,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WarheadExchangeAck
+    public partial class WarheadExchangeAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -12582,7 +12582,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class HeadUrlQueryReq
+    public partial class HeadUrlQueryReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int head_id { get; set; }
@@ -12620,7 +12620,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class HeadUrlQueryAck
+    public partial class HeadUrlQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -12673,7 +12673,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ModifyGenderReq
+    public partial class ModifyGenderReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int new_gender { get; set; }
@@ -12711,7 +12711,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ModifyGenderAck
+    public partial class ModifyGenderAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -12749,7 +12749,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildPacketData
+    public partial class GuildPacketData : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long total_amount { get; set; }
@@ -12862,7 +12862,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketInfo2Req
+    public partial class GuildQueryRedPacketInfo2Req : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -12885,7 +12885,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketInfo2Ack
+    public partial class GuildQueryRedPacketInfo2Ack : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -12991,7 +12991,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedPacket2CreateReq
+    public partial class GuildRedPacket2CreateReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long total_amount { get; set; }
@@ -13059,7 +13059,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedPacket2CreateAck
+    public partial class GuildRedPacket2CreateAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13097,7 +13097,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedPacket2GrabReq
+    public partial class GuildRedPacket2GrabReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -13120,7 +13120,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedPacket2GrabAck
+    public partial class GuildRedPacket2GrabAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13173,7 +13173,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryMembersReq
+    public partial class GuildQueryMembersReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int page_index { get; set; }
@@ -13211,7 +13211,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryMembersAck
+    public partial class GuildQueryMembersAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13289,7 +13289,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildMemberQueryReq
+    public partial class GuildMemberQueryReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -13327,7 +13327,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildMemberQueryAck
+    public partial class GuildMemberQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13388,7 +13388,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildSearch2Req
+    public partial class GuildSearch2Req : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int president_id { get; set; }
@@ -13426,7 +13426,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildSearch2Ack
+    public partial class GuildSearch2Ack : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13502,7 +13502,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailSendReq
+    public partial class MailSendReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int receiver_id { get; set; }
@@ -13570,7 +13570,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailSendAck
+    public partial class MailSendAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13608,7 +13608,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WeekSignStateQueryReq
+    public partial class WeekSignStateQueryReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -13631,7 +13631,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WeekSignStateQueryAck
+    public partial class WeekSignStateQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13699,7 +13699,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WeekSignActReq
+    public partial class WeekSignActReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -13722,7 +13722,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WeekSignActAck
+    public partial class WeekSignActAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13798,7 +13798,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackStateQueryReq
+    public partial class FeedbackStateQueryReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -13821,7 +13821,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackStateQueryAck
+    public partial class FeedbackStateQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13889,7 +13889,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackSubmitReq
+    public partial class FeedbackSubmitReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string content { get; set; } = "";
@@ -13927,7 +13927,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackSubmitAck
+    public partial class FeedbackSubmitAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -13995,7 +13995,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackItem
+    public partial class FeedbackItem : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int id { get; set; }
@@ -14108,7 +14108,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackListQueryReq
+    public partial class FeedbackListQueryReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int page_index { get; set; }
@@ -14161,7 +14161,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackListQueryAck
+    public partial class FeedbackListQueryAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -14224,7 +14224,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackReadReq
+    public partial class FeedbackReadReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int id { get; set; }
@@ -14262,7 +14262,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackReadAck
+    public partial class FeedbackReadAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -14300,7 +14300,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackReplyNtf
+    public partial class FeedbackReplyNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public FeedbackItem item { get; set; }
@@ -14346,7 +14346,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AddOperationLogRpt
+    public partial class AddOperationLogRpt : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string operation_id { get; set; } = "";
@@ -14444,7 +14444,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeAgentComplainReq
+    public partial class RechargeAgentComplainReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string agent_info { get; set; } = "";
@@ -14497,7 +14497,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeAgentComplainAck
+    public partial class RechargeAgentComplainAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }

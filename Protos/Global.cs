@@ -7,7 +7,7 @@ namespace Global
 {
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class TableConfigChangedNtf
+    public partial class TableConfigChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string oss_key { get; set; } = "";
@@ -45,7 +45,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class DBConfigChangedNtf
+    public partial class DBConfigChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string table_name { get; set; } = "";
@@ -98,7 +98,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FlowControlConfigChangedNtf
+    public partial class FlowControlConfigChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string config_string { get; set; } = "";
@@ -136,7 +136,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class StopRunningNtf
+    public partial class StopRunningNtf : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -159,7 +159,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class StartInstanceReq
+    public partial class StartInstanceReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string demo_url { get; set; } = "";
@@ -272,7 +272,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class StartInstanceAck
+    public partial class StartInstanceAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -340,7 +340,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailSendReq
+    public partial class MailSendReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int send_type { get; set; }
@@ -483,7 +483,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class MailSendAck
+    public partial class MailSendAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -521,7 +521,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AnnouncementChangedNtf
+    public partial class AnnouncementChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int zone_id { get; set; }
@@ -574,7 +574,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BlockAccountAddReq
+    public partial class BlockAccountAddReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -672,7 +672,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BlockAccountAddAck
+    public partial class BlockAccountAddAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -710,7 +710,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BlockAccountRemoveReq
+    public partial class BlockAccountRemoveReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -778,7 +778,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BlockAccountRemoveAck
+    public partial class BlockAccountRemoveAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -816,7 +816,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PayGenerateOrderReq
+    public partial class PayGenerateOrderReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -944,7 +944,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PayGenerateOrderAck
+    public partial class PayGenerateOrderAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1027,7 +1027,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PayOrderFinishReq
+    public partial class PayOrderFinishReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string order_no { get; set; } = "";
@@ -1080,7 +1080,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PayOrderFinishAck
+    public partial class PayOrderFinishAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1118,7 +1118,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WxUserQueryInfoReq
+    public partial class WxUserQueryInfoReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string open_id { get; set; } = "";
@@ -1156,7 +1156,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class WxUserQueryInfoAck
+    public partial class WxUserQueryInfoAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1239,7 +1239,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class UserGameDifficultySetReq
+    public partial class UserGameDifficultySetReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -1382,7 +1382,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class UserGameDifficultySetAck
+    public partial class UserGameDifficultySetAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1420,7 +1420,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ClientConfigPublishNtf
+    public partial class ClientConfigPublishNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string md5 { get; set; } = "";
@@ -1458,7 +1458,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ZoneConfigOpenStateChangedNtf
+    public partial class ZoneConfigOpenStateChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int is_open { get; set; }
@@ -1511,7 +1511,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ZoneConfigVersionUpdateChangedNtf
+    public partial class ZoneConfigVersionUpdateChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string config_value { get; set; } = "";
@@ -1549,7 +1549,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ZoneConfigInfoChangedNtf
+    public partial class ZoneConfigInfoChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int info_type { get; set; }
@@ -1617,7 +1617,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildDismissReq
+    public partial class GuildDismissReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int guild_id { get; set; }
@@ -1655,7 +1655,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildDismissAck
+    public partial class GuildDismissAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1693,7 +1693,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PhoneSmsCodeCheckReq
+    public partial class PhoneSmsCodeCheckReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string phone { get; set; } = "";
@@ -1791,7 +1791,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PhoneSmsCodeCheckAck
+    public partial class PhoneSmsCodeCheckAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1829,7 +1829,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildSetDisplayLevelNtf
+    public partial class GuildSetDisplayLevelNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int guild_id { get; set; }
@@ -1882,7 +1882,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class UserBusinessmanSetReq
+    public partial class UserBusinessmanSetReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -1935,7 +1935,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class UserBusinessmanSetAck
+    public partial class UserBusinessmanSetAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1973,7 +1973,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BroadcastMessageAddReq
+    public partial class BroadcastMessageAddReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string content { get; set; } = "";
@@ -2056,7 +2056,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BroadcastMessageAddAck
+    public partial class BroadcastMessageAddAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2094,7 +2094,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BroadcastMessageRemoveReq
+    public partial class BroadcastMessageRemoveReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int id { get; set; }
@@ -2147,7 +2147,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BroadcastMessageRemoveAck
+    public partial class BroadcastMessageRemoveAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2185,7 +2185,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class UserAddVipExpReq
+    public partial class UserAddVipExpReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -2238,7 +2238,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class UserAddVipExpAck
+    public partial class UserAddVipExpAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2276,7 +2276,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountBindPhoneReq
+    public partial class AccountBindPhoneReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -2344,7 +2344,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountBindPhoneAck
+    public partial class AccountBindPhoneAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2382,7 +2382,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountResetBankPasswordReq
+    public partial class AccountResetBankPasswordReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -2435,7 +2435,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountResetBankPasswordAck
+    public partial class AccountResetBankPasswordAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2473,7 +2473,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountKickoffReq
+    public partial class AccountKickoffReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -2511,7 +2511,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountKickoffAck
+    public partial class AccountKickoffAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -2549,7 +2549,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RoomWaterLineAddReq
+    public partial class RoomWaterLineAddReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string server_name { get; set; } = "";
@@ -2632,7 +2632,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RoomWaterLineAddAck
+    public partial class RoomWaterLineAddAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2670,7 +2670,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PlayerResourceAddReq
+    public partial class PlayerResourceAddReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -2783,7 +2783,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PlayerResourceAddAck
+    public partial class PlayerResourceAddAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2836,7 +2836,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PlayerNicknameModifyReq
+    public partial class PlayerNicknameModifyReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -2889,7 +2889,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PlayerNicknameModifyAck
+    public partial class PlayerNicknameModifyAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -2927,7 +2927,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PlayerNicknameModifyCountResetReq
+    public partial class PlayerNicknameModifyCountResetReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int user_id { get; set; }
@@ -2965,7 +2965,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class PlayerNicknameModifyCountResetAck
+    public partial class PlayerNicknameModifyCountResetAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -3003,7 +3003,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemSendReq
+    public partial class BankItemSendReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int source_user_id { get; set; }
@@ -3101,7 +3101,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class BankItemSendAck
+    public partial class BankItemSendAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -3139,7 +3139,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class QueryConsoleLogReq
+    public partial class QueryConsoleLogReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long cursor_id { get; set; }
@@ -3207,7 +3207,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ConsoleLogData
+    public partial class ConsoleLogData : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public long cursor_id { get; set; }
@@ -3260,7 +3260,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class QueryConsoleLogAck
+    public partial class QueryConsoleLogAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -3323,7 +3323,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackReplyReq
+    public partial class FeedbackReplyReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int id { get; set; }
@@ -3376,7 +3376,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class FeedbackReplyAck
+    public partial class FeedbackReplyAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -3414,7 +3414,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class QueryRegionByIpReq
+    public partial class QueryRegionByIpReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public string ip { get; set; } = "";
@@ -3452,7 +3452,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class QueryRegionByIpAck
+    public partial class QueryRegionByIpAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -3505,7 +3505,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RegisterAccountReq
+    public partial class RegisterAccountReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int login_type { get; set; }
@@ -3633,7 +3633,7 @@ namespace Global
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RegisterAccountAck
+    public partial class RegisterAccountAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }

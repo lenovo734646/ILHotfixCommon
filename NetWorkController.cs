@@ -32,9 +32,12 @@ namespace Hotfix.Common
 	{
 		public byte[] content;
 
-		public void SetProtoMessage(byte[] proto)
+		public void SetProtoMessage(IProtoMessage proto)
 		{
-			content = proto;
+			MemoryStream memstm = new MemoryStream();
+			Google.Protobuf.CodedOutputStream stm = new Google.Protobuf.CodedOutputStream(memstm);
+			proto.Encode(stm);
+			content = memstm.ToArray();
 		}
 
 	}
@@ -111,7 +114,11 @@ namespace Hotfix.Common
 			encrypted = controlFlag & 0x3F;
 			controlFlag = controlFlag >> 6;
 			if (encrypted != 0) {
-				rc4Algorithm(randomKey_, stm.buffer(), stm.reader());
+				if(randomKey_ == null) {
+					throw new Exception("randomKey_ == null while encrypted != 0");
+				}
+				else
+					rc4Algorithm(randomKey_, stm.buffer(), stm.reader());
 			}
 			protoName = stm.ReadString(false);
 			content = stm.ReadArray(0);
@@ -119,7 +126,7 @@ namespace Hotfix.Common
 		public void Write(BinaryStream stm)
 		{
 			stm.SetCurentWrite(4);
-			if (randomKey_.Length == 0) {
+			if (randomKey_ == null || randomKey_.Length == 0) {
 				encrypted = 0;
 			}
 			else {
@@ -169,12 +176,14 @@ namespace Hotfix.Common
 	public class NetWorkController
 	{
 		public event EventHandler<NetEventArgs> MsgHandler;
+		public Dictionary<Type, Action<IProtoMessage>> rpcHandler = new Dictionary<Type, Action<IProtoMessage>>();
 		public enum EnState
 		{
 			Init,
 			HandshakeSucc,
 			AllConnectionLost,
 		}
+
 		//数据发送使用同步方式,省事,实际应用中没有发现问题
 		public void SendJson(short subCmd, string json, MySocket sock = null)
 		{
@@ -195,26 +204,45 @@ namespace Hotfix.Common
 			sendStream_.WriteDataLengthHeader();
 			Globals.net.SendMessage(sendStream_, sock);
 		}
+		
+		
+		public IEnumerator Rpc(string protoName, IProtoMessage proto, Type callbackType)
+		{
+			IProtoMessage Result = null;
+			Action<IProtoMessage> callback = (msg)=>{
+				Result = msg;
+			};
+			
+			Rpc_(protoName, proto, callbackType, callback);
 
-		public void SendPb(short subCmd, DynamicProtoMessage proto, MySocket sock = null)
+			float time = Time.time;
+			while(Result == null && Time.time - time < 3.0f) {
+				yield return new WaitForSeconds(0.1f);
+			}
+
+			yield return Result;
+		}
+
+
+		public void SendPb(short subCmd, IProtoMessage proto, MySocket sock = null)
 		{
 			sendStream_.ClearUsedData();
 			
 			MsgPbForm msg = new MsgPbForm();
 			msg.subCmd = subCmd;
-			//msg.SetProtoMessage(proto);
+			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
 			Globals.net.SendMessage(sendStream_, sock);
 		}
 
-		public void SendPb2(string protoName, DynamicProtoMessage proto, MySocket sock)
+		public void SendPb2(string protoName, IProtoMessage proto, MySocket sock)
 		{
 			sendStream_.ClearUsedData();
 			
 			MsgPbFormStringHeader msg = new MsgPbFormStringHeader(sock.randomKey);
 			msg.protoName = protoName;
-			//msg.SetProtoMessage(proto);
+			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
 			Globals.net.SendMessage(sendStream_, sock);
@@ -252,23 +280,14 @@ namespace Hotfix.Common
 				session_ = null;
 			}
 		}
-
-		void SaveProto_(string text, string fileName)
-		{
-			Directory.CreateDirectory(Application.persistentDataPath + "/Protos");
-			string strP = Application.persistentDataPath + "/Protos/" + fileName;
-			var fs = File.Open(strP, FileMode.OpenOrCreate);
-			UTF8Encoding temp = new UTF8Encoding(true);
-			var arr = temp.GetBytes(text);
-			fs.Write(arr, 0, arr.Length);
-			fs.Close();
-		}
 	
 		public IEnumerator Start(Dictionary<string, int> hosts, float timeOut)
 		{
+			//注册protobuf类
 			ILRuntime_CLGT.Initlize();
 			ILRuntime_CLPF.Initlize();
 			ILRuntime_Global.Initlize();
+
 
 			Globals.net = new NetManager(ProtocolParser.PB_STRING_HEADER);
 			Globals.net.RegisterRawDataHandler(HandleRawData);
@@ -373,15 +392,38 @@ namespace Hotfix.Common
 				MsgPbFormStringHeader msg = new MsgPbFormStringHeader(sock.randomKey);
 				msg.Read(stm);
 
+
 				NetEventArgs evt = new NetEventArgs();
 				evt.strCmd = msg.protoName;
 				evt.payload = msg.content;
-				DispatchNetMsgEvent_(sock, evt);
+
+				var proto = ProtoMessageCreator.CreateMessage(evt.strCmd, evt.payload);
+				if (proto != null) {
+					if (rpcHandler.ContainsKey(proto.GetType())) {
+						var handler = rpcHandler[proto.GetType()];
+						handler(proto);
+					}
+					else {
+						DispatchNetMsgEvent_(sock, evt);
+					}
+				}
 			}
 			else {
 				Debug.LogWarning("Unknown protocol parser.");
 			}
 		}
+
+		public EnState state()
+		{
+			return state_;
+		}
+
+		void Rpc_(string protoName, IProtoMessage proto, Type callbackType, Action<IProtoMessage> callback)
+		{
+			rpcHandler.Add(callbackType, callback);
+			SendPb2(protoName, proto, null);
+		}
+
 		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
 		FLLU3dSession session_;
 		EnState state_ = EnState.Init;

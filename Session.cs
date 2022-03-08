@@ -12,17 +12,27 @@ using UnityEngine;
 
 namespace Hotfix.Common
 {
-	public class DynamicProtoMessage
-	{
-		public void Create(string a, string b) { }
-	}
 	public static class ProtoMessageCreator
 	{
-		public static object CreateMessage(string protoName, byte[] data)
+		public static IProtoMessage CreateMessage(string protoName, byte[] data)
 		{
-			var lst = protoName.Split('.');
-			DynamicProtoMessage ret = new DynamicProtoMessage();
-			ret.Create(lst[0] + ".proto", protoName);
+			IProtoMessage ret = null;
+			if (protoName == "CLGT.KeepAliveAck") {
+				ret = new CLGT.KeepAliveAck();
+			}
+			else if (protoName == "CLGT.DisconnectNtf") {
+				ret = new CLGT.DisconnectNtf();
+			}
+			else if (protoName == "CLGT.HandAck") {
+				ret = new CLGT.HandAck();
+			}
+			else if (protoName == "CLGT.LoginAck") {
+				ret = new CLGT.LoginAck();
+			}
+
+			if(ret != null) {
+				ret.Decode(new Google.Protobuf.CodedInputStream(data));
+			}
 			return ret;
 		}
 	}
@@ -72,9 +82,6 @@ namespace Hotfix.Common
 
 			AppController.ins.net.RegisterMsgHandler(OnMsg_);
 
-			// 			DynamicProtoMessage msg_proto = new DynamicProtoMessage();
-			// 			msg_proto.Create("CLGT.proto", "CLGT.HandReq");
-			// 
  			CLGT.HandReq msg = new CLGT.HandReq();
 
 			msg.platform = (int) 0;
@@ -84,40 +91,33 @@ namespace Hotfix.Common
 			msg.channel = 1;
 			msg.language = "ZH-CN";
 			msg.country = "CN";
-			MemoryStream stm = new MemoryStream(0xFFFF);
-			Serializer.Serialize(stm, msg);
 
-			Debug.Log("Update");
-
-// 			string json = LitJson.JsonMapper.ToJson(msg); //"{\"channel\":1,\"country\":\"CN\",\"device\":\"asdfagiio3aksdf\",\"platform\":1,\"version\":10}";//
-// 			msg_proto.FromJson(json);
-// 			
-//  			AppController.ins.net.SendPb2(msg_proto.msgName, msg_proto, sock_);
+  			AppController.ins.net.SendPb2("CLGT.HandReq", msg, sock_);
 		}
 
-		void HandleMessage_(string protoName, DynamicProtoMessage pb)
+		void HandleMessage_(string protoName, IProtoMessage pb)
 		{
 			if (protoName == "CLGT.HandAck") {
-// 				var pbthis = (CLGT.HandAck)(pb);
-// 				sock_.randomKey = pbthis.RandomKey.ToByteArray();
-// 
-// 				CLGT.LoginReq msg = new CLGT.LoginReq();
-// 				msg.Token = "";
-// 				msg.LoginType = CLGT.LoginReq.Types.LoginType.Guest;
-// 
-// 				AppController.ins.net.SendPb2(msg.GetType().Name, msg, sock_);
+				var pbthis = (CLGT.HandAck)(pb);
+				sock_.randomKey = pbthis.random_key;
+
+				CLGT.LoginReq msg = new CLGT.LoginReq();
+				msg.token = "";
+				msg.login_type = (int)CLGT.LoginReq.LoginType.Guest;
+
+				AppController.ins.net.SendPb2("CLGT.LoginReq", msg, sock_);
 			}
 			else if (protoName == "CLGT.LoginAck") {
 
-// 				var pbthis = (CLGT.LoginAck)(pb);
-// 				var self = AppController.ins.self.gamePlayer;
-// 				self.iid = pbthis.UserId;
-// 				self.nickName = pbthis.Nickname;
-// 
-// 				self.items[(int)ITEMID.GOLD] = pbthis.Currency;
-// 				self.items[(int)ITEMID.BANK_GOLD] = pbthis.BankCurrency;
-// 				state_ = State.Succ;
-// 				Result?.Invoke(this, (int)state_);
+				var pbthis = (CLGT.LoginAck)(pb);
+				var self = AppController.ins.self.gamePlayer;
+				self.iid = pbthis.user_id;
+				self.nickName = pbthis.nickname;
+
+				self.items[(int)ITEMID.GOLD] = pbthis.currency;
+				self.items[(int)ITEMID.BANK_GOLD] = pbthis.bank_currency;
+				state_ = State.Succ;
+				Result?.Invoke(this, (int)state_);
 			}
 		}
 
@@ -128,7 +128,7 @@ namespace Hotfix.Common
 
 			var proto = ProtoMessageCreator.CreateMessage(evt.strCmd, evt.payload);
 			if (proto == null) return;
-			//HandleMessage_(evt.strCmd, proto);
+			HandleMessage_(evt.strCmd, proto);
 		}
 
 		public void Stop()
@@ -167,6 +167,8 @@ namespace Hotfix.Common
 			AcquireServiceFailed,
 			//
 			EnterRoomFailed,
+
+			ExitRoomSucc,
 		}
 
 		public int errCode = 0;
@@ -181,8 +183,8 @@ namespace Hotfix.Common
 			if (pingTimer.Elapse() > 5.0f && state_ > EnState.PingBegin && state_ < EnState.PingEnd) {
 				pingTimer.Restart();
 				pingTimeCounter.Restart();
-// 				CLGT.KeepAliveReq msg = new CLGT.KeepAliveReq();
-// 				AppController.ins.net.SendPb2(msg.GetType().Name, msg, null);
+				CLGT.KeepAliveReq msg = new CLGT.KeepAliveReq();
+				AppController.ins.net.SendPb2(msg.GetType().Name, msg, null);
 			}
 		}
 
@@ -220,64 +222,41 @@ namespace Hotfix.Common
 			state_ = st;
 		}
 
-		void HandleMessage_(string protoName, DynamicProtoMessage pb)
+		void HandleMessage_(string protoName, IProtoMessage pb)
 		{
 			//ping计时,统计服务器延时
-// 			if (protoName == "CLGT.KeepAliveAck") {
-// 				pingTimeCost += pingTimeCounter.Elapse();
-// 				pingTimeCounter.Restart();
-// 				pingCount++;
-// 			}
-// 			else if (protoName == "CLGT.DisconnectNtf") {
-// 				var pbthis = (CLGT.DisconnectNtf)(pb);
-// 				errCode = pbthis.Code;
-// 				SetState(EnState.Disconnected);
-// 				Result?.Invoke(this, (int)state_);
-// 			}
-// 			else if (protoName == "CLGT.AccessServiceAck") {
-// 				var pbthis = (CLGT.AccessServiceAck)(pb);
-// 				errCode = pbthis.Errcode;
-// 				string gameData = pbthis.GameData;
-// 				if (errCode == 0) {
-// 					SetState(EnState.InLobby);
-// 					Result?.Invoke(this, (int)state_);
-// 				}
-// 				else {
-// 					SetState(EnState.AcquireServiceFailed);
-// 					Result?.Invoke(this, (int)state_);
-// 				}
-// 			}
-// 			else if (protoName == gameName_ + ".EnterRoomAck") {
-// 				var pbthis = (CLSLWH.EnterRoomAck)(pb);
-// 				if (pbthis.Errcode == 0) {
-// 					SetState(EnState.Gaming);
-// 					Result?.Invoke(this, (int)state_);
-// 				}
-// 				else {
-// 					SetState(EnState.EnterRoomFailed);
-// 					Result?.Invoke(this, (int)state_);
-// 				}
-// 			}
-// 			else if (protoName == gameName_ + ".ExitRoomAck") {
-// 				
-// 			}
+			if (protoName == "CLGT.KeepAliveAck") {
+				pingTimeCost += pingTimeCounter.Elapse();
+				pingTimeCounter.Restart();
+				pingCount++;
+			}
+			else if (protoName == "CLGT.DisconnectNtf") {
+				var pbthis = (CLGT.DisconnectNtf)(pb);
+				errCode = pbthis.code;
+				SetState(EnState.Disconnected);
+				Result?.Invoke(this, (int)state_);
+			}
+			else if (protoName == gameName_ + ".ExitRoomAck") {
+				SetState(EnState.ExitRoomSucc);
+				Result?.Invoke(this, (int)state_);
+			}
 		}
 
 		void OnMsg_(object sender, NetEventArgs evt)
 		{
 			var proto = ProtoMessageCreator.CreateMessage(evt.strCmd, evt.payload);
 			if (proto == null) return;
-			//HandleMessage_(evt.strCmd, proto);
+			HandleMessage_(evt.strCmd, proto);
 		}
 
 		void AquireService_()
 		{
 			SetState(EnState.AcquireService);
 
-// 			CLGT.AccessServiceReq msg = new CLGT.AccessServiceReq();
-// 			msg.ServerName = gameName_;
-// 			msg.Action = 1;
-// 			AppController.ins.net.SendPb2(msg.GetType().Name, msg, null);
+			CLGT.AccessServiceReq msg = new CLGT.AccessServiceReq();
+			msg.server_name = gameName_;
+			msg.action = 1;
+			AppController.ins.net.SendPb2("CLGT.AccessServiceReq", msg, null);
 		}
 
 		EnState state_;
