@@ -236,12 +236,12 @@ namespace Hotfix.Common
 			Globals.net.SendMessage(sendStream_, sock);
 		}
 
-		public void SendPb2(string protoName, IProtoMessage proto, MySocket sock)
+		public void SendPb2(IProtoMessage proto, MySocket sock)
 		{
 			sendStream_.ClearUsedData();
 			
 			MsgPbFormStringHeader msg = new MsgPbFormStringHeader(sock.randomKey);
-			msg.protoName = protoName;
+			msg.protoName = proto.GetType().FullName;
 			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 

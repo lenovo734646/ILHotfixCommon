@@ -92,7 +92,7 @@ namespace Hotfix.Common
 			msg.language = "ZH-CN";
 			msg.country = "CN";
 
-  			AppController.ins.net.SendPb2("CLGT.HandReq", msg, sock_);
+  			AppController.ins.net.SendPb2(msg, sock_);
 		}
 
 		void HandleMessage_(string protoName, IProtoMessage pb)
@@ -105,7 +105,7 @@ namespace Hotfix.Common
 				msg.token = "";
 				msg.login_type = (int)CLGT.LoginReq.LoginType.Guest;
 
-				AppController.ins.net.SendPb2("CLGT.LoginReq", msg, sock_);
+				AppController.ins.net.SendPb2(msg, sock_);
 			}
 			else if (protoName == "CLGT.LoginAck") {
 
@@ -184,7 +184,7 @@ namespace Hotfix.Common
 				pingTimer.Restart();
 				pingTimeCounter.Restart();
 				CLGT.KeepAliveReq msg = new CLGT.KeepAliveReq();
-				AppController.ins.net.SendPb2(msg.GetType().Name, msg, null);
+				AppController.ins.net.SendPb2(msg, null);
 			}
 		}
 
@@ -256,7 +256,7 @@ namespace Hotfix.Common
 			CLGT.AccessServiceReq msg = new CLGT.AccessServiceReq();
 			msg.server_name = gameName_;
 			msg.action = 1;
-			AppController.ins.net.SendPb2("CLGT.AccessServiceReq", msg, null);
+			AppController.ins.net.SendPb2(msg, null);
 		}
 
 		EnState state_;
