@@ -19,7 +19,7 @@ namespace Hotfix.Common
 		public ScriptType scriptType = ScriptType.CSharp;
 	}
 
-	public class Config
+	public partial class Config
 	{
 		public Dictionary<string, GameConfig> games = new Dictionary<string, GameConfig>();
 		public Dictionary<string, int> hosts = new Dictionary<string, int>();
@@ -56,8 +56,7 @@ namespace Hotfix.Common
 			return null;
 		}
 
-		public string defaultGame = "HuanleBY";
-
+		
 		public string GetDeviceID()
 		{
 			return "";

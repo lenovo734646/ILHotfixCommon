@@ -11,21 +11,18 @@ using UnityEngine;
 
 namespace Hotfix.Common
 {
-	public abstract class AppBase
+	public class AppBase : ControllerBase
 	{
-		public abstract void Start();
-		public abstract void Update();
-		public abstract void Stop();
 	}
 
 	//热更入口类
-	public class AppController
+	public class AppController : ControllerBase
 	{
 		public static AppController ins = null;
 		public Config conf = new Config();
 		public AppBase currentApp = null;
-		//进度指示器,由调用者提供
-		public IShowDownloadProgress ips;
+		//进度指示器,由宿主工程设置
+		public IShowDownloadProgress progressFromHost;
 		public NetWorkController net = new NetWorkController();
 		public SelfPlayer self = new SelfPlayer();
 		public AppController()
@@ -42,7 +39,7 @@ namespace Hotfix.Common
 			currentApp.Start();
 		}
 
-		public void Start()
+		public override void Start()
 		{
 			this.StartCor(DoStart_(), false);
 		}
@@ -54,13 +51,13 @@ namespace Hotfix.Common
 			yield return 0;
 		}
 
-		public void Update()
+		public override  void Update()
 		{
 			net.Update();
 			if(currentApp != null) currentApp.Update();
 		}
 
-		public void Stop()
+		public override void Stop()
 		{
 			if (currentApp != null) currentApp.Stop();
 			net.Stop();

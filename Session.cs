@@ -116,6 +116,7 @@ namespace Hotfix.Common
 
 				self.items[(int)ITEMID.GOLD] = pbthis.currency;
 				self.items[(int)ITEMID.BANK_GOLD] = pbthis.bank_currency;
+
 				state_ = State.Succ;
 				Result?.Invoke(this, (int)state_);
 			}

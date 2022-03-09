@@ -206,14 +206,15 @@ namespace Hotfix.Common
 		}
 		
 		
+		//做RPC调用,方便代码编写
 		public IEnumerator Rpc(string protoName, IProtoMessage proto, Type callbackType)
 		{
 			IProtoMessage Result = null;
 			Action<IProtoMessage> callback = (msg)=>{
 				Result = msg;
 			};
-			
-			Rpc_(protoName, proto, callbackType, callback);
+
+			Rpc(protoName, proto, callbackType, callback);
 
 			float time = Time.time;
 			while(Result == null && Time.time - time < 3.0f) {
@@ -223,6 +224,11 @@ namespace Hotfix.Common
 			yield return Result;
 		}
 
+		public void Rpc(string protoName, IProtoMessage proto, Type callbackType, Action<IProtoMessage> callback)
+		{
+			rpcHandler.Add(callbackType, callback);
+			SendPb2(protoName, proto, null);
+		}
 
 		public void SendPb(short subCmd, IProtoMessage proto, MySocket sock = null)
 		{
@@ -392,7 +398,6 @@ namespace Hotfix.Common
 				MsgPbFormStringHeader msg = new MsgPbFormStringHeader(sock.randomKey);
 				msg.Read(stm);
 
-
 				NetEventArgs evt = new NetEventArgs();
 				evt.strCmd = msg.protoName;
 				evt.payload = msg.content;
@@ -409,19 +414,13 @@ namespace Hotfix.Common
 				}
 			}
 			else {
-				Debug.LogWarning("Unknown protocol parser.");
+				throw new Exception("Unknown protocol parser.");
 			}
 		}
 
 		public EnState state()
 		{
 			return state_;
-		}
-
-		void Rpc_(string protoName, IProtoMessage proto, Type callbackType, Action<IProtoMessage> callback)
-		{
-			rpcHandler.Add(callbackType, callback);
-			SendPb2(protoName, proto, null);
 		}
 
 		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
