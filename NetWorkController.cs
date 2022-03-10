@@ -1,4 +1,5 @@
 ﻿using AssemblyCommon;
+using Hotfix.Lobby;
 using System;
 using System.Collections;
 using System.Collections.Generic;

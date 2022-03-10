@@ -19,7 +19,8 @@ namespace Hotfix.Common
 			FLLU3d,
 			YuanSan,
 		}
-
+		public const string HuanleBY = "HuanleBY";
+		public const string Lobby = "Lobby";
 		public string name;
 		public string folder;
 		public string entryClass;
@@ -38,8 +39,8 @@ namespace Hotfix.Common
 
 			{
 				GameConfig game = new GameConfig();
-				game.name = "HuanleBY";
-				game.folder = "HuanleBY";
+				game.name = GameConfig.HuanleBY;
+				game.folder = GameConfig.HuanleBY;
 				game.entryClass = "Hotfix.HuanleBY.MyApp";
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.YuanSan;
@@ -47,8 +48,8 @@ namespace Hotfix.Common
 			}
 			{
 				GameConfig game = new GameConfig();
-				game.name = "Lobby";
-				game.folder = "Lobby";
+				game.name = GameConfig.Lobby;
+				game.folder = GameConfig.Lobby;
 				game.entryClass = "Hotfix.Lobby.MyApp";
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
