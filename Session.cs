@@ -1,4 +1,5 @@
 ﻿using AssemblyCommon;
+using Hotfix.Lobby;
 using Hotfix.Model;
 using ProtoBuf;
 using System;
@@ -80,8 +81,6 @@ namespace Hotfix.Common
 
 			Result?.Invoke(this, (int)state_);
 
-			AppController.ins.net.RegisterMsgHandler(OnMsg_);
-
  			CLGT.HandReq msg = new CLGT.HandReq();
 
 			msg.platform = (int) 0;
@@ -92,50 +91,17 @@ namespace Hotfix.Common
 			msg.language = "ZH-CN";
 			msg.country = "CN";
 
-  			AppController.ins.net.SendPb2(msg, sock_);
-		}
-
-		void HandleMessage_(string protoName, IProtoMessage pb)
-		{
-			if (protoName == "CLGT.HandAck") {
+			AppController.ins.network.Rpc<CLGT.HandAck>(msg, (pb)=>{
 				var pbthis = (CLGT.HandAck)(pb);
 				sock_.randomKey = pbthis.random_key;
-
-				CLGT.LoginReq msg = new CLGT.LoginReq();
-				msg.token = "";
-				msg.login_type = (int)CLGT.LoginReq.LoginType.Guest;
-
-				AppController.ins.net.SendPb2(msg, sock_);
-			}
-			else if (protoName == "CLGT.LoginAck") {
-
-				var pbthis = (CLGT.LoginAck)(pb);
-				var self = AppController.ins.self.gamePlayer;
-				self.iid = pbthis.user_id;
-				self.nickName = pbthis.nickname;
-
-				self.items[(int)ITEMID.GOLD] = pbthis.currency;
-				self.items[(int)ITEMID.BANK_GOLD] = pbthis.bank_currency;
-
 				state_ = State.Succ;
 				Result?.Invoke(this, (int)state_);
-			}
-		}
-
-		void OnMsg_(object sender, NetEventArgs evt)
-		{
-			//不是我这个socket的消失就忽略
-			if (sock_ != sender) return;
-
-			var proto = ProtoMessageCreator.CreateMessage(evt.strCmd, evt.payload);
-			if (proto == null) return;
-			HandleMessage_(evt.strCmd, proto);
+			});
 		}
 
 		public void Stop()
 		{
 			Result = null;
-			AppController.ins.net.RemoveMsgHandler(OnMsg_);
 		}
 
 		MySocket sock_;
@@ -143,15 +109,17 @@ namespace Hotfix.Common
 		TimeCounter timeOut = new TimeCounter("");
 	}
 
-	//FLLU3d项目的游戏连接会话管理
-	public class FLLU3dSession
+	public class SessionBase : ControllerBase
 	{
 		public enum EnState
 		{
 			//
 			Initiation,
+			HandShake,
+			HandShakeSucc,
 			//获取服务阶段
 			AcquireService,
+			AcquireServiceSucc,
 			//
 			PingBegin,
 			//大厅中
@@ -162,49 +130,148 @@ namespace Hotfix.Common
 			Gaming,
 			//
 			PingEnd,
+			ExitRoomSucc,
+
 			//失去部分连接
 			Disconnected,
-			//
+			HandShakeFailed,
 			AcquireServiceFailed,
-			//
 			EnterRoomFailed,
-
-			ExitRoomSucc,
+			AuthorizeFailed,
 		}
 
-		public int errCode = 0;
 		public event EventHandler<int> Result;
-		public FLLU3dSession()
+		public SessionBase(string game)
+		{
+			gameName_ = game;
+		}
+
+		public void DispatchSessionEvent(int r)
+		{
+			Result.Invoke(this, r);
+		}
+
+		protected void SetState(EnState st)
+		{
+			state_ = st;
+			DispatchSessionEvent((int)state_);
+		}
+
+		protected EnState state_;
+		protected string gameName_ = "";
+	}
+
+	//FLLU3d项目的游戏连接会话管理
+	public class FLLU3dSession: SessionBase
+	{
+		public int errCode = 0;
+
+		public FLLU3dSession(string game):base(game)
 		{
 			SetState(EnState.Initiation);
 		}
 
-		public void Update()
+		public override void Update()
 		{
 			if (pingTimer.Elapse() > 5.0f && state_ > EnState.PingBegin && state_ < EnState.PingEnd) {
 				pingTimer.Restart();
 				pingTimeCounter.Restart();
+
 				CLGT.KeepAliveReq msg = new CLGT.KeepAliveReq();
-				AppController.ins.net.SendPb2(msg, null);
+				AppController.ins.network.Rpc<CLGT.KeepAliveAck>(msg, (ack)=> {
+					pingTimeCost += pingTimeCounter.Elapse();
+					pingTimeCounter.Restart();
+					pingCount++;
+				});
 			}
 		}
 
-		//进入游戏
-		public void EnterGame(string game)
+		IEnumerator DoStart()
 		{
-			gameName_ = game;
-			AquireService_();
+			SetState(EnState.HandShake);
+			NetWorkController.EnState st = AppController.ins.network.state();
+			if (st != NetWorkController.EnState.HandshakeSucc) {
+				//网络重置
+				Globals.net.Stop();
+				Globals.net.Start(AppController.ins.conf.timeOut, MySocket.ProtocolParser.FLLU3dProtocol);
+
+				TimeCounter tc = new TimeCounter("");
+				st = AppController.ins.network.state();
+				while (st != NetWorkController.EnState.HandshakeSucc && tc.Elapse() < AppController.ins.conf.timeOut) {
+					yield return new WaitForSeconds(0.1f);
+					st = AppController.ins.network.state();
+				}
+
+				if(st != NetWorkController.EnState.HandshakeSucc) {
+					SetState(EnState.HandShakeFailed);
+					yield break;
+				}
+			}
+
+			//这是开发人员犯错,抛出异常
+			if (AppController.ins.lastUseAccount == null) {
+				throw new Exception("AppController.ins.lastUseAccount == null,it must be settled before login.");
+			}
+
+			CLGT.LoginReq msg1 = new CLGT.LoginReq();
+
+			msg1.login_type = AppController.ins.lastUseAccount.loginType;
+			if (msg1.login_type == (int)CLGT.LoginReq.LoginType.Guest) {
+				msg1.token = AppController.ins.conf.GetDeviceID();
+			}
+			else if(msg1.login_type == (int)CLGT.LoginReq.LoginType.GameCenter) {
+				msg1.token = AppController.ins.lastUseAccount.accountName + "," + AppController.ins.lastUseAccount.psw;
+			}
+
+			var result1 = AppController.ins.network.Rpc<CLGT.LoginAck>(msg1);
+			yield return result1;
+			
+			if(result1.Current == null) {
+				SetState(EnState.AuthorizeFailed);
+				yield break;
+			}
+
+			var self = AppController.ins.self.gamePlayer;
+			self.iid = result1.Current.user_id;
+			self.nickName = result1.Current.nickname;
+
+			self.items[(int)ITEMID.GOLD] = result1.Current.currency;
+			self.items[(int)ITEMID.BANK_GOLD] = result1.Current.bank_currency;
+
+			SetState(EnState.InLobby);
+			//如果只是登录到大厅.结束流程
+			if (gameName_ == AppController.ins.conf.defaultGame) {
+				AppController.ins.currentApp.game.OpenView<ViewLobby>();
+			}
+			else {
+				SetState(EnState.AcquireService);
+
+				CLGT.AccessServiceReq msg2 = new CLGT.AccessServiceReq();
+				msg2.server_name = gameName_;
+				msg2.action = 1;
+				var result2 = AppController.ins.network.Rpc<CLGT.AccessServiceAck>(msg2);
+
+				yield return result2;
+				if (result2.Current == null) {
+					SetState(EnState.AcquireServiceFailed);
+					yield break;
+				}
+
+				//游戏流程继续,未完待续
+			}
 		}
 
-
-		public void Start()
+		public override void Start()
 		{
-			AppController.ins.net.RegisterMsgHandler(OnMsg_);
+			AppController.ins.network.RegisterMsgHandler(OnMsg_);
+			//这个协程进行排队.避免多个一起进行
+			this.StartCor(DoStart(), true);
 		}
 
-		public void Stop()
+		public override void Stop()
 		{
-			AppController.ins.net.RemoveMsgHandler(OnMsg_);
+			AppController.ins.network.RemoveMsgHandler(OnMsg_);
+			this.StopCor(-1);
 		}
 
 		public EnState State()
@@ -218,28 +285,14 @@ namespace Hotfix.Common
 			return pingTimeCost / pingCount;
 		}
 
-		void SetState(EnState st)
-		{
-			state_ = st;
-		}
-
+		//处理服务器主动推送的消息,没有rpc机制
 		void HandleMessage_(string protoName, IProtoMessage pb)
 		{
 			//ping计时,统计服务器延时
-			if (protoName == "CLGT.KeepAliveAck") {
-				pingTimeCost += pingTimeCounter.Elapse();
-				pingTimeCounter.Restart();
-				pingCount++;
-			}
-			else if (protoName == "CLGT.DisconnectNtf") {
+			if (protoName == "CLGT.DisconnectNtf") {
 				var pbthis = (CLGT.DisconnectNtf)(pb);
 				errCode = pbthis.code;
 				SetState(EnState.Disconnected);
-				Result?.Invoke(this, (int)state_);
-			}
-			else if (protoName == gameName_ + ".ExitRoomAck") {
-				SetState(EnState.ExitRoomSucc);
-				Result?.Invoke(this, (int)state_);
 			}
 		}
 
@@ -250,21 +303,18 @@ namespace Hotfix.Common
 			HandleMessage_(evt.strCmd, proto);
 		}
 
-		void AquireService_()
-		{
-			SetState(EnState.AcquireService);
-
-			CLGT.AccessServiceReq msg = new CLGT.AccessServiceReq();
-			msg.server_name = gameName_;
-			msg.action = 1;
-			AppController.ins.net.SendPb2(msg, null);
-		}
-
-		EnState state_;
-		string gameName_ = "";
 		TimeCounter pingTimer = new TimeCounter("");
 		TimeCounter pingTimeCounter = new TimeCounter("");
 		float pingTimeCost; 
 		long pingCount = 0;
 	}
+
+	public class KOKOSession : SessionBase
+	{
+		public KOKOSession(string name):base(name)
+		{
+
+		}
+	}
+
 }

@@ -172,11 +172,10 @@ namespace Hotfix.Common
 		}
 	}
 
-
 	public class NetWorkController
 	{
 		public event EventHandler<NetEventArgs> MsgHandler;
-		public Dictionary<Type, Action<IProtoMessage>> rpcHandler = new Dictionary<Type, Action<IProtoMessage>>();
+		public SessionBase session = null;
 		public enum EnState
 		{
 			Init,
@@ -184,7 +183,6 @@ namespace Hotfix.Common
 			AllConnectionLost,
 		}
 
-		//数据发送使用同步方式,省事,实际应用中没有发现问题
 		public void SendJson(short subCmd, string json, MySocket sock = null)
 		{
 			sendStream_.ClearUsedData();
@@ -205,29 +203,28 @@ namespace Hotfix.Common
 			Globals.net.SendMessage(sendStream_, sock);
 		}
 		
-		
 		//做RPC调用,方便代码编写
-		public IEnumerator Rpc(string protoName, IProtoMessage proto, Type callbackType)
+		public IEnumerator<T> Rpc<T>(IProtoMessage proto, float timeout = 3.0f) where T : IProtoMessage
 		{
-			IProtoMessage Result = null;
+			T Result = default(T);
 			Action<IProtoMessage> callback = (msg)=>{
-				Result = msg;
+				Result = (T)msg;
 			};
 
-			Rpc(protoName, proto, callbackType, callback);
+			Rpc<T>(proto, callback);
 
-			float time = Time.time;
-			while(Result == null && Time.time - time < 3.0f) {
-				yield return new WaitForSeconds(0.1f);
+			TimeCounter tc = new TimeCounter("");
+			while(Result == null && tc.Elapse() < timeout) {
+				yield return Result;
 			}
 
 			yield return Result;
 		}
 
-		public void Rpc(string protoName, IProtoMessage proto, Type callbackType, Action<IProtoMessage> callback)
+		public void Rpc<T>(IProtoMessage proto, Action<IProtoMessage> callback) where T: IProtoMessage
 		{
-			rpcHandler.Add(callbackType, callback);
-			SendPb2(protoName, proto, null);
+			rpcHandler.Add(typeof(T), callback);
+			SendPb2(proto, null);
 		}
 
 		public void SendPb(short subCmd, IProtoMessage proto, MySocket sock = null)
@@ -265,25 +262,30 @@ namespace Hotfix.Common
 			//连接成功,这个事件每个socket会调一次,立即进行握手协议
 			if (st == SocketState.WORKING) {
 				MySocket sock = (MySocket)sender;
-				FLLU3dHandshake handShake = new FLLU3dHandshake(sock);
+				if(sock.useProtocolParser == ProtocolParser.FLLU3dProtocol) {
+					FLLU3dHandshake handShake = new FLLU3dHandshake(sock);
 
-				handShake.Result += (obj, res) => {
-					if (res == (int)FLLU3dHandshake.State.Succ) {
-						state_ = EnState.HandshakeSucc;
-						handShake.Stop();
-					}
-					else if(res == (int)FLLU3dHandshake.State.Failed) {
-						handShake.Stop();
-					}
-				};
-				
-				handShake.Start();
+					handShake.Result += (obj, res) => {
+						if (res == (int)FLLU3dHandshake.State.Succ) {
+							state_ = EnState.HandshakeSucc;
+							handShake.Stop();
+						}
+						else if (res == (int)FLLU3dHandshake.State.Failed) {
+							handShake.Stop();
+						}
+					};
+
+					handShake.Start();
+				}
+				else if(sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
+
+				}
 			}
 			//网络连接完全失败,这个是所有连接都失败之后调用的
 			else if(st == SocketState.FAILED) {
 
 				state_ = EnState.AllConnectionLost;
-				session_ = null;
+				session = null;
 			}
 		}
 	
@@ -295,27 +297,69 @@ namespace Hotfix.Common
 			ILRuntime_Global.Initlize();
 
 
-			Globals.net = new NetManager(ProtocolParser.PB_STRING_HEADER);
+			Globals.net = new NetManager();
 			Globals.net.RegisterRawDataHandler(HandleRawData);
 			Globals.net.RegisterSockEventHandler(HandleSockEvent);
 			Globals.net.SetHostList(hosts);
-			Globals.net.Start(timeOut);
+			Globals.net.Start(timeOut, MySocket.ProtocolParser.FLLU3dProtocol);
 			yield return 0;
 		}
+
+		public void Login(CLGT.LoginReq.LoginType tp, string account, string psw, string toGame)
+		{
+			//设置要登录的账号
+			if (tp == CLGT.LoginReq.LoginType.Guest) {
+				var token = AppController.ins.conf.GetDeviceID();
+				var findit = AppController.ins.accounts.Find((acc) => { return acc.accountName == token; });
+				if (findit != null) {
+					AppController.ins.lastUseAccount = findit;
+				}
+				else {
+					UserAccountInfo inf = new UserAccountInfo();
+					inf.accountName = token;
+					inf.loginType = (int)tp;
+					AppController.ins.accounts.Add(inf);
+					AppController.ins.lastUseAccount = inf;
+				}
+			}
+			else {
+				var findit = AppController.ins.accounts.Find((acc) => { return acc.accountName == account; });
+				if (findit != null) {
+					AppController.ins.lastUseAccount = findit;
+				}
+				else {
+					UserAccountInfo inf = new UserAccountInfo();
+					inf.accountName = account;
+					inf.psw = psw;
+					inf.loginType = (int)tp;
+					AppController.ins.accounts.Add(inf);
+					AppController.ins.lastUseAccount = inf;
+				}
+			}
+
+			EnterGame(toGame);
+		}
+
 
 		public void EnterGame(string game)
 		{
 			var gmconf = AppController.ins.conf.FindGameConfig(game);
-			if(gmconf.scriptType == GameConfig.ScriptType.Lua) {
-				
-				if (session_ != null) {
-					session_.Stop();
-				}
-
-				session_ = new FLLU3dSession();
-				session_.Start();
-				session_.EnterGame(game);
+			//如果两个游戏属于不同的阵营,网络需要重置
+			if(AppController.ins.lastGame != null && AppController.ins.lastGame.module != gmconf.module) {
+				Globals.net.Stop();
 			}
+
+			if (session != null) {
+				session.Stop();
+			}
+
+			if (gmconf.module == GameConfig.Module.FLLU3d) {
+				session = new FLLU3dSession(game);
+			}
+			else {
+				session = new KOKOSession(game);
+			}
+			session.Start();
 		}
 
 		public void RegisterMsgHandler(EventHandler<NetEventArgs> handler)
@@ -331,7 +375,7 @@ namespace Hotfix.Common
 		public void Update()
 		{
 			Globals.net?.Update();
-			session_?.Update();
+			session?.Update();
 		}
 
 		public void Stop()
@@ -348,7 +392,7 @@ namespace Hotfix.Common
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
 			stm.ReadInt();//跳过len
-			if (sock.useProtocolParser == ProtocolParser.BIN_INT_HEADER) {
+			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
 				int cmd = stm.ReadInt();
 				switch (cmd) {
 					//Json消息
@@ -385,7 +429,7 @@ namespace Hotfix.Common
 					break;
 				}
 			}
-			else if (sock.useProtocolParser == ProtocolParser.PB_STRING_HEADER) {
+			else if (sock.useProtocolParser == ProtocolParser.FLLU3dProtocol) {
 				//跳过这个无效包
 				if (stm.DataLeft() == 5 && stm.buffer()[4] == 0x40) return;
 
@@ -424,7 +468,7 @@ namespace Hotfix.Common
 		}
 
 		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
-		FLLU3dSession session_;
 		EnState state_ = EnState.Init;
+		Dictionary<Type, Action<IProtoMessage>> rpcHandler = new Dictionary<Type, Action<IProtoMessage>>();
 	}
 }

@@ -18,7 +18,6 @@ namespace Hotfix.Common
 
 		public IEnumerator Start()
 		{
-			AppController.ins.net
 			yield return 0;
 		}
 	}

@@ -13,10 +13,18 @@ namespace Hotfix.Common
 			CSharp,
 			Lua,
 		}
+
+		public enum Module
+		{
+			FLLU3d,
+			YuanSan,
+		}
+
 		public string name;
 		public string folder;
 		public string entryClass;
 		public ScriptType scriptType = ScriptType.CSharp;
+		public Module module = Module.FLLU3d;
 	}
 
 	public partial class Config
@@ -34,6 +42,7 @@ namespace Hotfix.Common
 				game.folder = "HuanleBY";
 				game.entryClass = "Hotfix.HuanleBY.MyApp";
 				game.scriptType = GameConfig.ScriptType.CSharp;
+				game.module = GameConfig.Module.YuanSan;
 				games.Add(game.name, game);
 			}
 			{
@@ -41,7 +50,8 @@ namespace Hotfix.Common
 				game.name = "Lobby";
 				game.folder = "Lobby";
 				game.entryClass = "Hotfix.Lobby.MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
+				game.module = GameConfig.Module.FLLU3d;
 				games.Add(game.name, game);
 			}
 		}
