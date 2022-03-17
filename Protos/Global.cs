@@ -1263,7 +1263,16 @@ namespace Global
         public long total_winlost { get; set; }
 
         [global::ProtoBuf.ProtoMember(8)]
+        public string start_time { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(9)]
+        public string end_time { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(10)]
         public string operater { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(11)]
+        public string remark { get; set; } = "";
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -1302,10 +1311,25 @@ namespace Global
                 writer.WriteTag(56);
                 writer.WriteInt64(total_winlost);
             }
-            if(operater != "")
+            if(start_time != "")
             {
                 writer.WriteTag(66);
+                writer.WriteString(start_time);
+            }
+            if(end_time != "")
+            {
+                writer.WriteTag(74);
+                writer.WriteString(end_time);
+            }
+            if(operater != "")
+            {
+                writer.WriteTag(82);
                 writer.WriteString(operater);
+            }
+            if(remark != "")
+            {
+                writer.WriteTag(90);
+                writer.WriteString(remark);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
@@ -1324,7 +1348,13 @@ namespace Global
 
             total_winlost = 0;
 
+            start_time = "";
+
+            end_time = "";
+
             operater = "";
+
+            remark = "";
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -1368,7 +1398,22 @@ namespace Global
                         break;
                     case 66:
                         {
+                            start_time = reader.ReadString();
+                        }
+                        break;
+                    case 74:
+                        {
+                            end_time = reader.ReadString();
+                        }
+                        break;
+                    case 82:
+                        {
                             operater = reader.ReadString();
+                        }
+                        break;
+                    case 90:
+                        {
+                            remark = reader.ReadString();
                         }
                         break;
                     default:
@@ -3685,6 +3730,550 @@ namespace Global
         }
     }
 
+    [global::ProtoBuf.ProtoContract()]
+    public partial class GoogleIdTokenVerifyReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int zone_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string id_token { get; set; } = "";
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(zone_id != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(zone_id);
+            }
+            if(id_token != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(id_token);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            zone_id = 0;
+
+            id_token = "";
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            zone_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
+                        {
+                            id_token = reader.ReadString();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class GoogleIdTokenVerifyAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string login_token { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public string nickname { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(4)]
+        public string head_url { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(5)]
+        public int gender { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(login_token != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(login_token);
+            }
+            if(nickname != "")
+            {
+                writer.WriteTag(26);
+                writer.WriteString(nickname);
+            }
+            if(head_url != "")
+            {
+                writer.WriteTag(34);
+                writer.WriteString(head_url);
+            }
+            if(gender != 0)
+            {
+                writer.WriteTag(40);
+                writer.WriteInt32(gender);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            login_token = "";
+
+            nickname = "";
+
+            head_url = "";
+
+            gender = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
+                        {
+                            login_token = reader.ReadString();
+                        }
+                        break;
+                    case 26:
+                        {
+                            nickname = reader.ReadString();
+                        }
+                        break;
+                    case 34:
+                        {
+                            head_url = reader.ReadString();
+                        }
+                        break;
+                    case 40:
+                        {
+                            gender = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class FacebookTokenVerifyReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int zone_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string id_token { get; set; } = "";
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(zone_id != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(zone_id);
+            }
+            if(id_token != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(id_token);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            zone_id = 0;
+
+            id_token = "";
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            zone_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
+                        {
+                            id_token = reader.ReadString();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class FacebookTokenVerifyAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string login_token { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public string nickname { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(4)]
+        public string head_url { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(5)]
+        public int gender { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(login_token != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(login_token);
+            }
+            if(nickname != "")
+            {
+                writer.WriteTag(26);
+                writer.WriteString(nickname);
+            }
+            if(head_url != "")
+            {
+                writer.WriteTag(34);
+                writer.WriteString(head_url);
+            }
+            if(gender != 0)
+            {
+                writer.WriteTag(40);
+                writer.WriteInt32(gender);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            login_token = "";
+
+            nickname = "";
+
+            head_url = "";
+
+            gender = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
+                        {
+                            login_token = reader.ReadString();
+                        }
+                        break;
+                    case 26:
+                        {
+                            nickname = reader.ReadString();
+                        }
+                        break;
+                    case 34:
+                        {
+                            head_url = reader.ReadString();
+                        }
+                        break;
+                    case 40:
+                        {
+                            gender = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class WxCodeLoginReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int zone_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string code { get; set; } = "";
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(zone_id != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(zone_id);
+            }
+            if(code != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(code);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            zone_id = 0;
+
+            code = "";
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            zone_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
+                        {
+                            code = reader.ReadString();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class WxCodeLoginAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string open_id { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public string nickname { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(4)]
+        public string head_url { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(5)]
+        public int gender { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(open_id != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(open_id);
+            }
+            if(nickname != "")
+            {
+                writer.WriteTag(26);
+                writer.WriteString(nickname);
+            }
+            if(head_url != "")
+            {
+                writer.WriteTag(34);
+                writer.WriteString(head_url);
+            }
+            if(gender != 0)
+            {
+                writer.WriteTag(40);
+                writer.WriteInt32(gender);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            open_id = "";
+
+            nickname = "";
+
+            head_url = "";
+
+            gender = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
+                        {
+                            open_id = reader.ReadString();
+                        }
+                        break;
+                    case 26:
+                        {
+                            nickname = reader.ReadString();
+                        }
+                        break;
+                    case 34:
+                        {
+                            head_url = reader.ReadString();
+                        }
+                        break;
+                    case 40:
+                        {
+                            gender = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class UserAdminSetReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int user_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public bool admin { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(user_id != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(user_id);
+            }
+            if(admin != false)
+            {
+                writer.WriteTag(16);
+                writer.WriteBool(admin);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            user_id = 0;
+
+            admin = false;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            user_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            admin = reader.ReadBool();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class UserAdminSetAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
 }
 
 public class ILRuntime_Global
@@ -3703,25 +4292,24 @@ public class ILRuntime_Global
         ProtoBuf.PType.RegisterType("CLGT.DisconnectNtf", typeof(CLGT.DisconnectNtf));
         ProtoBuf.PType.RegisterType("CLGT.ItemInfo", typeof(CLGT.ItemInfo));
         ProtoBuf.PType.RegisterType("CLGT.LoginReq", typeof(CLGT.LoginReq));
-        ProtoBuf.PType.RegisterType("CLGT.AdminLoginReq", typeof(CLGT.AdminLoginReq));
         ProtoBuf.PType.RegisterType("CLGT.LoginAck", typeof(CLGT.LoginAck));
         ProtoBuf.PType.RegisterType("CLGT.AccessServiceReq", typeof(CLGT.AccessServiceReq));
         ProtoBuf.PType.RegisterType("CLGT.AccessServiceAck", typeof(CLGT.AccessServiceAck));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveReq", typeof(CLGT.KeepAliveReq));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveAck", typeof(CLGT.KeepAliveAck));
+        ProtoBuf.PType.RegisterType("CLGT.TestNetInterruptRpt", typeof(CLGT.TestNetInterruptRpt));
         ProtoBuf.PType.RegisterType("CLPF.LogoutReq", typeof(CLPF.LogoutReq));
         ProtoBuf.PType.RegisterType("CLPF.LogoutAck", typeof(CLPF.LogoutAck));
         ProtoBuf.PType.RegisterType("CLPF.ResSyncNtf", typeof(CLPF.ResSyncNtf));
         ProtoBuf.PType.RegisterType("CLPF.ResChangedNtf", typeof(CLPF.ResChangedNtf));
+        ProtoBuf.PType.RegisterType("CLPF.ResQueryReq", typeof(CLPF.ResQueryReq));
+        ProtoBuf.PType.RegisterType("CLPF.ResQueryAck", typeof(CLPF.ResQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.ItemInfo", typeof(CLPF.ItemInfo));
-        ProtoBuf.PType.RegisterType("CLPF.ItemGetListReq", typeof(CLPF.ItemGetListReq));
-        ProtoBuf.PType.RegisterType("CLPF.ItemGetListAck", typeof(CLPF.ItemGetListAck));
         ProtoBuf.PType.RegisterType("CLPF.ItemUseReq", typeof(CLPF.ItemUseReq));
         ProtoBuf.PType.RegisterType("CLPF.ItemUseAck", typeof(CLPF.ItemUseAck));
         ProtoBuf.PType.RegisterType("CLPF.ItemCountChangeNtf", typeof(CLPF.ItemCountChangeNtf));
         ProtoBuf.PType.RegisterType("CLPF.ItemBuyReq", typeof(CLPF.ItemBuyReq));
         ProtoBuf.PType.RegisterType("CLPF.ItemBuyAck", typeof(CLPF.ItemBuyAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShopBuyCountItem", typeof(CLPF.ShopBuyCountItem));
         ProtoBuf.PType.RegisterType("CLPF.RechargeReq", typeof(CLPF.RechargeReq));
         ProtoBuf.PType.RegisterType("CLPF.RechargeAck", typeof(CLPF.RechargeAck));
         ProtoBuf.PType.RegisterType("CLPF.RechargeSuccessNtf", typeof(CLPF.RechargeSuccessNtf));
@@ -3730,6 +4318,8 @@ public class ILRuntime_Global
         ProtoBuf.PType.RegisterType("CLPF.RechargeOrderQueryListAck", typeof(CLPF.RechargeOrderQueryListAck));
         ProtoBuf.PType.RegisterType("CLPF.RechargeOrderEvaluateReq", typeof(CLPF.RechargeOrderEvaluateReq));
         ProtoBuf.PType.RegisterType("CLPF.RechargeOrderEvaluateAck", typeof(CLPF.RechargeOrderEvaluateAck));
+        ProtoBuf.PType.RegisterType("CLPF.RechargeAgentComplainReq", typeof(CLPF.RechargeAgentComplainReq));
+        ProtoBuf.PType.RegisterType("CLPF.RechargeAgentComplainAck", typeof(CLPF.RechargeAgentComplainAck));
         ProtoBuf.PType.RegisterType("CLPF.RankPlayerInfo", typeof(CLPF.RankPlayerInfo));
         ProtoBuf.PType.RegisterType("CLPF.GetRankListReq", typeof(CLPF.GetRankListReq));
         ProtoBuf.PType.RegisterType("CLPF.GetRankListAck", typeof(CLPF.GetRankListAck));
@@ -3740,14 +4330,6 @@ public class ILRuntime_Global
         ProtoBuf.PType.RegisterType("CLPF.ModifyNicknameAck", typeof(CLPF.ModifyNicknameAck));
         ProtoBuf.PType.RegisterType("CLPF.ModifyHeadReq", typeof(CLPF.ModifyHeadReq));
         ProtoBuf.PType.RegisterType("CLPF.ModifyHeadAck", typeof(CLPF.ModifyHeadAck));
-        ProtoBuf.PType.RegisterType("CLPF.QuerySignReq", typeof(CLPF.QuerySignReq));
-        ProtoBuf.PType.RegisterType("CLPF.QuerySignAck", typeof(CLPF.QuerySignAck));
-        ProtoBuf.PType.RegisterType("CLPF.ActSignReq", typeof(CLPF.ActSignReq));
-        ProtoBuf.PType.RegisterType("CLPF.ActSignAck", typeof(CLPF.ActSignAck));
-        ProtoBuf.PType.RegisterType("CLPF.QueryVipWheelReq", typeof(CLPF.QueryVipWheelReq));
-        ProtoBuf.PType.RegisterType("CLPF.QueryVipWheelAck", typeof(CLPF.QueryVipWheelAck));
-        ProtoBuf.PType.RegisterType("CLPF.ActVipWheelReq", typeof(CLPF.ActVipWheelReq));
-        ProtoBuf.PType.RegisterType("CLPF.ActVipWheelAck", typeof(CLPF.ActVipWheelAck));
         ProtoBuf.PType.RegisterType("CLPF.MailInfo", typeof(CLPF.MailInfo));
         ProtoBuf.PType.RegisterType("CLPF.MailQueryAllIdsReq", typeof(CLPF.MailQueryAllIdsReq));
         ProtoBuf.PType.RegisterType("CLPF.MailQueryAllIdsAck", typeof(CLPF.MailQueryAllIdsAck));
@@ -3760,115 +4342,10 @@ public class ILRuntime_Global
         ProtoBuf.PType.RegisterType("CLPF.MailRemoveReq", typeof(CLPF.MailRemoveReq));
         ProtoBuf.PType.RegisterType("CLPF.MailRemoveAck", typeof(CLPF.MailRemoveAck));
         ProtoBuf.PType.RegisterType("CLPF.MailArriveNtf", typeof(CLPF.MailArriveNtf));
-        ProtoBuf.PType.RegisterType("CLPF.GuildInfo", typeof(CLPF.GuildInfo));
-        ProtoBuf.PType.RegisterType("CLPF.GuildJoinItem", typeof(CLPF.GuildJoinItem));
-        ProtoBuf.PType.RegisterType("CLPF.GuildMember", typeof(CLPF.GuildMember));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedpacketMember", typeof(CLPF.GuildRedpacketMember));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagItem", typeof(CLPF.GuildBagItem));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagLog", typeof(CLPF.GuildBagLog));
-        ProtoBuf.PType.RegisterType("CLPF.GuildCreateReq", typeof(CLPF.GuildCreateReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildCreateAck", typeof(CLPF.GuildCreateAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRecommendListReq", typeof(CLPF.GuildQueryRecommendListReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRecommendListAck", typeof(CLPF.GuildQueryRecommendListAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildSearchReq", typeof(CLPF.GuildSearchReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildSearchAck", typeof(CLPF.GuildSearchAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQuickJoinReq", typeof(CLPF.GuildQuickJoinReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQuickJoinAck", typeof(CLPF.GuildQuickJoinAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildJoinReq", typeof(CLPF.GuildJoinReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildJoinAck", typeof(CLPF.GuildJoinAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryJoinListReq", typeof(CLPF.GuildQueryJoinListReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryJoinListAck", typeof(CLPF.GuildQueryJoinListAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildHandleJoinReq", typeof(CLPF.GuildHandleJoinReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildHandleJoinAck", typeof(CLPF.GuildHandleJoinAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildJoinResponseNtf", typeof(CLPF.GuildJoinResponseNtf));
-        ProtoBuf.PType.RegisterType("CLPF.GuildNewJoinRequestNtf", typeof(CLPF.GuildNewJoinRequestNtf));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryInfoReq", typeof(CLPF.GuildQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryInfoAck", typeof(CLPF.GuildQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildModifyInfoReq", typeof(CLPF.GuildModifyInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildModifyInfoAck", typeof(CLPF.GuildModifyInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildModifyMemberJobReq", typeof(CLPF.GuildModifyMemberJobReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildModifyMemberJobAck", typeof(CLPF.GuildModifyMemberJobAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildKickMemberReq", typeof(CLPF.GuildKickMemberReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildKickMemberAck", typeof(CLPF.GuildKickMemberAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildKickMemberNtf", typeof(CLPF.GuildKickMemberNtf));
-        ProtoBuf.PType.RegisterType("CLPF.GuildExitReq", typeof(CLPF.GuildExitReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildExitAck", typeof(CLPF.GuildExitAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildUpgradeReq", typeof(CLPF.GuildUpgradeReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildUpgradeAck", typeof(CLPF.GuildUpgradeAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryWelfareReq", typeof(CLPF.GuildQueryWelfareReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryWelfareAck", typeof(CLPF.GuildQueryWelfareAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildFetchWelfareReq", typeof(CLPF.GuildFetchWelfareReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildFetchWelfareAck", typeof(CLPF.GuildFetchWelfareAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketInfoReq", typeof(CLPF.GuildQueryRedPacketInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketInfoAck", typeof(CLPF.GuildQueryRedPacketInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketRankReq", typeof(CLPF.GuildQueryRedPacketRankReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketRankAck", typeof(CLPF.GuildQueryRedPacketRankAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildActRedPacketReq", typeof(CLPF.GuildActRedPacketReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildActRedPacketAck", typeof(CLPF.GuildActRedPacketAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagQueryInfoReq", typeof(CLPF.GuildBagQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagQueryInfoAck", typeof(CLPF.GuildBagQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagQueryLogReq", typeof(CLPF.GuildBagQueryLogReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagQueryLogAck", typeof(CLPF.GuildBagQueryLogAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagStoreItemReq", typeof(CLPF.GuildBagStoreItemReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagStoreItemAck", typeof(CLPF.GuildBagStoreItemAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagFetchItemReq", typeof(CLPF.GuildBagFetchItemReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagFetchItemAck", typeof(CLPF.GuildBagFetchItemAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagFetchItemNtf", typeof(CLPF.GuildBagFetchItemNtf));
         ProtoBuf.PType.RegisterType("CLPF.MessageBroadcastNtf", typeof(CLPF.MessageBroadcastNtf));
-        ProtoBuf.PType.RegisterType("CLPF.TaskInfo", typeof(CLPF.TaskInfo));
-        ProtoBuf.PType.RegisterType("CLPF.TaskQueryReq", typeof(CLPF.TaskQueryReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskQueryAck", typeof(CLPF.TaskQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.TaskFetchTaskRewardsReq", typeof(CLPF.TaskFetchTaskRewardsReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskFetchTaskRewardsAck", typeof(CLPF.TaskFetchTaskRewardsAck));
-        ProtoBuf.PType.RegisterType("CLPF.TaskFetchActiveRewardsReq", typeof(CLPF.TaskFetchActiveRewardsReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskFetchActiveRewardsAck", typeof(CLPF.TaskFetchActiveRewardsAck));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveData", typeof(CLPF.TaskAchieveData));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveResetData", typeof(CLPF.TaskAchieveResetData));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveQueryInfoReq", typeof(CLPF.TaskAchieveQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveQueryInfoAck", typeof(CLPF.TaskAchieveQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveFetchRewardReq", typeof(CLPF.TaskAchieveFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveFetchRewardAck", typeof(CLPF.TaskAchieveFetchRewardAck));
         ProtoBuf.PType.RegisterType("CLPF.MonthCardFetchRewardReq", typeof(CLPF.MonthCardFetchRewardReq));
         ProtoBuf.PType.RegisterType("CLPF.MonthCardFetchRewardAck", typeof(CLPF.MonthCardFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.ReliefGoldFetchReq", typeof(CLPF.ReliefGoldFetchReq));
-        ProtoBuf.PType.RegisterType("CLPF.ReliefGoldFetchAck", typeof(CLPF.ReliefGoldFetchAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberQueryInfoReq", typeof(CLPF.ShakeNumberQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberQueryInfoAck", typeof(CLPF.ShakeNumberQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberActReq", typeof(CLPF.ShakeNumberActReq));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberActAck", typeof(CLPF.ShakeNumberActAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberFetchRewardReq", typeof(CLPF.ShakeNumberFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberFetchRewardAck", typeof(CLPF.ShakeNumberFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberFetchBoxRewardReq", typeof(CLPF.ShakeNumberFetchBoxRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberFetchBoxRewardAck", typeof(CLPF.ShakeNumberFetchBoxRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.RechargeDailyQueryReq", typeof(CLPF.RechargeDailyQueryReq));
-        ProtoBuf.PType.RegisterType("CLPF.RechargeDailyQueryAck", typeof(CLPF.RechargeDailyQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigQueryInfoReq", typeof(CLPF.WelfarePigQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigQueryInfoAck", typeof(CLPF.WelfarePigQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigFetchMaterialReq", typeof(CLPF.WelfarePigFetchMaterialReq));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigFetchMaterialAck", typeof(CLPF.WelfarePigFetchMaterialAck));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigBrokenReq", typeof(CLPF.WelfarePigBrokenReq));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigBrokenAck", typeof(CLPF.WelfarePigBrokenAck));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigSearchReq", typeof(CLPF.WelfarePigSearchReq));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigSearchAck", typeof(CLPF.WelfarePigSearchAck));
-        ProtoBuf.PType.RegisterType("CLPF.InvestGunQueryInfoReq", typeof(CLPF.InvestGunQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.InvestGunQueryInfoAck", typeof(CLPF.InvestGunQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.InvestGunFetchRewardReq", typeof(CLPF.InvestGunFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.InvestGunFetchRewardAck", typeof(CLPF.InvestGunFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.InvestCostQueryInfoReq", typeof(CLPF.InvestCostQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.InvestCostQueryInfoAck", typeof(CLPF.InvestCostQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.InvestCostFetchRewardReq", typeof(CLPF.InvestCostFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.InvestCostFetchRewardAck", typeof(CLPF.InvestCostFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.FirstPackageFetchReq", typeof(CLPF.FirstPackageFetchReq));
-        ProtoBuf.PType.RegisterType("CLPF.FirstPackageFetchAck", typeof(CLPF.FirstPackageFetchAck));
         ProtoBuf.PType.RegisterType("CLPF.AnnouncementChangedNtf", typeof(CLPF.AnnouncementChangedNtf));
-        ProtoBuf.PType.RegisterType("CLPF.VipFillUpCurrencyNtf", typeof(CLPF.VipFillUpCurrencyNtf));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsExchangeLog", typeof(CLPF.RealGoodsExchangeLog));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsQueryAddressReq", typeof(CLPF.RealGoodsQueryAddressReq));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsQueryAddressAck", typeof(CLPF.RealGoodsQueryAddressAck));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsCreateOrderReq", typeof(CLPF.RealGoodsCreateOrderReq));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsCreateOrderAck", typeof(CLPF.RealGoodsCreateOrderAck));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsQueryExchangeLogReq", typeof(CLPF.RealGoodsQueryExchangeLogReq));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsQueryExchangeLogAck", typeof(CLPF.RealGoodsQueryExchangeLogAck));
         ProtoBuf.PType.RegisterType("CLPF.GuideDataQueryReq", typeof(CLPF.GuideDataQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.GuideDataQueryAck", typeof(CLPF.GuideDataQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.GuideDataActRpt", typeof(CLPF.GuideDataActRpt));
@@ -3876,20 +4353,8 @@ public class ILRuntime_Global
         ProtoBuf.PType.RegisterType("CLPF.SubGamesOnlineCountInfo", typeof(CLPF.SubGamesOnlineCountInfo));
         ProtoBuf.PType.RegisterType("CLPF.SubGamesOnlineCountReq", typeof(CLPF.SubGamesOnlineCountReq));
         ProtoBuf.PType.RegisterType("CLPF.SubGamesOnlineCountAck", typeof(CLPF.SubGamesOnlineCountAck));
-        ProtoBuf.PType.RegisterType("CLPF.CdkeyFetchRewardReq", typeof(CLPF.CdkeyFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.CdkeyFetchRewardAck", typeof(CLPF.CdkeyFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.AccountBindStateReq", typeof(CLPF.AccountBindStateReq));
-        ProtoBuf.PType.RegisterType("CLPF.AccountBindStateAck", typeof(CLPF.AccountBindStateAck));
         ProtoBuf.PType.RegisterType("CLPF.AccountPhoneBindReq", typeof(CLPF.AccountPhoneBindReq));
         ProtoBuf.PType.RegisterType("CLPF.AccountPhoneBindAck", typeof(CLPF.AccountPhoneBindAck));
-        ProtoBuf.PType.RegisterType("CLPF.AccountPhoneChange1Req", typeof(CLPF.AccountPhoneChange1Req));
-        ProtoBuf.PType.RegisterType("CLPF.AccountPhoneChange1Ack", typeof(CLPF.AccountPhoneChange1Ack));
-        ProtoBuf.PType.RegisterType("CLPF.AccountPhoneChange2Req", typeof(CLPF.AccountPhoneChange2Req));
-        ProtoBuf.PType.RegisterType("CLPF.AccountPhoneChange2Ack", typeof(CLPF.AccountPhoneChange2Ack));
-        ProtoBuf.PType.RegisterType("CLPF.AccountUniformBindReq", typeof(CLPF.AccountUniformBindReq));
-        ProtoBuf.PType.RegisterType("CLPF.AccountUniformBindAck", typeof(CLPF.AccountUniformBindAck));
-        ProtoBuf.PType.RegisterType("CLPF.AccountUniformUnbindReq", typeof(CLPF.AccountUniformUnbindReq));
-        ProtoBuf.PType.RegisterType("CLPF.AccountUniformUnbindAck", typeof(CLPF.AccountUniformUnbindAck));
         ProtoBuf.PType.RegisterType("CLPF.PlayerNicknameQueryReq", typeof(CLPF.PlayerNicknameQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.PlayerNicknameQueryAck", typeof(CLPF.PlayerNicknameQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.BankPasswordInitReq", typeof(CLPF.BankPasswordInitReq));
@@ -3911,48 +4376,17 @@ public class ILRuntime_Global
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogInfo", typeof(CLPF.BankItemLogInfo));
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogQueryReq", typeof(CLPF.BankItemLogQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogQueryAck", typeof(CLPF.BankItemLogQueryAck));
+        ProtoBuf.PType.RegisterType("CLPF.BankItemDailyLogInfo", typeof(CLPF.BankItemDailyLogInfo));
+        ProtoBuf.PType.RegisterType("CLPF.BankItemDailyLogQueryReq", typeof(CLPF.BankItemDailyLogQueryReq));
+        ProtoBuf.PType.RegisterType("CLPF.BankItemDailyLogQueryAck", typeof(CLPF.BankItemDailyLogQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogDetailQueryReq", typeof(CLPF.BankItemLogDetailQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogDetailQueryAck", typeof(CLPF.BankItemLogDetailQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.LastGameQueryReq", typeof(CLPF.LastGameQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.LastGameQueryAck", typeof(CLPF.LastGameQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.RankRewardFetchReq", typeof(CLPF.RankRewardFetchReq));
-        ProtoBuf.PType.RegisterType("CLPF.RankRewardFetchAck", typeof(CLPF.RankRewardFetchAck));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutBankCard", typeof(CLPF.CashOutBankCard));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutBindBankCardReq", typeof(CLPF.CashOutBindBankCardReq));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutBindBankCardAck", typeof(CLPF.CashOutBindBankCardAck));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutQueryBankCardReq", typeof(CLPF.CashOutQueryBankCardReq));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutQueryBankCardAck", typeof(CLPF.CashOutQueryBankCardAck));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutCreateOrderReq", typeof(CLPF.CashOutCreateOrderReq));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutCreateOrderAck", typeof(CLPF.CashOutCreateOrderAck));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutLog", typeof(CLPF.CashOutLog));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutLogQueryReq", typeof(CLPF.CashOutLogQueryReq));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutLogQueryAck", typeof(CLPF.CashOutLogQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.DdzMatchStartingNtf", typeof(CLPF.DdzMatchStartingNtf));
-        ProtoBuf.PType.RegisterType("CLPF.MagicTradeInReq", typeof(CLPF.MagicTradeInReq));
-        ProtoBuf.PType.RegisterType("CLPF.MagicTradeInAck", typeof(CLPF.MagicTradeInAck));
-        ProtoBuf.PType.RegisterType("CLPF.MagicTradeOutReq", typeof(CLPF.MagicTradeOutReq));
-        ProtoBuf.PType.RegisterType("CLPF.MagicTradeOutAck", typeof(CLPF.MagicTradeOutAck));
-        ProtoBuf.PType.RegisterType("CLPF.WarheadExchangeReq", typeof(CLPF.WarheadExchangeReq));
-        ProtoBuf.PType.RegisterType("CLPF.WarheadExchangeAck", typeof(CLPF.WarheadExchangeAck));
         ProtoBuf.PType.RegisterType("CLPF.HeadUrlQueryReq", typeof(CLPF.HeadUrlQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.HeadUrlQueryAck", typeof(CLPF.HeadUrlQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.ModifyGenderReq", typeof(CLPF.ModifyGenderReq));
         ProtoBuf.PType.RegisterType("CLPF.ModifyGenderAck", typeof(CLPF.ModifyGenderAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildPacketData", typeof(CLPF.GuildPacketData));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketInfo2Req", typeof(CLPF.GuildQueryRedPacketInfo2Req));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketInfo2Ack", typeof(CLPF.GuildQueryRedPacketInfo2Ack));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedPacket2CreateReq", typeof(CLPF.GuildRedPacket2CreateReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedPacket2CreateAck", typeof(CLPF.GuildRedPacket2CreateAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedPacket2GrabReq", typeof(CLPF.GuildRedPacket2GrabReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedPacket2GrabAck", typeof(CLPF.GuildRedPacket2GrabAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryMembersReq", typeof(CLPF.GuildQueryMembersReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryMembersAck", typeof(CLPF.GuildQueryMembersAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildMemberQueryReq", typeof(CLPF.GuildMemberQueryReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildMemberQueryAck", typeof(CLPF.GuildMemberQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildSearch2Req", typeof(CLPF.GuildSearch2Req));
-        ProtoBuf.PType.RegisterType("CLPF.GuildSearch2Ack", typeof(CLPF.GuildSearch2Ack));
-        ProtoBuf.PType.RegisterType("CLPF.MailSendReq", typeof(CLPF.MailSendReq));
-        ProtoBuf.PType.RegisterType("CLPF.MailSendAck", typeof(CLPF.MailSendAck));
         ProtoBuf.PType.RegisterType("CLPF.WeekSignStateQueryReq", typeof(CLPF.WeekSignStateQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.WeekSignStateQueryAck", typeof(CLPF.WeekSignStateQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.WeekSignActReq", typeof(CLPF.WeekSignActReq));
@@ -3968,8 +4402,6 @@ public class ILRuntime_Global
         ProtoBuf.PType.RegisterType("CLPF.FeedbackReadAck", typeof(CLPF.FeedbackReadAck));
         ProtoBuf.PType.RegisterType("CLPF.FeedbackReplyNtf", typeof(CLPF.FeedbackReplyNtf));
         ProtoBuf.PType.RegisterType("CLPF.AddOperationLogRpt", typeof(CLPF.AddOperationLogRpt));
-        ProtoBuf.PType.RegisterType("CLPF.RechargeAgentComplainReq", typeof(CLPF.RechargeAgentComplainReq));
-        ProtoBuf.PType.RegisterType("CLPF.RechargeAgentComplainAck", typeof(CLPF.RechargeAgentComplainAck));
         ProtoBuf.PType.RegisterType("Global.TableConfigChangedNtf", typeof(Global.TableConfigChangedNtf));
         ProtoBuf.PType.RegisterType("Global.DBConfigChangedNtf", typeof(Global.DBConfigChangedNtf));
         ProtoBuf.PType.RegisterType("Global.FlowControlConfigChangedNtf", typeof(Global.FlowControlConfigChangedNtf));
@@ -4033,6 +4465,14 @@ public class ILRuntime_Global
         ProtoBuf.PType.RegisterType("Global.QueryRegionByIpAck", typeof(Global.QueryRegionByIpAck));
         ProtoBuf.PType.RegisterType("Global.RegisterAccountReq", typeof(Global.RegisterAccountReq));
         ProtoBuf.PType.RegisterType("Global.RegisterAccountAck", typeof(Global.RegisterAccountAck));
+        ProtoBuf.PType.RegisterType("Global.GoogleIdTokenVerifyReq", typeof(Global.GoogleIdTokenVerifyReq));
+        ProtoBuf.PType.RegisterType("Global.GoogleIdTokenVerifyAck", typeof(Global.GoogleIdTokenVerifyAck));
+        ProtoBuf.PType.RegisterType("Global.FacebookTokenVerifyReq", typeof(Global.FacebookTokenVerifyReq));
+        ProtoBuf.PType.RegisterType("Global.FacebookTokenVerifyAck", typeof(Global.FacebookTokenVerifyAck));
+        ProtoBuf.PType.RegisterType("Global.WxCodeLoginReq", typeof(Global.WxCodeLoginReq));
+        ProtoBuf.PType.RegisterType("Global.WxCodeLoginAck", typeof(Global.WxCodeLoginAck));
+        ProtoBuf.PType.RegisterType("Global.UserAdminSetReq", typeof(Global.UserAdminSetReq));
+        ProtoBuf.PType.RegisterType("Global.UserAdminSetAck", typeof(Global.UserAdminSetAck));
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AssemblyCommon;
+using Hotfix.Lobby;
 using Hotfix.Model;
 using System;
 using System.Collections;
@@ -25,76 +26,15 @@ namespace Hotfix.Common
 	public class GameControllerBase : ControllerBase
 	{
 		//创建和管理View
-		public ViewBase currentView = null;
-		//additive true:直接加入当前canvas false:清除当前canvas之后再加入
-		public T OpenView<T>() where T : ViewBase, new()
+		public ViewBase mainView = null;
+		public T OpenView<T>(bool main) where T : ViewBase, new()
 		{
 			T ret = new T();
-			currentView = ret;
-			currentView.Start();
+			if(main) mainView = ret;
 			return ret;
 		}
 	}
 	
-	//所有界面操作代码继承自这个类
-	//画布命名使用Canvas
-	public abstract class ViewBase : ControllerBase
-	{
-		public static void RemoveGameObject(string name)
-		{
-			var obj = GameObject.Find(name);
-			if(obj != null)	GameObject.Destroy(obj);
-		}
-
-		public void SetAdditive()
-		{
-			additive_ = true;
-		}
-
-		public override void Start()
-		{
-			this.StartCor(DoStart_(), false);
-		}
-
-		public override bool IsReady()
-		{
-			return finished_;
-		}
-		
-		protected abstract void SetLoader();
-
-		protected abstract void OnResourceReady();
-
-		protected IEnumerator DoStart_()
-		{
-			progress?.Desc("..");
-
-			var canvas = GameObject.Find(canvas_);
-			if (!additive_) {
-				canvas?.RemoveAllChildren();
-			}
-
-			foreach (var it in resNames_) {
-				var result = Globals.resLoader.LoadAsync<GameObject>(it, progress);
-				yield return result;
-				if (result.Current != null) {
-					if(canvas == null) {
-						canvas = GameObject.Find(canvas_);
-					}
-					canvas?.AddChild(result.Current);
-				}
-			}
-
-			finished_ = true;
-			OnResourceReady();
-		}
-
-		protected List<string> resNames_;
-		protected string canvas_ = "Canvas";
-		bool additive_ = false;
-		bool finished_ = false;
-	}
-
 	//热更入口类
 	public class AppController : ControllerBase
 	{
@@ -126,6 +66,11 @@ namespace Hotfix.Common
 		public override void Start()
 		{
 			Debug.LogFormat("Hotfix Module Begins.");
+			//注册protobuf类
+			ILRuntime_CLGT.Initlize();
+			ILRuntime_CLPF.Initlize();
+			ILRuntime_Global.Initlize();
+
 			this.StartCor(DoStart_(), false);
 		}
 

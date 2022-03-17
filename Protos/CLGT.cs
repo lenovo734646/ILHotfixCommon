@@ -35,7 +35,7 @@ namespace CLGT
             if(platform != 0)
             {
                 writer.WriteTag(8);
-                writer.WriteDouble(platform);
+                writer.WriteInt32(platform);
             }
             if(product != 0)
             {
@@ -91,7 +91,7 @@ namespace CLGT
                 {
                     case 8:
                         {
-                            platform = reader.ReadEnum();
+                            platform = reader.ReadInt32();
                         }
                         break;
                     case 16:
@@ -161,6 +161,9 @@ namespace CLGT
         [global::ProtoBuf.ProtoMember(4, IsPacked = true)]
         public global::System.Collections.Generic.List<int> random_key_arr { get; private set; } = new global::System.Collections.Generic.List<int>();
 
+        [global::ProtoBuf.ProtoMember(5)]
+        public string session_guid { get; set; } = "";
+
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
             if(errcode != 0)
@@ -185,6 +188,11 @@ namespace CLGT
                     listw.WriteInt32(itor);
                 }
             });
+            if(session_guid != "")
+            {
+                writer.WriteTag(42);
+                writer.WriteString(session_guid);
+            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
@@ -195,6 +203,8 @@ namespace CLGT
             random_key = null;
 
             random_key_arr.Clear();
+
+            session_guid = "";
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -222,6 +232,11 @@ namespace CLGT
                                 var o = listr.ReadInt32();
                                 random_key_arr.Add(o);
                             });
+                        }
+                        break;
+                    case 42:
+                        {
+                            session_guid = reader.ReadString();
                         }
                         break;
                     default:
@@ -369,7 +384,7 @@ namespace CLGT
             if(login_type != 0)
             {
                 writer.WriteTag(8);
-                writer.WriteDouble(login_type);
+                writer.WriteInt32(login_type);
             }
             if(token != "")
             {
@@ -390,63 +405,12 @@ namespace CLGT
                 {
                     case 8:
                         {
-                            login_type = reader.ReadEnum();
+                            login_type = reader.ReadInt32();
                         }
                         break;
                     case 18:
                         {
                             token = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-        [global::ProtoBuf.ProtoContract()]
-        public enum LoginType
-        {
-            Unknown = 0,
-            Guest = 1,
-            Phone = 2,
-            QQ = 3,
-            Wechat = 4,
-            Facebook = 5,
-            GooglePlay = 6,
-            GameCenter = 7,
-        }
-
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AdminLoginReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
                         }
                         break;
                     default:
@@ -504,9 +468,6 @@ namespace CLGT
         [global::ProtoBuf.ProtoMember(14)]
         public long currency { get; set; }
 
-        [global::ProtoBuf.ProtoMember(16)]
-        public long integral { get; set; }
-
         [global::ProtoBuf.ProtoMember(17, TypeName = "CLGT.ItemInfo")]
         public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
 
@@ -516,26 +477,11 @@ namespace CLGT
         [global::ProtoBuf.ProtoMember(20)]
         public bool has_unread_mail { get; set; }
 
-        [global::ProtoBuf.ProtoMember(21)]
-        public int guild_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(22)]
-        public bool guild_join_list_state { get; set; }
-
         [global::ProtoBuf.ProtoMember(23)]
         public uint month_card_expire_time { get; set; }
 
         [global::ProtoBuf.ProtoMember(24)]
         public bool month_card_has_fetched { get; set; }
-
-        [global::ProtoBuf.ProtoMember(25)]
-        public bool finish_first_recharge { get; set; }
-
-        [global::ProtoBuf.ProtoMember(26)]
-        public int relief_finish_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(27)]
-        public bool fetched_first_package { get; set; }
 
         [global::ProtoBuf.ProtoMember(28)]
         public string client_config_md5 { get; set; } = "";
@@ -549,26 +495,14 @@ namespace CLGT
         [global::ProtoBuf.ProtoMember(31)]
         public bool bank_password_flag { get; set; }
 
-        [global::ProtoBuf.ProtoMember(32)]
-        public bool is_businessman { get; set; }
-
-        [global::ProtoBuf.ProtoMember(33)]
-        public int agent_level { get; set; }
-
-        [global::ProtoBuf.ProtoMember(34)]
-        public string continuous_reward { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(35)]
-        public bool rank_reward_gold { get; set; }
-
-        [global::ProtoBuf.ProtoMember(36)]
-        public bool rank_reward_warhead { get; set; }
-
         [global::ProtoBuf.ProtoMember(41)]
         public long bank_currency { get; set; }
 
         [global::ProtoBuf.ProtoMember(42)]
         public string last_game_appid { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(43)]
+        public string head_url { get; set; } = "";
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -642,11 +576,6 @@ namespace CLGT
                 writer.WriteTag(112);
                 writer.WriteInt64(currency);
             }
-            if(integral != 0)
-            {
-                writer.WriteTag(128);
-                writer.WriteInt64(integral);
-            }
             foreach(var itor in items)
             {
                 writer.WriteTag(138);
@@ -667,16 +596,6 @@ namespace CLGT
                 writer.WriteTag(160);
                 writer.WriteBool(has_unread_mail);
             }
-            if(guild_id != 0)
-            {
-                writer.WriteTag(168);
-                writer.WriteInt32(guild_id);
-            }
-            if(guild_join_list_state != false)
-            {
-                writer.WriteTag(176);
-                writer.WriteBool(guild_join_list_state);
-            }
             if(month_card_expire_time != 0)
             {
                 writer.WriteTag(184);
@@ -686,21 +605,6 @@ namespace CLGT
             {
                 writer.WriteTag(192);
                 writer.WriteBool(month_card_has_fetched);
-            }
-            if(finish_first_recharge != false)
-            {
-                writer.WriteTag(200);
-                writer.WriteBool(finish_first_recharge);
-            }
-            if(relief_finish_count != 0)
-            {
-                writer.WriteTag(208);
-                writer.WriteInt32(relief_finish_count);
-            }
-            if(fetched_first_package != false)
-            {
-                writer.WriteTag(216);
-                writer.WriteBool(fetched_first_package);
             }
             if(client_config_md5 != "")
             {
@@ -722,31 +626,6 @@ namespace CLGT
                 writer.WriteTag(248);
                 writer.WriteBool(bank_password_flag);
             }
-            if(is_businessman != false)
-            {
-                writer.WriteTag(256);
-                writer.WriteBool(is_businessman);
-            }
-            if(agent_level != 0)
-            {
-                writer.WriteTag(264);
-                writer.WriteInt32(agent_level);
-            }
-            if(continuous_reward != "")
-            {
-                writer.WriteTag(274);
-                writer.WriteString(continuous_reward);
-            }
-            if(rank_reward_gold != false)
-            {
-                writer.WriteTag(280);
-                writer.WriteBool(rank_reward_gold);
-            }
-            if(rank_reward_warhead != false)
-            {
-                writer.WriteTag(288);
-                writer.WriteBool(rank_reward_warhead);
-            }
             if(bank_currency != 0)
             {
                 writer.WriteTag(328);
@@ -756,6 +635,11 @@ namespace CLGT
             {
                 writer.WriteTag(338);
                 writer.WriteString(last_game_appid);
+            }
+            if(head_url != "")
+            {
+                writer.WriteTag(346);
+                writer.WriteString(head_url);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
@@ -788,27 +672,15 @@ namespace CLGT
 
             currency = 0;
 
-            integral = 0;
-
             items.Clear();
 
             server_timestamp = 0;
 
             has_unread_mail = false;
 
-            guild_id = 0;
-
-            guild_join_list_state = false;
-
             month_card_expire_time = 0;
 
             month_card_has_fetched = false;
-
-            finish_first_recharge = false;
-
-            relief_finish_count = 0;
-
-            fetched_first_package = false;
 
             client_config_md5 = "";
 
@@ -818,19 +690,11 @@ namespace CLGT
 
             bank_password_flag = false;
 
-            is_businessman = false;
-
-            agent_level = 0;
-
-            continuous_reward = "";
-
-            rank_reward_gold = false;
-
-            rank_reward_warhead = false;
-
             bank_currency = 0;
 
             last_game_appid = "";
+
+            head_url = "";
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -907,11 +771,6 @@ namespace CLGT
                             currency = reader.ReadInt64();
                         }
                         break;
-                    case 128:
-                        {
-                            integral = reader.ReadInt64();
-                        }
-                        break;
                     case 138:
                         {
                             CLGT.ItemInfo o = null;
@@ -932,16 +791,6 @@ namespace CLGT
                             has_unread_mail = reader.ReadBool();
                         }
                         break;
-                    case 168:
-                        {
-                            guild_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 176:
-                        {
-                            guild_join_list_state = reader.ReadBool();
-                        }
-                        break;
                     case 184:
                         {
                             month_card_expire_time = reader.ReadUInt32();
@@ -950,21 +799,6 @@ namespace CLGT
                     case 192:
                         {
                             month_card_has_fetched = reader.ReadBool();
-                        }
-                        break;
-                    case 200:
-                        {
-                            finish_first_recharge = reader.ReadBool();
-                        }
-                        break;
-                    case 208:
-                        {
-                            relief_finish_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 216:
-                        {
-                            fetched_first_package = reader.ReadBool();
                         }
                         break;
                     case 226:
@@ -987,31 +821,6 @@ namespace CLGT
                             bank_password_flag = reader.ReadBool();
                         }
                         break;
-                    case 256:
-                        {
-                            is_businessman = reader.ReadBool();
-                        }
-                        break;
-                    case 264:
-                        {
-                            agent_level = reader.ReadInt32();
-                        }
-                        break;
-                    case 274:
-                        {
-                            continuous_reward = reader.ReadString();
-                        }
-                        break;
-                    case 280:
-                        {
-                            rank_reward_gold = reader.ReadBool();
-                        }
-                        break;
-                    case 288:
-                        {
-                            rank_reward_warhead = reader.ReadBool();
-                        }
-                        break;
                     case 328:
                         {
                             bank_currency = reader.ReadInt64();
@@ -1020,6 +829,11 @@ namespace CLGT
                     case 338:
                         {
                             last_game_appid = reader.ReadString();
+                        }
+                        break;
+                    case 346:
+                        {
+                            head_url = reader.ReadString();
                         }
                         break;
                     default:
@@ -1107,7 +921,7 @@ namespace CLGT
         public int errcode { get; set; }
 
         [global::ProtoBuf.ProtoMember(2)]
-        public string game_data { get; set; } = "";
+        public string errmessage { get; set; } = "";
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -1116,17 +930,17 @@ namespace CLGT
                 writer.WriteTag(8);
                 writer.WriteInt32(errcode);
             }
-            if(game_data != "")
+            if(errmessage != "")
             {
                 writer.WriteTag(18);
-                writer.WriteString(game_data);
+                writer.WriteString(errmessage);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
             errcode = 0;
 
-            game_data = "";
+            errmessage = "";
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -1140,7 +954,7 @@ namespace CLGT
                         break;
                     case 18:
                         {
-                            game_data = reader.ReadString();
+                            errmessage = reader.ReadString();
                         }
                         break;
                     default:
@@ -1214,6 +1028,29 @@ namespace CLGT
         }
     }
 
+    [global::ProtoBuf.ProtoContract()]
+    public partial class TestNetInterruptRpt : AssemblyCommon.IProtoMessage
+    {
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
 }
 
 public class ILRuntime_CLGT
@@ -1232,12 +1069,12 @@ public class ILRuntime_CLGT
         ProtoBuf.PType.RegisterType("CLGT.DisconnectNtf", typeof(CLGT.DisconnectNtf));
         ProtoBuf.PType.RegisterType("CLGT.ItemInfo", typeof(CLGT.ItemInfo));
         ProtoBuf.PType.RegisterType("CLGT.LoginReq", typeof(CLGT.LoginReq));
-        ProtoBuf.PType.RegisterType("CLGT.AdminLoginReq", typeof(CLGT.AdminLoginReq));
         ProtoBuf.PType.RegisterType("CLGT.LoginAck", typeof(CLGT.LoginAck));
         ProtoBuf.PType.RegisterType("CLGT.AccessServiceReq", typeof(CLGT.AccessServiceReq));
         ProtoBuf.PType.RegisterType("CLGT.AccessServiceAck", typeof(CLGT.AccessServiceAck));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveReq", typeof(CLGT.KeepAliveReq));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveAck", typeof(CLGT.KeepAliveAck));
+        ProtoBuf.PType.RegisterType("CLGT.TestNetInterruptRpt", typeof(CLGT.TestNetInterruptRpt));
 
     }
 }

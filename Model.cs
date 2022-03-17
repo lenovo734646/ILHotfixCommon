@@ -21,7 +21,7 @@ namespace Hotfix.Model
 	}
 
 	//玩家时数据
-	public class GamePlayer : PlayerBase
+	public partial class GamePlayer : PlayerBase
 	{
 		public int serverPos;
 	}
@@ -37,7 +37,5 @@ namespace Hotfix.Model
 			}
 		} 
 		GamePlayer pp_ = null;
-
-		
 	}
 }

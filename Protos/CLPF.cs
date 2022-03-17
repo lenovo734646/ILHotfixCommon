@@ -234,6 +234,112 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
+    public partial class ResQueryReq : AssemblyCommon.IProtoMessage
+    {
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class ResQueryAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public long diamond { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public long currency { get; set; }
+
+        [global::ProtoBuf.ProtoMember(4)]
+        public long bank_currency { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(diamond != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt64(diamond);
+            }
+            if(currency != 0)
+            {
+                writer.WriteTag(24);
+                writer.WriteInt64(currency);
+            }
+            if(bank_currency != 0)
+            {
+                writer.WriteTag(32);
+                writer.WriteInt64(bank_currency);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            diamond = 0;
+
+            currency = 0;
+
+            bank_currency = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            diamond = reader.ReadInt64();
+                        }
+                        break;
+                    case 24:
+                        {
+                            currency = reader.ReadInt64();
+                        }
+                        break;
+                    case 32:
+                        {
+                            bank_currency = reader.ReadInt64();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
     public partial class ItemInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
@@ -289,77 +395,6 @@ namespace CLPF
                     case 24:
                         {
                             item_count = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ItemGetListReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ItemGetListAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            foreach(var itor in items)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
                         }
                         break;
                     default:
@@ -642,59 +677,6 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ShopBuyCountItem : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int shop_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int buy_count { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(shop_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(shop_id);
-            }
-            if(buy_count != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(buy_count);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            shop_id = 0;
-
-            buy_count = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            shop_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            buy_count = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
     public partial class RechargeReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
@@ -708,6 +690,9 @@ namespace CLPF
 
         [global::ProtoBuf.ProtoMember(4)]
         public string extra_data { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(5)]
+        public string product_name { get; set; } = "";
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -731,6 +716,11 @@ namespace CLPF
                 writer.WriteTag(34);
                 writer.WriteString(extra_data);
             }
+            if(product_name != "")
+            {
+                writer.WriteTag(42);
+                writer.WriteString(product_name);
+            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
@@ -741,6 +731,8 @@ namespace CLPF
             pay_mode = 0;
 
             extra_data = "";
+
+            product_name = "";
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -765,6 +757,11 @@ namespace CLPF
                     case 34:
                         {
                             extra_data = reader.ReadString();
+                        }
+                        break;
+                    case 42:
+                        {
+                            product_name = reader.ReadString();
                         }
                         break;
                     default:
@@ -1237,6 +1234,97 @@ namespace CLPF
 
     [global::ProtoBuf.ProtoContract()]
     public partial class RechargeOrderEvaluateAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class RechargeAgentComplainReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public string agent_info { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string content { get; set; } = "";
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(agent_info != "")
+            {
+                writer.WriteTag(10);
+                writer.WriteString(agent_info);
+            }
+            if(content != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(content);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            agent_info = "";
+
+            content = "";
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 10:
+                        {
+                            agent_info = reader.ReadString();
+                        }
+                        break;
+                    case 18:
+                        {
+                            content = reader.ReadString();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class RechargeAgentComplainAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -1869,360 +1957,6 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class QuerySignReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class QuerySignAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int signed_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int today_signed { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int total_days { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(signed_count != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(signed_count);
-            }
-            if(today_signed != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(today_signed);
-            }
-            if(total_days != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(total_days);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            signed_count = 0;
-
-            today_signed = 0;
-
-            total_days = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            signed_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            today_signed = reader.ReadInt32();
-                        }
-                        break;
-                    case 24:
-                        {
-                            total_days = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ActSignReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ActSignAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class QueryVipWheelReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class QueryVipWheelAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int used_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int total_count { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(used_count != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(used_count);
-            }
-            if(total_count != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(total_count);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            used_count = 0;
-
-            total_count = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            used_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            total_count = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ActVipWheelReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ActVipWheelAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int reward_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(reward_id != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(reward_id);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(26);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            reward_id = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            reward_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 26:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
     public partial class MailInfo : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
@@ -2243,11 +1977,11 @@ namespace CLPF
         [global::ProtoBuf.ProtoMember(6)]
         public int state { get; set; }
 
-        [global::ProtoBuf.ProtoMember(7)]
-        public int receive_time { get; set; }
+        [global::ProtoBuf.ProtoMember(7, DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+        public uint receive_time { get; set; }
 
-        [global::ProtoBuf.ProtoMember(8)]
-        public int expire_time { get; set; }
+        [global::ProtoBuf.ProtoMember(8, DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+        public uint expire_time { get; set; }
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -2288,13 +2022,13 @@ namespace CLPF
             }
             if(receive_time != 0)
             {
-                writer.WriteTag(56);
-                writer.WriteInt32(receive_time);
+                writer.WriteTag(61);
+                writer.WriteFixed32(receive_time);
             }
             if(expire_time != 0)
             {
-                writer.WriteTag(64);
-                writer.WriteInt32(expire_time);
+                writer.WriteTag(69);
+                writer.WriteFixed32(expire_time);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
@@ -2355,14 +2089,14 @@ namespace CLPF
                             state = reader.ReadInt32();
                         }
                         break;
-                    case 56:
+                    case 61:
                         {
-                            receive_time = reader.ReadInt32();
+                            receive_time = reader.ReadFixed32();
                         }
                         break;
-                    case 64:
+                    case 69:
                         {
-                            expire_time = reader.ReadInt32();
+                            expire_time = reader.ReadFixed32();
                         }
                         break;
                     default:
@@ -2401,12 +2135,20 @@ namespace CLPF
     [global::ProtoBuf.ProtoContract()]
     public partial class MailQueryAllIdsAck : AssemblyCommon.IProtoMessage
     {
-        [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, IsPacked = true)]
         public global::System.Collections.Generic.List<int> array { get; private set; } = new global::System.Collections.Generic.List<int>();
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
-            writer.WriteTag(10);
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            writer.WriteTag(18);
             writer.WriteRepeated((listw) => {
                 foreach(var itor in array)
                 {
@@ -2416,6 +2158,8 @@ namespace CLPF
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
+            errcode = 0;
+
             array.Clear();
 
             uint tag;
@@ -2423,7 +2167,12 @@ namespace CLPF
             {
                 switch (tag)
                 {
-                    case 10:
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
                         {
                             reader.ReadRepeated((listr) => {
                                 var o = listr.ReadInt32();
@@ -2447,9 +2196,6 @@ namespace CLPF
         [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
         public global::System.Collections.Generic.List<int> array { get; private set; } = new global::System.Collections.Generic.List<int>();
 
-        [global::ProtoBuf.ProtoMember(2)]
-        public string language { get; set; } = "";
-
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
             writer.WriteTag(10);
@@ -2459,17 +2205,10 @@ namespace CLPF
                     listw.WriteInt32(itor);
                 }
             });
-            if(language != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(language);
-            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
             array.Clear();
-
-            language = "";
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -2482,11 +2221,6 @@ namespace CLPF
                                 var o = listr.ReadInt32();
                                 array.Add(o);
                             });
-                        }
-                        break;
-                    case 18:
-                        {
-                            language = reader.ReadString();
                         }
                         break;
                     default:
@@ -2502,15 +2236,23 @@ namespace CLPF
     [global::ProtoBuf.ProtoContract()]
     public partial class MailBatchQueryContentAck : AssemblyCommon.IProtoMessage
     {
-        [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, IsPacked = true)]
         public global::System.Collections.Generic.List<int> invalid_array { get; private set; } = new global::System.Collections.Generic.List<int>();
 
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.MailInfo")]
+        [global::ProtoBuf.ProtoMember(3, TypeName = "CLPF.MailInfo")]
         public global::System.Collections.Generic.List<MailInfo> result_array { get; private set; } = new global::System.Collections.Generic.List<MailInfo>();
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
-            writer.WriteTag(10);
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            writer.WriteTag(18);
             writer.WriteRepeated((listw) => {
                 foreach(var itor in invalid_array)
                 {
@@ -2519,7 +2261,7 @@ namespace CLPF
             });
             foreach(var itor in result_array)
             {
-                writer.WriteTag(18);
+                writer.WriteTag(26);
                 writer.WriteMessage((msrw) => {
                     if(itor != null)
                     {
@@ -2530,6 +2272,8 @@ namespace CLPF
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
+            errcode = 0;
+
             invalid_array.Clear();
 
             result_array.Clear();
@@ -2539,7 +2283,12 @@ namespace CLPF
             {
                 switch (tag)
                 {
-                    case 10:
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
                         {
                             reader.ReadRepeated((listr) => {
                                 var o = listr.ReadInt32();
@@ -2547,7 +2296,7 @@ namespace CLPF
                             });
                         }
                         break;
-                    case 18:
+                    case 26:
                         {
                             CLPF.MailInfo o = null;
                             reader.ReadMessage((msgr) => {
@@ -2609,18 +2358,28 @@ namespace CLPF
     public partial class MailAccessAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
         public bool has_unread_mail { get; set; }
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
-            if(has_unread_mail != false)
+            if(errcode != 0)
             {
                 writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(has_unread_mail != false)
+            {
+                writer.WriteTag(16);
                 writer.WriteBool(has_unread_mail);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
+            errcode = 0;
+
             has_unread_mail = false;
 
             uint tag;
@@ -2629,6 +2388,11 @@ namespace CLPF
                 switch (tag)
                 {
                     case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
                         {
                             has_unread_mail = reader.ReadBool();
                         }
@@ -2937,3478 +2701,6 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class GuildInfo : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string name { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string desc { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int icon { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int level { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public int user_level_limit { get; set; }
-
-        [global::ProtoBuf.ProtoMember(7)]
-        public int vip_level_limit { get; set; }
-
-        [global::ProtoBuf.ProtoMember(8)]
-        public bool allow_auto_join { get; set; }
-
-        [global::ProtoBuf.ProtoMember(9)]
-        public int member_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(10)]
-        public int member_limit { get; set; }
-
-        [global::ProtoBuf.ProtoMember(11)]
-        public int president_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(12)]
-        public string president_name { get; set; } = "";
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(id);
-            }
-            if(name != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(name);
-            }
-            if(desc != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(desc);
-            }
-            if(icon != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(icon);
-            }
-            if(level != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(level);
-            }
-            if(user_level_limit != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt32(user_level_limit);
-            }
-            if(vip_level_limit != 0)
-            {
-                writer.WriteTag(56);
-                writer.WriteInt32(vip_level_limit);
-            }
-            if(allow_auto_join != false)
-            {
-                writer.WriteTag(64);
-                writer.WriteBool(allow_auto_join);
-            }
-            if(member_count != 0)
-            {
-                writer.WriteTag(72);
-                writer.WriteInt32(member_count);
-            }
-            if(member_limit != 0)
-            {
-                writer.WriteTag(80);
-                writer.WriteInt32(member_limit);
-            }
-            if(president_id != 0)
-            {
-                writer.WriteTag(88);
-                writer.WriteInt32(president_id);
-            }
-            if(president_name != "")
-            {
-                writer.WriteTag(98);
-                writer.WriteString(president_name);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            id = 0;
-
-            name = "";
-
-            desc = "";
-
-            icon = 0;
-
-            level = 0;
-
-            user_level_limit = 0;
-
-            vip_level_limit = 0;
-
-            allow_auto_join = false;
-
-            member_count = 0;
-
-            member_limit = 0;
-
-            president_id = 0;
-
-            president_name = "";
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            name = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            desc = reader.ReadString();
-                        }
-                        break;
-                    case 32:
-                        {
-                            icon = reader.ReadInt32();
-                        }
-                        break;
-                    case 40:
-                        {
-                            level = reader.ReadInt32();
-                        }
-                        break;
-                    case 48:
-                        {
-                            user_level_limit = reader.ReadInt32();
-                        }
-                        break;
-                    case 56:
-                        {
-                            vip_level_limit = reader.ReadInt32();
-                        }
-                        break;
-                    case 64:
-                        {
-                            allow_auto_join = reader.ReadBool();
-                        }
-                        break;
-                    case 72:
-                        {
-                            member_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 80:
-                        {
-                            member_limit = reader.ReadInt32();
-                        }
-                        break;
-                    case 88:
-                        {
-                            president_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 98:
-                        {
-                            president_name = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildJoinItem : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string nickname { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int gender { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int head { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int head_frame { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public int level { get; set; }
-
-        [global::ProtoBuf.ProtoMember(7)]
-        public int vip_level { get; set; }
-
-        [global::ProtoBuf.ProtoMember(8)]
-        public int request_time { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-            if(nickname != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(nickname);
-            }
-            if(gender != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(gender);
-            }
-            if(head != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(head);
-            }
-            if(head_frame != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(head_frame);
-            }
-            if(level != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt32(level);
-            }
-            if(vip_level != 0)
-            {
-                writer.WriteTag(56);
-                writer.WriteInt32(vip_level);
-            }
-            if(request_time != 0)
-            {
-                writer.WriteTag(64);
-                writer.WriteInt32(request_time);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            nickname = "";
-
-            gender = 0;
-
-            head = 0;
-
-            head_frame = 0;
-
-            level = 0;
-
-            vip_level = 0;
-
-            request_time = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            nickname = reader.ReadString();
-                        }
-                        break;
-                    case 24:
-                        {
-                            gender = reader.ReadInt32();
-                        }
-                        break;
-                    case 32:
-                        {
-                            head = reader.ReadInt32();
-                        }
-                        break;
-                    case 40:
-                        {
-                            head_frame = reader.ReadInt32();
-                        }
-                        break;
-                    case 48:
-                        {
-                            level = reader.ReadInt32();
-                        }
-                        break;
-                    case 56:
-                        {
-                            vip_level = reader.ReadInt32();
-                        }
-                        break;
-                    case 64:
-                        {
-                            request_time = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildMember : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string nickname { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int gender { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int head { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int head_frame { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public int level { get; set; }
-
-        [global::ProtoBuf.ProtoMember(7)]
-        public int vip_level { get; set; }
-
-        [global::ProtoBuf.ProtoMember(8)]
-        public int job { get; set; }
-
-        [global::ProtoBuf.ProtoMember(9)]
-        public bool is_online { get; set; }
-
-        [global::ProtoBuf.ProtoMember(10)]
-        public int last_login_time { get; set; }
-
-        [global::ProtoBuf.ProtoMember(11)]
-        public long contribute { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-            if(nickname != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(nickname);
-            }
-            if(gender != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(gender);
-            }
-            if(head != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(head);
-            }
-            if(head_frame != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(head_frame);
-            }
-            if(level != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt32(level);
-            }
-            if(vip_level != 0)
-            {
-                writer.WriteTag(56);
-                writer.WriteInt32(vip_level);
-            }
-            if(job != 0)
-            {
-                writer.WriteTag(64);
-                writer.WriteInt32(job);
-            }
-            if(is_online != false)
-            {
-                writer.WriteTag(72);
-                writer.WriteBool(is_online);
-            }
-            if(last_login_time != 0)
-            {
-                writer.WriteTag(80);
-                writer.WriteInt32(last_login_time);
-            }
-            if(contribute != 0)
-            {
-                writer.WriteTag(88);
-                writer.WriteInt64(contribute);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            nickname = "";
-
-            gender = 0;
-
-            head = 0;
-
-            head_frame = 0;
-
-            level = 0;
-
-            vip_level = 0;
-
-            job = 0;
-
-            is_online = false;
-
-            last_login_time = 0;
-
-            contribute = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            nickname = reader.ReadString();
-                        }
-                        break;
-                    case 24:
-                        {
-                            gender = reader.ReadInt32();
-                        }
-                        break;
-                    case 32:
-                        {
-                            head = reader.ReadInt32();
-                        }
-                        break;
-                    case 40:
-                        {
-                            head_frame = reader.ReadInt32();
-                        }
-                        break;
-                    case 48:
-                        {
-                            level = reader.ReadInt32();
-                        }
-                        break;
-                    case 56:
-                        {
-                            vip_level = reader.ReadInt32();
-                        }
-                        break;
-                    case 64:
-                        {
-                            job = reader.ReadInt32();
-                        }
-                        break;
-                    case 72:
-                        {
-                            is_online = reader.ReadBool();
-                        }
-                        break;
-                    case 80:
-                        {
-                            last_login_time = reader.ReadInt32();
-                        }
-                        break;
-                    case 88:
-                        {
-                            contribute = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedpacketMember : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string nickname { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int gender { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int head { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int head_frame { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public int level { get; set; }
-
-        [global::ProtoBuf.ProtoMember(7)]
-        public int vip_level { get; set; }
-
-        [global::ProtoBuf.ProtoMember(8)]
-        public int job { get; set; }
-
-        [global::ProtoBuf.ProtoMember(9)]
-        public bool is_online { get; set; }
-
-        [global::ProtoBuf.ProtoMember(10)]
-        public int grab_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(11)]
-        public long total_grab_result { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-            if(nickname != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(nickname);
-            }
-            if(gender != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(gender);
-            }
-            if(head != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(head);
-            }
-            if(head_frame != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(head_frame);
-            }
-            if(level != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt32(level);
-            }
-            if(vip_level != 0)
-            {
-                writer.WriteTag(56);
-                writer.WriteInt32(vip_level);
-            }
-            if(job != 0)
-            {
-                writer.WriteTag(64);
-                writer.WriteInt32(job);
-            }
-            if(is_online != false)
-            {
-                writer.WriteTag(72);
-                writer.WriteBool(is_online);
-            }
-            if(grab_count != 0)
-            {
-                writer.WriteTag(80);
-                writer.WriteInt32(grab_count);
-            }
-            if(total_grab_result != 0)
-            {
-                writer.WriteTag(88);
-                writer.WriteInt64(total_grab_result);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            nickname = "";
-
-            gender = 0;
-
-            head = 0;
-
-            head_frame = 0;
-
-            level = 0;
-
-            vip_level = 0;
-
-            job = 0;
-
-            is_online = false;
-
-            grab_count = 0;
-
-            total_grab_result = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            nickname = reader.ReadString();
-                        }
-                        break;
-                    case 24:
-                        {
-                            gender = reader.ReadInt32();
-                        }
-                        break;
-                    case 32:
-                        {
-                            head = reader.ReadInt32();
-                        }
-                        break;
-                    case 40:
-                        {
-                            head_frame = reader.ReadInt32();
-                        }
-                        break;
-                    case 48:
-                        {
-                            level = reader.ReadInt32();
-                        }
-                        break;
-                    case 56:
-                        {
-                            vip_level = reader.ReadInt32();
-                        }
-                        break;
-                    case 64:
-                        {
-                            job = reader.ReadInt32();
-                        }
-                        break;
-                    case 72:
-                        {
-                            is_online = reader.ReadBool();
-                        }
-                        break;
-                    case 80:
-                        {
-                            grab_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 88:
-                        {
-                            total_grab_result = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagItem : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int item_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int item_sub_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public long item_count { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(item_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(item_id);
-            }
-            if(item_sub_id != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(item_sub_id);
-            }
-            if(item_count != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt64(item_count);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            item_id = 0;
-
-            item_sub_id = 0;
-
-            item_count = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            item_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            item_sub_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 24:
-                        {
-                            item_count = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagLog : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string nickname { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int type { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int item_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int item_sub_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public long item_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(7)]
-        public int timestamp { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-            if(nickname != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(nickname);
-            }
-            if(type != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(type);
-            }
-            if(item_id != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(item_id);
-            }
-            if(item_sub_id != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(item_sub_id);
-            }
-            if(item_count != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt64(item_count);
-            }
-            if(timestamp != 0)
-            {
-                writer.WriteTag(56);
-                writer.WriteInt32(timestamp);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            nickname = "";
-
-            type = 0;
-
-            item_id = 0;
-
-            item_sub_id = 0;
-
-            item_count = 0;
-
-            timestamp = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            nickname = reader.ReadString();
-                        }
-                        break;
-                    case 24:
-                        {
-                            type = reader.ReadInt32();
-                        }
-                        break;
-                    case 32:
-                        {
-                            item_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 40:
-                        {
-                            item_sub_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 48:
-                        {
-                            item_count = reader.ReadInt64();
-                        }
-                        break;
-                    case 56:
-                        {
-                            timestamp = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildCreateReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public string name { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int icon { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int user_level_limit { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int vip_level_limit { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public bool allow_auto_join { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(name != "")
-            {
-                writer.WriteTag(10);
-                writer.WriteString(name);
-            }
-            if(icon != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(icon);
-            }
-            if(user_level_limit != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(user_level_limit);
-            }
-            if(vip_level_limit != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(vip_level_limit);
-            }
-            if(allow_auto_join != false)
-            {
-                writer.WriteTag(40);
-                writer.WriteBool(allow_auto_join);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            name = "";
-
-            icon = 0;
-
-            user_level_limit = 0;
-
-            vip_level_limit = 0;
-
-            allow_auto_join = false;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            name = reader.ReadString();
-                        }
-                        break;
-                    case 16:
-                        {
-                            icon = reader.ReadInt32();
-                        }
-                        break;
-                    case 24:
-                        {
-                            user_level_limit = reader.ReadInt32();
-                        }
-                        break;
-                    case 32:
-                        {
-                            vip_level_limit = reader.ReadInt32();
-                        }
-                        break;
-                    case 40:
-                        {
-                            allow_auto_join = reader.ReadBool();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildCreateAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public GuildInfo info { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(info != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(info != null)
-                    {
-                        info.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            info = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                info = new CLPF.GuildInfo();
-                                info.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRecommendListReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRecommendListAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.GuildInfo")]
-        public global::System.Collections.Generic.List<GuildInfo> array { get; private set; } = new global::System.Collections.Generic.List<GuildInfo>();
-
-        [global::ProtoBuf.ProtoMember(2, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> join_flags_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            foreach(var itor in array)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-            writer.WriteTag(18);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in join_flags_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            array.Clear();
-
-            join_flags_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            CLPF.GuildInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.GuildInfo();
-                                o.Decode(msgr);
-                            });
-                            array.Add(o);
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                join_flags_array.Add(o);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildSearchReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int guild_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(guild_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(guild_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            guild_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            guild_id = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildSearchAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public GuildInfo info { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int join_flag { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(info != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(info != null)
-                    {
-                        info.Encode(msrw);
-                    }
-                });
-            }
-            if(join_flag != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(join_flag);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            info = null;
-
-            join_flag = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                info = new CLPF.GuildInfo();
-                                info.Decode(msgr);
-                            });
-                        }
-                        break;
-                    case 24:
-                        {
-                            join_flag = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQuickJoinReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQuickJoinAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public GuildInfo info { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(info != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(info != null)
-                    {
-                        info.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            info = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                info = new CLPF.GuildInfo();
-                                info.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildJoinReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int guild_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(guild_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(guild_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            guild_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            guild_id = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildJoinAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryJoinListReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryJoinListAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.GuildJoinItem")]
-        public global::System.Collections.Generic.List<GuildJoinItem> item_array { get; private set; } = new global::System.Collections.Generic.List<GuildJoinItem>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in item_array)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            item_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.GuildJoinItem o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.GuildJoinItem();
-                                o.Decode(msgr);
-                            });
-                            item_array.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildHandleJoinReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public bool agree { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-            if(agree != false)
-            {
-                writer.WriteTag(16);
-                writer.WriteBool(agree);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            agree = false;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            agree = reader.ReadBool();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildHandleJoinAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public GuildMember new_member { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(new_member != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(new_member != null)
-                    {
-                        new_member.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            new_member = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                new_member = new CLPF.GuildMember();
-                                new_member.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildJoinResponseNtf : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int guild_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string guild_name { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int user_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public string nickname { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public bool agree { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(guild_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(guild_id);
-            }
-            if(guild_name != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(guild_name);
-            }
-            if(user_id != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(user_id);
-            }
-            if(nickname != "")
-            {
-                writer.WriteTag(34);
-                writer.WriteString(nickname);
-            }
-            if(agree != false)
-            {
-                writer.WriteTag(40);
-                writer.WriteBool(agree);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            guild_id = 0;
-
-            guild_name = "";
-
-            user_id = 0;
-
-            nickname = "";
-
-            agree = false;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            guild_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            guild_name = reader.ReadString();
-                        }
-                        break;
-                    case 24:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 34:
-                        {
-                            nickname = reader.ReadString();
-                        }
-                        break;
-                    case 40:
-                        {
-                            agree = reader.ReadBool();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildNewJoinRequestNtf : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string nickname { get; set; } = "";
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-            if(nickname != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(nickname);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            nickname = "";
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            nickname = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryInfoReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryInfoAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public GuildInfo info { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3, TypeName = "CLPF.GuildMember")]
-        public global::System.Collections.Generic.List<GuildMember> members_array { get; private set; } = new global::System.Collections.Generic.List<GuildMember>();
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int job { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(info != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(info != null)
-                    {
-                        info.Encode(msrw);
-                    }
-                });
-            }
-            foreach(var itor in members_array)
-            {
-                writer.WriteTag(26);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-            if(job != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(job);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            info = null;
-
-            members_array.Clear();
-
-            job = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                info = new CLPF.GuildInfo();
-                                info.Decode(msgr);
-                            });
-                        }
-                        break;
-                    case 26:
-                        {
-                            CLPF.GuildMember o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.GuildMember();
-                                o.Decode(msgr);
-                            });
-                            members_array.Add(o);
-                        }
-                        break;
-                    case 32:
-                        {
-                            job = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildModifyInfoReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public string name { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string desc { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int icon { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int user_level_limit { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int vip_level_limit { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public bool allow_auto_join { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(name != "")
-            {
-                writer.WriteTag(10);
-                writer.WriteString(name);
-            }
-            if(desc != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(desc);
-            }
-            if(icon != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(icon);
-            }
-            if(user_level_limit != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(user_level_limit);
-            }
-            if(vip_level_limit != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(vip_level_limit);
-            }
-            if(allow_auto_join != false)
-            {
-                writer.WriteTag(48);
-                writer.WriteBool(allow_auto_join);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            name = "";
-
-            desc = "";
-
-            icon = 0;
-
-            user_level_limit = 0;
-
-            vip_level_limit = 0;
-
-            allow_auto_join = false;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            name = reader.ReadString();
-                        }
-                        break;
-                    case 18:
-                        {
-                            desc = reader.ReadString();
-                        }
-                        break;
-                    case 24:
-                        {
-                            icon = reader.ReadInt32();
-                        }
-                        break;
-                    case 32:
-                        {
-                            user_level_limit = reader.ReadInt32();
-                        }
-                        break;
-                    case 40:
-                        {
-                            vip_level_limit = reader.ReadInt32();
-                        }
-                        break;
-                    case 48:
-                        {
-                            allow_auto_join = reader.ReadBool();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildModifyInfoAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildModifyMemberJobReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int job { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-            if(job != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(job);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            job = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            job = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildModifyMemberJobAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildKickMemberReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> id_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            writer.WriteTag(10);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in id_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            id_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                id_array.Add(o);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildKickMemberAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildKickMemberNtf : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string nickname { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int job { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-            if(nickname != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(nickname);
-            }
-            if(job != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(job);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            nickname = "";
-
-            job = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            nickname = reader.ReadString();
-                        }
-                        break;
-                    case 24:
-                        {
-                            job = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildExitReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildExitAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildUpgradeReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildUpgradeAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int guild_level { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int guild_max_members { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(guild_level != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(guild_level);
-            }
-            if(guild_max_members != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(guild_max_members);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            guild_level = 0;
-
-            guild_max_members = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            guild_level = reader.ReadInt32();
-                        }
-                        break;
-                    case 24:
-                        {
-                            guild_max_members = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryWelfareReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryWelfareAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long contribute { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public long welfare { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int is_fetched { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(contribute != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(contribute);
-            }
-            if(welfare != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt64(welfare);
-            }
-            if(is_fetched != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(is_fetched);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            contribute = 0;
-
-            welfare = 0;
-
-            is_fetched = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            contribute = reader.ReadInt64();
-                        }
-                        break;
-                    case 24:
-                        {
-                            welfare = reader.ReadInt64();
-                        }
-                        break;
-                    case 32:
-                        {
-                            is_fetched = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildFetchWelfareReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildFetchWelfareAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long welfare { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(welfare != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(welfare);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            welfare = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            welfare = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketInfoReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketInfoAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long today_pool { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public long past_pool { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public long today_give_out { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int left_packet_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public int total_packet_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(7)]
-        public int donate_num { get; set; }
-
-        [global::ProtoBuf.ProtoMember(8)]
-        public int grabed_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(9)]
-        public int left_grab_count { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(today_pool != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(today_pool);
-            }
-            if(past_pool != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt64(past_pool);
-            }
-            if(today_give_out != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt64(today_give_out);
-            }
-            if(left_packet_count != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(left_packet_count);
-            }
-            if(total_packet_count != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt32(total_packet_count);
-            }
-            if(donate_num != 0)
-            {
-                writer.WriteTag(56);
-                writer.WriteInt32(donate_num);
-            }
-            if(grabed_count != 0)
-            {
-                writer.WriteTag(64);
-                writer.WriteInt32(grabed_count);
-            }
-            if(left_grab_count != 0)
-            {
-                writer.WriteTag(72);
-                writer.WriteInt32(left_grab_count);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            today_pool = 0;
-
-            past_pool = 0;
-
-            today_give_out = 0;
-
-            left_packet_count = 0;
-
-            total_packet_count = 0;
-
-            donate_num = 0;
-
-            grabed_count = 0;
-
-            left_grab_count = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            today_pool = reader.ReadInt64();
-                        }
-                        break;
-                    case 24:
-                        {
-                            past_pool = reader.ReadInt64();
-                        }
-                        break;
-                    case 32:
-                        {
-                            today_give_out = reader.ReadInt64();
-                        }
-                        break;
-                    case 40:
-                        {
-                            left_packet_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 48:
-                        {
-                            total_packet_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 56:
-                        {
-                            donate_num = reader.ReadInt32();
-                        }
-                        break;
-                    case 64:
-                        {
-                            grabed_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 72:
-                        {
-                            left_grab_count = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketRankReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketRankAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.GuildRedpacketMember")]
-        public global::System.Collections.Generic.List<GuildRedpacketMember> rank_array { get; private set; } = new global::System.Collections.Generic.List<GuildRedpacketMember>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in rank_array)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            rank_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.GuildRedpacketMember o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.GuildRedpacketMember();
-                                o.Decode(msgr);
-                            });
-                            rank_array.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildActRedPacketReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildActRedPacketAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long grab_result { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(grab_result != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(grab_result);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            grab_result = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            grab_result = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagQueryInfoReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagQueryInfoAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.GuildBagItem")]
-        public global::System.Collections.Generic.List<GuildBagItem> item_array { get; private set; } = new global::System.Collections.Generic.List<GuildBagItem>();
-
-        [global::ProtoBuf.ProtoMember(3, TypeName = "CLPF.GuildBagLog")]
-        public global::System.Collections.Generic.List<GuildBagLog> log_array { get; private set; } = new global::System.Collections.Generic.List<GuildBagLog>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in item_array)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-            foreach(var itor in log_array)
-            {
-                writer.WriteTag(26);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            item_array.Clear();
-
-            log_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.GuildBagItem o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.GuildBagItem();
-                                o.Decode(msgr);
-                            });
-                            item_array.Add(o);
-                        }
-                        break;
-                    case 26:
-                        {
-                            CLPF.GuildBagLog o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.GuildBagLog();
-                                o.Decode(msgr);
-                            });
-                            log_array.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagQueryLogReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int page_index { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(page_index != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(page_index);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            page_index = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            page_index = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagQueryLogAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.GuildBagLog")]
-        public global::System.Collections.Generic.List<GuildBagLog> log_array { get; private set; } = new global::System.Collections.Generic.List<GuildBagLog>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in log_array)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            log_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.GuildBagLog o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.GuildBagLog();
-                                o.Decode(msgr);
-                            });
-                            log_array.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagStoreItemReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public ItemInfo item { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(item != null)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(item != null)
-                    {
-                        item.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            item = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                item = new CLPF.ItemInfo();
-                                item.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagStoreItemAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public GuildBagLog bag_log { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(bag_log != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(bag_log != null)
-                    {
-                        bag_log.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            bag_log = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                bag_log = new CLPF.GuildBagLog();
-                                bag_log.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagFetchItemReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public ItemInfo item { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int user_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(item != null)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(item != null)
-                    {
-                        item.Encode(msrw);
-                    }
-                });
-            }
-            if(user_id != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(user_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            item = null;
-
-            user_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                item = new CLPF.ItemInfo();
-                                item.Decode(msgr);
-                            });
-                        }
-                        break;
-                    case 16:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagFetchItemAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public GuildBagLog bag_log { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(bag_log != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(bag_log != null)
-                    {
-                        bag_log.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            bag_log = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                bag_log = new CLPF.GuildBagLog();
-                                bag_log.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildBagFetchItemNtf : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public ItemInfo item { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(item != null)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(item != null)
-                    {
-                        item.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            item = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                item = new CLPF.ItemInfo();
-                                item.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
     public partial class MessageBroadcastNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
@@ -6449,725 +2741,6 @@ namespace CLPF
                     case 18:
                         {
                             content = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskInfo : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int task_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long achieve_num { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(task_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(task_id);
-            }
-            if(achieve_num != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(achieve_num);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            task_id = 0;
-
-            achieve_num = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            task_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            achieve_num = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskQueryReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskQueryAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.TaskInfo")]
-        public global::System.Collections.Generic.List<TaskInfo> task_info_array { get; private set; } = new global::System.Collections.Generic.List<TaskInfo>();
-
-        [global::ProtoBuf.ProtoMember(2, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> finish_task_id_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int daily_active_value { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int weekly_active_value { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> finish_active_id_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            foreach(var itor in task_info_array)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-            writer.WriteTag(18);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in finish_task_id_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-            if(daily_active_value != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(daily_active_value);
-            }
-            if(weekly_active_value != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(weekly_active_value);
-            }
-            writer.WriteTag(42);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in finish_active_id_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            task_info_array.Clear();
-
-            finish_task_id_array.Clear();
-
-            daily_active_value = 0;
-
-            weekly_active_value = 0;
-
-            finish_active_id_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            CLPF.TaskInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.TaskInfo();
-                                o.Decode(msgr);
-                            });
-                            task_info_array.Add(o);
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                finish_task_id_array.Add(o);
-                            });
-                        }
-                        break;
-                    case 24:
-                        {
-                            daily_active_value = reader.ReadInt32();
-                        }
-                        break;
-                    case 32:
-                        {
-                            weekly_active_value = reader.ReadInt32();
-                        }
-                        break;
-                    case 42:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                finish_active_id_array.Add(o);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskFetchTaskRewardsReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int task_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(task_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(task_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            task_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            task_id = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskFetchTaskRewardsAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskFetchActiveRewardsReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int active_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(active_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(active_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            active_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            active_id = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskFetchActiveRewardsAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveData : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int kind { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long count { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(kind != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(kind);
-            }
-            if(count != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(count);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            kind = 0;
-
-            count = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            kind = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            count = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveResetData : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int kind { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int left_days { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(kind != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(kind);
-            }
-            if(left_days != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(left_days);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            kind = 0;
-
-            left_days = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            kind = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            left_days = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveQueryInfoReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveQueryInfoAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.TaskAchieveData")]
-        public global::System.Collections.Generic.List<TaskAchieveData> data_array { get; private set; } = new global::System.Collections.Generic.List<TaskAchieveData>();
-
-        [global::ProtoBuf.ProtoMember(2, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> finish_id_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        [global::ProtoBuf.ProtoMember(3, TypeName = "CLPF.TaskAchieveResetData")]
-        public global::System.Collections.Generic.List<TaskAchieveResetData> reset_data_array { get; private set; } = new global::System.Collections.Generic.List<TaskAchieveResetData>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            foreach(var itor in data_array)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-            writer.WriteTag(18);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in finish_id_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-            foreach(var itor in reset_data_array)
-            {
-                writer.WriteTag(26);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            data_array.Clear();
-
-            finish_id_array.Clear();
-
-            reset_data_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            CLPF.TaskAchieveData o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.TaskAchieveData();
-                                o.Decode(msgr);
-                            });
-                            data_array.Add(o);
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                finish_id_array.Add(o);
-                            });
-                        }
-                        break;
-                    case 26:
-                        {
-                            CLPF.TaskAchieveResetData o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.TaskAchieveResetData();
-                                o.Decode(msgr);
-                            });
-                            reset_data_array.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveFetchRewardReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int task_achieve_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(task_achieve_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(task_achieve_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            task_achieve_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            task_achieve_id = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class TaskAchieveFetchRewardAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
                         }
                         break;
                     default:
@@ -7267,1319 +2840,6 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class ReliefGoldFetchReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ReliefGoldFetchAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long currency_delta { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(currency_delta != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(currency_delta);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            currency_delta = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            currency_delta = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberQueryInfoReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberQueryInfoAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> shake_number_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public bool shake_number_act_flag { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public bool shake_number_fetched { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            writer.WriteTag(10);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in shake_number_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-            if(shake_number_act_flag != false)
-            {
-                writer.WriteTag(16);
-                writer.WriteBool(shake_number_act_flag);
-            }
-            if(shake_number_fetched != false)
-            {
-                writer.WriteTag(24);
-                writer.WriteBool(shake_number_fetched);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            shake_number_array.Clear();
-
-            shake_number_act_flag = false;
-
-            shake_number_fetched = false;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                shake_number_array.Add(o);
-                            });
-                        }
-                        break;
-                    case 16:
-                        {
-                            shake_number_act_flag = reader.ReadBool();
-                        }
-                        break;
-                    case 24:
-                        {
-                            shake_number_fetched = reader.ReadBool();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberActReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberActAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int number { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(number != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(number);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            number = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            number = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberFetchRewardReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberFetchRewardAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long currency_delta { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(currency_delta != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(currency_delta);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            currency_delta = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            currency_delta = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberFetchBoxRewardReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int day { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(day != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(day);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            day = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            day = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class ShakeNumberFetchBoxRewardAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeDailyQueryReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeDailyQueryAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> finished_id_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            writer.WriteTag(10);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in finished_id_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            finished_id_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                finished_id_array.Add(o);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigQueryInfoReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigQueryInfoAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int welfare { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int expire_time { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public bool is_fetched { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public bool is_broken { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(welfare != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(welfare);
-            }
-            if(expire_time != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(expire_time);
-            }
-            if(is_fetched != false)
-            {
-                writer.WriteTag(24);
-                writer.WriteBool(is_fetched);
-            }
-            if(is_broken != false)
-            {
-                writer.WriteTag(32);
-                writer.WriteBool(is_broken);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            welfare = 0;
-
-            expire_time = 0;
-
-            is_fetched = false;
-
-            is_broken = false;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            welfare = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            expire_time = reader.ReadInt32();
-                        }
-                        break;
-                    case 24:
-                        {
-                            is_fetched = reader.ReadBool();
-                        }
-                        break;
-                    case 32:
-                        {
-                            is_broken = reader.ReadBool();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigFetchMaterialReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigFetchMaterialAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public ItemInfo item { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(item != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(item != null)
-                    {
-                        item.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            item = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                item = new CLPF.ItemInfo();
-                                item.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigBrokenReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigBrokenAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long currency_delta { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(currency_delta != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(currency_delta);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            currency_delta = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            currency_delta = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigSearchReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WelfarePigSearchAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long currency_delta { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(currency_delta != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(currency_delta);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            currency_delta = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            currency_delta = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class InvestGunQueryInfoReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class InvestGunQueryInfoAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int max_recharge_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int max_gun_value { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> finished_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(max_recharge_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(max_recharge_id);
-            }
-            if(max_gun_value != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(max_gun_value);
-            }
-            writer.WriteTag(26);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in finished_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            max_recharge_id = 0;
-
-            max_gun_value = 0;
-
-            finished_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            max_recharge_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            max_gun_value = reader.ReadInt32();
-                        }
-                        break;
-                    case 26:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                finished_array.Add(o);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class InvestGunFetchRewardReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int gun_value { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(gun_value != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(gun_value);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            gun_value = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            gun_value = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class InvestGunFetchRewardAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class InvestCostQueryInfoReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class InvestCostQueryInfoAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public bool is_recharged { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long total_currency_cost { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> finished_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(is_recharged != false)
-            {
-                writer.WriteTag(8);
-                writer.WriteBool(is_recharged);
-            }
-            if(total_currency_cost != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(total_currency_cost);
-            }
-            writer.WriteTag(26);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in finished_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            is_recharged = false;
-
-            total_currency_cost = 0;
-
-            finished_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            is_recharged = reader.ReadBool();
-                        }
-                        break;
-                    case 16:
-                        {
-                            total_currency_cost = reader.ReadInt64();
-                        }
-                        break;
-                    case 26:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                finished_array.Add(o);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class InvestCostFetchRewardReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int reward_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(reward_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(reward_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            reward_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            reward_id = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class InvestCostFetchRewardAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class FirstPackageFetchReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class FirstPackageFetchAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
     public partial class AnnouncementChangedNtf : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
@@ -8605,485 +2865,6 @@ namespace CLPF
                     case 8:
                         {
                             content_type = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class VipFillUpCurrencyNtf : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public long currency_delta { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(currency_delta != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt64(currency_delta);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            currency_delta = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            currency_delta = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsExchangeLog : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int goods_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string goods_name { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string real_name { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public string phone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public string address { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public int state { get; set; }
-
-        [global::ProtoBuf.ProtoMember(7)]
-        public int create_time { get; set; }
-
-        [global::ProtoBuf.ProtoMember(8)]
-        public int process_time { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(goods_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(goods_id);
-            }
-            if(goods_name != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(goods_name);
-            }
-            if(real_name != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(real_name);
-            }
-            if(phone != "")
-            {
-                writer.WriteTag(34);
-                writer.WriteString(phone);
-            }
-            if(address != "")
-            {
-                writer.WriteTag(42);
-                writer.WriteString(address);
-            }
-            if(state != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt32(state);
-            }
-            if(create_time != 0)
-            {
-                writer.WriteTag(56);
-                writer.WriteInt32(create_time);
-            }
-            if(process_time != 0)
-            {
-                writer.WriteTag(64);
-                writer.WriteInt32(process_time);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            goods_id = 0;
-
-            goods_name = "";
-
-            real_name = "";
-
-            phone = "";
-
-            address = "";
-
-            state = 0;
-
-            create_time = 0;
-
-            process_time = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            goods_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            goods_name = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            real_name = reader.ReadString();
-                        }
-                        break;
-                    case 34:
-                        {
-                            phone = reader.ReadString();
-                        }
-                        break;
-                    case 42:
-                        {
-                            address = reader.ReadString();
-                        }
-                        break;
-                    case 48:
-                        {
-                            state = reader.ReadInt32();
-                        }
-                        break;
-                    case 56:
-                        {
-                            create_time = reader.ReadInt32();
-                        }
-                        break;
-                    case 64:
-                        {
-                            process_time = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsQueryAddressReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsQueryAddressAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string real_name { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string phone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public string address { get; set; } = "";
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(real_name != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(real_name);
-            }
-            if(phone != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(phone);
-            }
-            if(address != "")
-            {
-                writer.WriteTag(34);
-                writer.WriteString(address);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            real_name = "";
-
-            phone = "";
-
-            address = "";
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            real_name = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            phone = reader.ReadString();
-                        }
-                        break;
-                    case 34:
-                        {
-                            address = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsCreateOrderReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int goods_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string real_name { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string phone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public string address { get; set; } = "";
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(goods_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(goods_id);
-            }
-            if(real_name != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(real_name);
-            }
-            if(phone != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(phone);
-            }
-            if(address != "")
-            {
-                writer.WriteTag(34);
-                writer.WriteString(address);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            goods_id = 0;
-
-            real_name = "";
-
-            phone = "";
-
-            address = "";
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            goods_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            real_name = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            phone = reader.ReadString();
-                        }
-                        break;
-                    case 34:
-                        {
-                            address = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsCreateOrderAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsQueryExchangeLogReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RealGoodsQueryExchangeLogAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.RealGoodsExchangeLog")]
-        public global::System.Collections.Generic.List<RealGoodsExchangeLog> log_array { get; private set; } = new global::System.Collections.Generic.List<RealGoodsExchangeLog>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            foreach(var itor in log_array)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            log_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            CLPF.RealGoodsExchangeLog o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.RealGoodsExchangeLog();
-                                o.Decode(msgr);
-                            });
-                            log_array.Add(o);
                         }
                         break;
                     default:
@@ -9363,243 +3144,71 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class CdkeyFetchRewardReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public string code { get; set; } = "";
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(code != "")
-            {
-                writer.WriteTag(10);
-                writer.WriteString(code);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            code = "";
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            code = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CdkeyFetchRewardAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountBindStateReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountBindStateAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, IsPacked = true)]
-        public global::System.Collections.Generic.List<int> bind_type_array { get; private set; } = new global::System.Collections.Generic.List<int>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            writer.WriteTag(18);
-            writer.WriteRepeated((listw) => {
-                foreach(var itor in bind_type_array)
-                {
-                    listw.WriteInt32(itor);
-                }
-            });
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            bind_type_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadRepeated((listr) => {
-                                var o = listr.ReadInt32();
-                                bind_type_array.Add(o);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
     public partial class AccountPhoneBindReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
-        public string phone { get; set; } = "";
+        public string account { get; set; } = "";
 
         [global::ProtoBuf.ProtoMember(2)]
-        public string sms_app_key { get; set; } = "";
+        public string phone { get; set; } = "";
 
         [global::ProtoBuf.ProtoMember(3)]
-        public string sms_zone { get; set; } = "";
+        public string sms_app_key { get; set; } = "";
 
         [global::ProtoBuf.ProtoMember(4)]
-        public string sms_code { get; set; } = "";
+        public string sms_zone { get; set; } = "";
 
         [global::ProtoBuf.ProtoMember(5)]
-        public string password { get; set; } = "";
+        public string sms_code { get; set; } = "";
 
         [global::ProtoBuf.ProtoMember(6)]
+        public string password { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(7)]
         public int sms_channel { get; set; }
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
-            if(phone != "")
+            if(account != "")
             {
                 writer.WriteTag(10);
+                writer.WriteString(account);
+            }
+            if(phone != "")
+            {
+                writer.WriteTag(18);
                 writer.WriteString(phone);
             }
             if(sms_app_key != "")
             {
-                writer.WriteTag(18);
+                writer.WriteTag(26);
                 writer.WriteString(sms_app_key);
             }
             if(sms_zone != "")
             {
-                writer.WriteTag(26);
+                writer.WriteTag(34);
                 writer.WriteString(sms_zone);
             }
             if(sms_code != "")
             {
-                writer.WriteTag(34);
+                writer.WriteTag(42);
                 writer.WriteString(sms_code);
             }
             if(password != "")
             {
-                writer.WriteTag(42);
+                writer.WriteTag(50);
                 writer.WriteString(password);
             }
             if(sms_channel != 0)
             {
-                writer.WriteTag(48);
+                writer.WriteTag(56);
                 writer.WriteInt32(sms_channel);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
+            account = "";
+
             phone = "";
 
             sms_app_key = "";
@@ -9619,465 +3228,32 @@ namespace CLPF
                 {
                     case 10:
                         {
-                            phone = reader.ReadString();
+                            account = reader.ReadString();
                         }
                         break;
                     case 18:
                         {
-                            sms_app_key = reader.ReadString();
+                            phone = reader.ReadString();
                         }
                         break;
                     case 26:
                         {
-                            sms_zone = reader.ReadString();
+                            sms_app_key = reader.ReadString();
                         }
                         break;
                     case 34:
                         {
-                            sms_code = reader.ReadString();
+                            sms_zone = reader.ReadString();
                         }
                         break;
                     case 42:
                         {
-                            password = reader.ReadString();
-                        }
-                        break;
-                    case 48:
-                        {
-                            sms_channel = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneBindAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneChange1Req : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public string phone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string sms_app_key { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string sms_zone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public string sms_code { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int sms_channel { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(phone != "")
-            {
-                writer.WriteTag(10);
-                writer.WriteString(phone);
-            }
-            if(sms_app_key != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(sms_app_key);
-            }
-            if(sms_zone != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(sms_zone);
-            }
-            if(sms_code != "")
-            {
-                writer.WriteTag(34);
-                writer.WriteString(sms_code);
-            }
-            if(sms_channel != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(sms_channel);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            phone = "";
-
-            sms_app_key = "";
-
-            sms_zone = "";
-
-            sms_code = "";
-
-            sms_channel = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            phone = reader.ReadString();
-                        }
-                        break;
-                    case 18:
-                        {
-                            sms_app_key = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            sms_zone = reader.ReadString();
-                        }
-                        break;
-                    case 34:
-                        {
                             sms_code = reader.ReadString();
-                        }
-                        break;
-                    case 40:
-                        {
-                            sms_channel = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneChange1Ack : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneChange2Req : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public string new_phone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string sms_app_key { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string sms_zone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public string sms_code { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int sms_channel { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(new_phone != "")
-            {
-                writer.WriteTag(10);
-                writer.WriteString(new_phone);
-            }
-            if(sms_app_key != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(sms_app_key);
-            }
-            if(sms_zone != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(sms_zone);
-            }
-            if(sms_code != "")
-            {
-                writer.WriteTag(34);
-                writer.WriteString(sms_code);
-            }
-            if(sms_channel != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(sms_channel);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            new_phone = "";
-
-            sms_app_key = "";
-
-            sms_zone = "";
-
-            sms_code = "";
-
-            sms_channel = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            new_phone = reader.ReadString();
-                        }
-                        break;
-                    case 18:
-                        {
-                            sms_app_key = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            sms_zone = reader.ReadString();
-                        }
-                        break;
-                    case 34:
-                        {
-                            sms_code = reader.ReadString();
-                        }
-                        break;
-                    case 40:
-                        {
-                            sms_channel = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountPhoneChange2Ack : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountUniformBindReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public string phone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string sms_app_key { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string sms_zone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public string sms_code { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int type { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public string token { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(7)]
-        public int sms_channel { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(phone != "")
-            {
-                writer.WriteTag(10);
-                writer.WriteString(phone);
-            }
-            if(sms_app_key != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(sms_app_key);
-            }
-            if(sms_zone != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(sms_zone);
-            }
-            if(sms_code != "")
-            {
-                writer.WriteTag(34);
-                writer.WriteString(sms_code);
-            }
-            if(type != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(type);
-            }
-            if(token != "")
-            {
-                writer.WriteTag(50);
-                writer.WriteString(token);
-            }
-            if(sms_channel != 0)
-            {
-                writer.WriteTag(56);
-                writer.WriteInt32(sms_channel);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            phone = "";
-
-            sms_app_key = "";
-
-            sms_zone = "";
-
-            sms_code = "";
-
-            type = 0;
-
-            token = "";
-
-            sms_channel = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            phone = reader.ReadString();
-                        }
-                        break;
-                    case 18:
-                        {
-                            sms_app_key = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            sms_zone = reader.ReadString();
-                        }
-                        break;
-                    case 34:
-                        {
-                            sms_code = reader.ReadString();
-                        }
-                        break;
-                    case 40:
-                        {
-                            type = reader.ReadInt32();
                         }
                         break;
                     case 50:
                         {
-                            token = reader.ReadString();
+                            password = reader.ReadString();
                         }
                         break;
                     case 56:
@@ -10096,158 +3272,7 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccountUniformBindAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountUniformUnbindReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public string phone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string sms_app_key { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string sms_zone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public string sms_code { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int type { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public int sms_channel { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(phone != "")
-            {
-                writer.WriteTag(10);
-                writer.WriteString(phone);
-            }
-            if(sms_app_key != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(sms_app_key);
-            }
-            if(sms_zone != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(sms_zone);
-            }
-            if(sms_code != "")
-            {
-                writer.WriteTag(34);
-                writer.WriteString(sms_code);
-            }
-            if(type != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(type);
-            }
-            if(sms_channel != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt32(sms_channel);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            phone = "";
-
-            sms_app_key = "";
-
-            sms_zone = "";
-
-            sms_code = "";
-
-            type = 0;
-
-            sms_channel = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            phone = reader.ReadString();
-                        }
-                        break;
-                    case 18:
-                        {
-                            sms_app_key = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            sms_zone = reader.ReadString();
-                        }
-                        break;
-                    case 34:
-                        {
-                            sms_code = reader.ReadString();
-                        }
-                        break;
-                    case 40:
-                        {
-                            type = reader.ReadInt32();
-                        }
-                        break;
-                    case 48:
-                        {
-                            sms_channel = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class AccountUniformUnbindAck : AssemblyCommon.IProtoMessage
+    public partial class AccountPhoneBindAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -11143,6 +4168,12 @@ namespace CLPF
         [global::ProtoBuf.ProtoMember(6)]
         public int unique_id { get; set; }
 
+        [global::ProtoBuf.ProtoMember(7)]
+        public long original_amount { get; set; }
+
+        [global::ProtoBuf.ProtoMember(8)]
+        public long latest_amount { get; set; }
+
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
             if(log_type != 0)
@@ -11180,6 +4211,16 @@ namespace CLPF
                 writer.WriteTag(48);
                 writer.WriteInt32(unique_id);
             }
+            if(original_amount != 0)
+            {
+                writer.WriteTag(56);
+                writer.WriteInt64(original_amount);
+            }
+            if(latest_amount != 0)
+            {
+                writer.WriteTag(64);
+                writer.WriteInt64(latest_amount);
+            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
@@ -11194,6 +4235,10 @@ namespace CLPF
             timestamp = 0;
 
             unique_id = 0;
+
+            original_amount = 0;
+
+            latest_amount = 0;
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -11233,6 +4278,16 @@ namespace CLPF
                             unique_id = reader.ReadInt32();
                         }
                         break;
+                    case 56:
+                        {
+                            original_amount = reader.ReadInt64();
+                        }
+                        break;
+                    case 64:
+                        {
+                            latest_amount = reader.ReadInt64();
+                        }
+                        break;
                     default:
                         {
                             reader.SkipLastField();
@@ -11246,16 +4301,46 @@ namespace CLPF
     [global::ProtoBuf.ProtoContract()]
     public partial class BankItemLogQueryReq : AssemblyCommon.IProtoMessage
     {
+        [global::ProtoBuf.ProtoMember(1, DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+        public uint start_timestamp { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+        public uint end_timestamp { get; set; }
+
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
+            if(start_timestamp != 0)
+            {
+                writer.WriteTag(13);
+                writer.WriteFixed32(start_timestamp);
+            }
+            if(end_timestamp != 0)
+            {
+                writer.WriteTag(21);
+                writer.WriteFixed32(end_timestamp);
+            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
+            start_timestamp = 0;
+
+            end_timestamp = 0;
+
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
             {
                 switch (tag)
                 {
+                    case 13:
+                        {
+                            start_timestamp = reader.ReadFixed32();
+                        }
+                        break;
+                    case 21:
+                        {
+                            end_timestamp = reader.ReadFixed32();
+                        }
+                        break;
                     default:
                         {
                             reader.SkipLastField();
@@ -11314,6 +4399,190 @@ namespace CLPF
                             CLPF.BankItemLogInfo o = null;
                             reader.ReadMessage((msgr) => {
                                 o = new CLPF.BankItemLogInfo();
+                                o.Decode(msgr);
+                            });
+                            log_array.Add(o);
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class BankItemDailyLogInfo : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1, DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+        public uint day_timestamp { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public long total_send { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public long total_recv { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(day_timestamp != 0)
+            {
+                writer.WriteTag(13);
+                writer.WriteFixed32(day_timestamp);
+            }
+            if(total_send != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt64(total_send);
+            }
+            if(total_recv != 0)
+            {
+                writer.WriteTag(24);
+                writer.WriteInt64(total_recv);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            day_timestamp = 0;
+
+            total_send = 0;
+
+            total_recv = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 13:
+                        {
+                            day_timestamp = reader.ReadFixed32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            total_send = reader.ReadInt64();
+                        }
+                        break;
+                    case 24:
+                        {
+                            total_recv = reader.ReadInt64();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class BankItemDailyLogQueryReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1, DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+        public uint start_timestamp { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+        public uint end_timestamp { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(start_timestamp != 0)
+            {
+                writer.WriteTag(13);
+                writer.WriteFixed32(start_timestamp);
+            }
+            if(end_timestamp != 0)
+            {
+                writer.WriteTag(21);
+                writer.WriteFixed32(end_timestamp);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            start_timestamp = 0;
+
+            end_timestamp = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 13:
+                        {
+                            start_timestamp = reader.ReadFixed32();
+                        }
+                        break;
+                    case 21:
+                        {
+                            end_timestamp = reader.ReadFixed32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class BankItemDailyLogQueryAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.BankItemDailyLogInfo")]
+        public global::System.Collections.Generic.List<BankItemDailyLogInfo> log_array { get; private set; } = new global::System.Collections.Generic.List<BankItemDailyLogInfo>();
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            foreach(var itor in log_array)
+            {
+                writer.WriteTag(18);
+                writer.WriteMessage((msrw) => {
+                    if(itor != null)
+                    {
+                        itor.Encode(msrw);
+                    }
+                });
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            log_array.Clear();
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
+                        {
+                            CLPF.BankItemDailyLogInfo o = null;
+                            reader.ReadMessage((msgr) => {
+                                o = new CLPF.BankItemDailyLogInfo();
                                 o.Decode(msgr);
                             });
                             log_array.Add(o);
@@ -11582,1022 +4851,22 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class RankRewardFetchReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int rank_type { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(rank_type != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(rank_type);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            rank_type = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            rank_type = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RankRewardFetchAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.ItemInfo")]
-        public global::System.Collections.Generic.List<ItemInfo> items { get; private set; } = new global::System.Collections.Generic.List<ItemInfo>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            foreach(var itor in items)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            items.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            CLPF.ItemInfo o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.ItemInfo();
-                                o.Decode(msgr);
-                            });
-                            items.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutBankCard : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public string bank_card_id { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string bank_name { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string real_name { get; set; } = "";
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(bank_card_id != "")
-            {
-                writer.WriteTag(10);
-                writer.WriteString(bank_card_id);
-            }
-            if(bank_name != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(bank_name);
-            }
-            if(real_name != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(real_name);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            bank_card_id = "";
-
-            bank_name = "";
-
-            real_name = "";
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            bank_card_id = reader.ReadString();
-                        }
-                        break;
-                    case 18:
-                        {
-                            bank_name = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            real_name = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutBindBankCardReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public CashOutBankCard bank_card { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(bank_card != null)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(bank_card != null)
-                    {
-                        bank_card.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            bank_card = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                bank_card = new CLPF.CashOutBankCard();
-                                bank_card.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutBindBankCardAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutQueryBankCardReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutQueryBankCardAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public CashOutBankCard bank_card { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(bank_card != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(bank_card != null)
-                    {
-                        bank_card.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            bank_card = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                bank_card = new CLPF.CashOutBankCard();
-                                bank_card.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutCreateOrderReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public long item_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string phone { get; set; } = "";
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(item_count != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt64(item_count);
-            }
-            if(phone != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(phone);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            item_count = 0;
-
-            phone = "";
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            item_count = reader.ReadInt64();
-                        }
-                        break;
-                    case 18:
-                        {
-                            phone = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutCreateOrderAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutLog : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public long item_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public CashOutBankCard bank_card { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string phone { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int state { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public int create_time { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public int process_time { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(item_count != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt64(item_count);
-            }
-            if(bank_card != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(bank_card != null)
-                    {
-                        bank_card.Encode(msrw);
-                    }
-                });
-            }
-            if(phone != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(phone);
-            }
-            if(state != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(state);
-            }
-            if(create_time != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt32(create_time);
-            }
-            if(process_time != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt32(process_time);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            item_count = 0;
-
-            bank_card = null;
-
-            phone = "";
-
-            state = 0;
-
-            create_time = 0;
-
-            process_time = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            item_count = reader.ReadInt64();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                bank_card = new CLPF.CashOutBankCard();
-                                bank_card.Decode(msgr);
-                            });
-                        }
-                        break;
-                    case 26:
-                        {
-                            phone = reader.ReadString();
-                        }
-                        break;
-                    case 32:
-                        {
-                            state = reader.ReadInt32();
-                        }
-                        break;
-                    case 40:
-                        {
-                            create_time = reader.ReadInt32();
-                        }
-                        break;
-                    case 48:
-                        {
-                            process_time = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutLogQueryReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class CashOutLogQueryAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.CashOutLog")]
-        public global::System.Collections.Generic.List<CashOutLog> log_array { get; private set; } = new global::System.Collections.Generic.List<CashOutLog>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            foreach(var itor in log_array)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            log_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            CLPF.CashOutLog o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.CashOutLog();
-                                o.Decode(msgr);
-                            });
-                            log_array.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class DdzMatchStartingNtf : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int config_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int left_time { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(config_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(config_id);
-            }
-            if(left_time != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(left_time);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            config_id = 0;
-
-            left_time = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            config_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            left_time = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class MagicTradeInReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public ItemInfo item { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long factor { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(item != null)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(item != null)
-                    {
-                        item.Encode(msrw);
-                    }
-                });
-            }
-            if(factor != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(factor);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            item = null;
-
-            factor = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                item = new CLPF.ItemInfo();
-                                item.Decode(msgr);
-                            });
-                        }
-                        break;
-                    case 16:
-                        {
-                            factor = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class MagicTradeInAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long latest_magic_value { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(latest_magic_value != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(latest_magic_value);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            latest_magic_value = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            latest_magic_value = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class MagicTradeOutReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public long item_count { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(item_count != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt64(item_count);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            item_count = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            item_count = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class MagicTradeOutAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long latest_magic_value { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(latest_magic_value != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(latest_magic_value);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            latest_magic_value = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            latest_magic_value = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WarheadExchangeReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public ItemInfo item { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int action { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(item != null)
-            {
-                writer.WriteTag(10);
-                writer.WriteMessage((msrw) => {
-                    if(item != null)
-                    {
-                        item.Encode(msrw);
-                    }
-                });
-            }
-            if(action != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(action);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            item = null;
-
-            action = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                item = new CLPF.ItemInfo();
-                                item.Decode(msgr);
-                            });
-                        }
-                        break;
-                    case 16:
-                        {
-                            action = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class WarheadExchangeAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public ItemInfo item { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(item != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(item != null)
-                    {
-                        item.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            item = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                item = new CLPF.ItemInfo();
-                                item.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
     public partial class HeadUrlQueryReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
-        public int head_id { get; set; }
+        public int user_id { get; set; }
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
-            if(head_id != 0)
+            if(user_id != 0)
             {
                 writer.WriteTag(8);
-                writer.WriteInt32(head_id);
+                writer.WriteInt32(user_id);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
-            head_id = 0;
+            user_id = 0;
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -12606,7 +4875,7 @@ namespace CLPF
                 {
                     case 8:
                         {
-                            head_id = reader.ReadInt32();
+                            user_id = reader.ReadInt32();
                         }
                         break;
                     default:
@@ -12712,865 +4981,6 @@ namespace CLPF
 
     [global::ProtoBuf.ProtoContract()]
     public partial class ModifyGenderAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildPacketData : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public long total_amount { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int total_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int duration { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int create_time { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public long left_amount { get; set; }
-
-        [global::ProtoBuf.ProtoMember(6)]
-        public int left_count { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(total_amount != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt64(total_amount);
-            }
-            if(total_count != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(total_count);
-            }
-            if(duration != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(duration);
-            }
-            if(create_time != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(create_time);
-            }
-            if(left_amount != 0)
-            {
-                writer.WriteTag(40);
-                writer.WriteInt64(left_amount);
-            }
-            if(left_count != 0)
-            {
-                writer.WriteTag(48);
-                writer.WriteInt32(left_count);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            total_amount = 0;
-
-            total_count = 0;
-
-            duration = 0;
-
-            create_time = 0;
-
-            left_amount = 0;
-
-            left_count = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            total_amount = reader.ReadInt64();
-                        }
-                        break;
-                    case 16:
-                        {
-                            total_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 24:
-                        {
-                            duration = reader.ReadInt32();
-                        }
-                        break;
-                    case 32:
-                        {
-                            create_time = reader.ReadInt32();
-                        }
-                        break;
-                    case 40:
-                        {
-                            left_amount = reader.ReadInt64();
-                        }
-                        break;
-                    case 48:
-                        {
-                            left_count = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketInfo2Req : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryRedPacketInfo2Ack : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long quota { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public bool has_packet { get; set; }
-
-        [global::ProtoBuf.ProtoMember(4)]
-        public int has_fetched { get; set; }
-
-        [global::ProtoBuf.ProtoMember(5)]
-        public GuildPacketData packet_data { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(quota != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(quota);
-            }
-            if(has_packet != false)
-            {
-                writer.WriteTag(24);
-                writer.WriteBool(has_packet);
-            }
-            if(has_fetched != 0)
-            {
-                writer.WriteTag(32);
-                writer.WriteInt32(has_fetched);
-            }
-            if(packet_data != null)
-            {
-                writer.WriteTag(42);
-                writer.WriteMessage((msrw) => {
-                    if(packet_data != null)
-                    {
-                        packet_data.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            quota = 0;
-
-            has_packet = false;
-
-            has_fetched = 0;
-
-            packet_data = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            quota = reader.ReadInt64();
-                        }
-                        break;
-                    case 24:
-                        {
-                            has_packet = reader.ReadBool();
-                        }
-                        break;
-                    case 32:
-                        {
-                            has_fetched = reader.ReadInt32();
-                        }
-                        break;
-                    case 42:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                packet_data = new CLPF.GuildPacketData();
-                                packet_data.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedPacket2CreateReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public long total_amount { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int total_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int duration { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(total_amount != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt64(total_amount);
-            }
-            if(total_count != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(total_count);
-            }
-            if(duration != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(duration);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            total_amount = 0;
-
-            total_count = 0;
-
-            duration = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            total_amount = reader.ReadInt64();
-                        }
-                        break;
-                    case 16:
-                        {
-                            total_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 24:
-                        {
-                            duration = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedPacket2CreateAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedPacket2GrabReq : AssemblyCommon.IProtoMessage
-    {
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildRedPacket2GrabAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public long grab_result { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(grab_result != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt64(grab_result);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            grab_result = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            grab_result = reader.ReadInt64();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryMembersReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int page_index { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(page_index != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(page_index);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            page_index = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            page_index = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildQueryMembersAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public int total_count { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3, TypeName = "CLPF.GuildMember")]
-        public global::System.Collections.Generic.List<GuildMember> members_array { get; private set; } = new global::System.Collections.Generic.List<GuildMember>();
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(total_count != 0)
-            {
-                writer.WriteTag(16);
-                writer.WriteInt32(total_count);
-            }
-            foreach(var itor in members_array)
-            {
-                writer.WriteTag(26);
-                writer.WriteMessage((msrw) => {
-                    if(itor != null)
-                    {
-                        itor.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            total_count = 0;
-
-            members_array.Clear();
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 16:
-                        {
-                            total_count = reader.ReadInt32();
-                        }
-                        break;
-                    case 26:
-                        {
-                            CLPF.GuildMember o = null;
-                            reader.ReadMessage((msgr) => {
-                                o = new CLPF.GuildMember();
-                                o.Decode(msgr);
-                            });
-                            members_array.Add(o);
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildMemberQueryReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int user_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(user_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(user_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            user_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            user_id = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildMemberQueryAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public GuildMember member_info { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(member_info != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(member_info != null)
-                    {
-                        member_info.Encode(msrw);
-                    }
-                });
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            member_info = null;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                member_info = new CLPF.GuildMember();
-                                member_info.Decode(msgr);
-                            });
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildSearch2Req : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int president_id { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(president_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(president_id);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            president_id = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            president_id = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class GuildSearch2Ack : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public GuildInfo info { get; set; }
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public int join_flag { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-            if(info != null)
-            {
-                writer.WriteTag(18);
-                writer.WriteMessage((msrw) => {
-                    if(info != null)
-                    {
-                        info.Encode(msrw);
-                    }
-                });
-            }
-            if(join_flag != 0)
-            {
-                writer.WriteTag(24);
-                writer.WriteInt32(join_flag);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            info = null;
-
-            join_flag = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            reader.ReadMessage((msgr) => {
-                                info = new CLPF.GuildInfo();
-                                info.Decode(msgr);
-                            });
-                        }
-                        break;
-                    case 24:
-                        {
-                            join_flag = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class MailSendReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int receiver_id { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string title { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(3)]
-        public string content { get; set; } = "";
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(receiver_id != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(receiver_id);
-            }
-            if(title != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(title);
-            }
-            if(content != "")
-            {
-                writer.WriteTag(26);
-                writer.WriteString(content);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            receiver_id = 0;
-
-            title = "";
-
-            content = "";
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            receiver_id = reader.ReadInt32();
-                        }
-                        break;
-                    case 18:
-                        {
-                            title = reader.ReadString();
-                        }
-                        break;
-                    case 26:
-                        {
-                            content = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class MailSendAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
@@ -14443,97 +5853,6 @@ namespace CLPF
         }
     }
 
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeAgentComplainReq : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public string agent_info { get; set; } = "";
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string content { get; set; } = "";
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(agent_info != "")
-            {
-                writer.WriteTag(10);
-                writer.WriteString(agent_info);
-            }
-            if(content != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(content);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            agent_info = "";
-
-            content = "";
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 10:
-                        {
-                            agent_info = reader.ReadString();
-                        }
-                        break;
-                    case 18:
-                        {
-                            content = reader.ReadString();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
-    [global::ProtoBuf.ProtoContract()]
-    public partial class RechargeAgentComplainAck : AssemblyCommon.IProtoMessage
-    {
-        [global::ProtoBuf.ProtoMember(1)]
-        public int errcode { get; set; }
-
-        public void Encode(Google.Protobuf.CodedOutputStream writer)
-        {
-            if(errcode != 0)
-            {
-                writer.WriteTag(8);
-                writer.WriteInt32(errcode);
-            }
-        }
-        public void Decode(Google.Protobuf.CodedInputStream reader)
-        {
-            errcode = 0;
-
-            uint tag;
-            while ((tag = reader.ReadTag()) != 0)
-            {
-                switch (tag)
-                {
-                    case 8:
-                        {
-                            errcode = reader.ReadInt32();
-                        }
-                        break;
-                    default:
-                        {
-                            reader.SkipLastField();
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
 }
 
 public class ILRuntime_CLPF
@@ -14552,25 +5871,24 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLGT.DisconnectNtf", typeof(CLGT.DisconnectNtf));
         ProtoBuf.PType.RegisterType("CLGT.ItemInfo", typeof(CLGT.ItemInfo));
         ProtoBuf.PType.RegisterType("CLGT.LoginReq", typeof(CLGT.LoginReq));
-        ProtoBuf.PType.RegisterType("CLGT.AdminLoginReq", typeof(CLGT.AdminLoginReq));
         ProtoBuf.PType.RegisterType("CLGT.LoginAck", typeof(CLGT.LoginAck));
         ProtoBuf.PType.RegisterType("CLGT.AccessServiceReq", typeof(CLGT.AccessServiceReq));
         ProtoBuf.PType.RegisterType("CLGT.AccessServiceAck", typeof(CLGT.AccessServiceAck));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveReq", typeof(CLGT.KeepAliveReq));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveAck", typeof(CLGT.KeepAliveAck));
+        ProtoBuf.PType.RegisterType("CLGT.TestNetInterruptRpt", typeof(CLGT.TestNetInterruptRpt));
         ProtoBuf.PType.RegisterType("CLPF.LogoutReq", typeof(CLPF.LogoutReq));
         ProtoBuf.PType.RegisterType("CLPF.LogoutAck", typeof(CLPF.LogoutAck));
         ProtoBuf.PType.RegisterType("CLPF.ResSyncNtf", typeof(CLPF.ResSyncNtf));
         ProtoBuf.PType.RegisterType("CLPF.ResChangedNtf", typeof(CLPF.ResChangedNtf));
+        ProtoBuf.PType.RegisterType("CLPF.ResQueryReq", typeof(CLPF.ResQueryReq));
+        ProtoBuf.PType.RegisterType("CLPF.ResQueryAck", typeof(CLPF.ResQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.ItemInfo", typeof(CLPF.ItemInfo));
-        ProtoBuf.PType.RegisterType("CLPF.ItemGetListReq", typeof(CLPF.ItemGetListReq));
-        ProtoBuf.PType.RegisterType("CLPF.ItemGetListAck", typeof(CLPF.ItemGetListAck));
         ProtoBuf.PType.RegisterType("CLPF.ItemUseReq", typeof(CLPF.ItemUseReq));
         ProtoBuf.PType.RegisterType("CLPF.ItemUseAck", typeof(CLPF.ItemUseAck));
         ProtoBuf.PType.RegisterType("CLPF.ItemCountChangeNtf", typeof(CLPF.ItemCountChangeNtf));
         ProtoBuf.PType.RegisterType("CLPF.ItemBuyReq", typeof(CLPF.ItemBuyReq));
         ProtoBuf.PType.RegisterType("CLPF.ItemBuyAck", typeof(CLPF.ItemBuyAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShopBuyCountItem", typeof(CLPF.ShopBuyCountItem));
         ProtoBuf.PType.RegisterType("CLPF.RechargeReq", typeof(CLPF.RechargeReq));
         ProtoBuf.PType.RegisterType("CLPF.RechargeAck", typeof(CLPF.RechargeAck));
         ProtoBuf.PType.RegisterType("CLPF.RechargeSuccessNtf", typeof(CLPF.RechargeSuccessNtf));
@@ -14579,6 +5897,8 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLPF.RechargeOrderQueryListAck", typeof(CLPF.RechargeOrderQueryListAck));
         ProtoBuf.PType.RegisterType("CLPF.RechargeOrderEvaluateReq", typeof(CLPF.RechargeOrderEvaluateReq));
         ProtoBuf.PType.RegisterType("CLPF.RechargeOrderEvaluateAck", typeof(CLPF.RechargeOrderEvaluateAck));
+        ProtoBuf.PType.RegisterType("CLPF.RechargeAgentComplainReq", typeof(CLPF.RechargeAgentComplainReq));
+        ProtoBuf.PType.RegisterType("CLPF.RechargeAgentComplainAck", typeof(CLPF.RechargeAgentComplainAck));
         ProtoBuf.PType.RegisterType("CLPF.RankPlayerInfo", typeof(CLPF.RankPlayerInfo));
         ProtoBuf.PType.RegisterType("CLPF.GetRankListReq", typeof(CLPF.GetRankListReq));
         ProtoBuf.PType.RegisterType("CLPF.GetRankListAck", typeof(CLPF.GetRankListAck));
@@ -14589,14 +5909,6 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLPF.ModifyNicknameAck", typeof(CLPF.ModifyNicknameAck));
         ProtoBuf.PType.RegisterType("CLPF.ModifyHeadReq", typeof(CLPF.ModifyHeadReq));
         ProtoBuf.PType.RegisterType("CLPF.ModifyHeadAck", typeof(CLPF.ModifyHeadAck));
-        ProtoBuf.PType.RegisterType("CLPF.QuerySignReq", typeof(CLPF.QuerySignReq));
-        ProtoBuf.PType.RegisterType("CLPF.QuerySignAck", typeof(CLPF.QuerySignAck));
-        ProtoBuf.PType.RegisterType("CLPF.ActSignReq", typeof(CLPF.ActSignReq));
-        ProtoBuf.PType.RegisterType("CLPF.ActSignAck", typeof(CLPF.ActSignAck));
-        ProtoBuf.PType.RegisterType("CLPF.QueryVipWheelReq", typeof(CLPF.QueryVipWheelReq));
-        ProtoBuf.PType.RegisterType("CLPF.QueryVipWheelAck", typeof(CLPF.QueryVipWheelAck));
-        ProtoBuf.PType.RegisterType("CLPF.ActVipWheelReq", typeof(CLPF.ActVipWheelReq));
-        ProtoBuf.PType.RegisterType("CLPF.ActVipWheelAck", typeof(CLPF.ActVipWheelAck));
         ProtoBuf.PType.RegisterType("CLPF.MailInfo", typeof(CLPF.MailInfo));
         ProtoBuf.PType.RegisterType("CLPF.MailQueryAllIdsReq", typeof(CLPF.MailQueryAllIdsReq));
         ProtoBuf.PType.RegisterType("CLPF.MailQueryAllIdsAck", typeof(CLPF.MailQueryAllIdsAck));
@@ -14609,115 +5921,10 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLPF.MailRemoveReq", typeof(CLPF.MailRemoveReq));
         ProtoBuf.PType.RegisterType("CLPF.MailRemoveAck", typeof(CLPF.MailRemoveAck));
         ProtoBuf.PType.RegisterType("CLPF.MailArriveNtf", typeof(CLPF.MailArriveNtf));
-        ProtoBuf.PType.RegisterType("CLPF.GuildInfo", typeof(CLPF.GuildInfo));
-        ProtoBuf.PType.RegisterType("CLPF.GuildJoinItem", typeof(CLPF.GuildJoinItem));
-        ProtoBuf.PType.RegisterType("CLPF.GuildMember", typeof(CLPF.GuildMember));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedpacketMember", typeof(CLPF.GuildRedpacketMember));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagItem", typeof(CLPF.GuildBagItem));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagLog", typeof(CLPF.GuildBagLog));
-        ProtoBuf.PType.RegisterType("CLPF.GuildCreateReq", typeof(CLPF.GuildCreateReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildCreateAck", typeof(CLPF.GuildCreateAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRecommendListReq", typeof(CLPF.GuildQueryRecommendListReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRecommendListAck", typeof(CLPF.GuildQueryRecommendListAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildSearchReq", typeof(CLPF.GuildSearchReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildSearchAck", typeof(CLPF.GuildSearchAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQuickJoinReq", typeof(CLPF.GuildQuickJoinReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQuickJoinAck", typeof(CLPF.GuildQuickJoinAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildJoinReq", typeof(CLPF.GuildJoinReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildJoinAck", typeof(CLPF.GuildJoinAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryJoinListReq", typeof(CLPF.GuildQueryJoinListReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryJoinListAck", typeof(CLPF.GuildQueryJoinListAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildHandleJoinReq", typeof(CLPF.GuildHandleJoinReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildHandleJoinAck", typeof(CLPF.GuildHandleJoinAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildJoinResponseNtf", typeof(CLPF.GuildJoinResponseNtf));
-        ProtoBuf.PType.RegisterType("CLPF.GuildNewJoinRequestNtf", typeof(CLPF.GuildNewJoinRequestNtf));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryInfoReq", typeof(CLPF.GuildQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryInfoAck", typeof(CLPF.GuildQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildModifyInfoReq", typeof(CLPF.GuildModifyInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildModifyInfoAck", typeof(CLPF.GuildModifyInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildModifyMemberJobReq", typeof(CLPF.GuildModifyMemberJobReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildModifyMemberJobAck", typeof(CLPF.GuildModifyMemberJobAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildKickMemberReq", typeof(CLPF.GuildKickMemberReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildKickMemberAck", typeof(CLPF.GuildKickMemberAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildKickMemberNtf", typeof(CLPF.GuildKickMemberNtf));
-        ProtoBuf.PType.RegisterType("CLPF.GuildExitReq", typeof(CLPF.GuildExitReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildExitAck", typeof(CLPF.GuildExitAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildUpgradeReq", typeof(CLPF.GuildUpgradeReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildUpgradeAck", typeof(CLPF.GuildUpgradeAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryWelfareReq", typeof(CLPF.GuildQueryWelfareReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryWelfareAck", typeof(CLPF.GuildQueryWelfareAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildFetchWelfareReq", typeof(CLPF.GuildFetchWelfareReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildFetchWelfareAck", typeof(CLPF.GuildFetchWelfareAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketInfoReq", typeof(CLPF.GuildQueryRedPacketInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketInfoAck", typeof(CLPF.GuildQueryRedPacketInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketRankReq", typeof(CLPF.GuildQueryRedPacketRankReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketRankAck", typeof(CLPF.GuildQueryRedPacketRankAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildActRedPacketReq", typeof(CLPF.GuildActRedPacketReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildActRedPacketAck", typeof(CLPF.GuildActRedPacketAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagQueryInfoReq", typeof(CLPF.GuildBagQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagQueryInfoAck", typeof(CLPF.GuildBagQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagQueryLogReq", typeof(CLPF.GuildBagQueryLogReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagQueryLogAck", typeof(CLPF.GuildBagQueryLogAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagStoreItemReq", typeof(CLPF.GuildBagStoreItemReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagStoreItemAck", typeof(CLPF.GuildBagStoreItemAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagFetchItemReq", typeof(CLPF.GuildBagFetchItemReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagFetchItemAck", typeof(CLPF.GuildBagFetchItemAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildBagFetchItemNtf", typeof(CLPF.GuildBagFetchItemNtf));
         ProtoBuf.PType.RegisterType("CLPF.MessageBroadcastNtf", typeof(CLPF.MessageBroadcastNtf));
-        ProtoBuf.PType.RegisterType("CLPF.TaskInfo", typeof(CLPF.TaskInfo));
-        ProtoBuf.PType.RegisterType("CLPF.TaskQueryReq", typeof(CLPF.TaskQueryReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskQueryAck", typeof(CLPF.TaskQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.TaskFetchTaskRewardsReq", typeof(CLPF.TaskFetchTaskRewardsReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskFetchTaskRewardsAck", typeof(CLPF.TaskFetchTaskRewardsAck));
-        ProtoBuf.PType.RegisterType("CLPF.TaskFetchActiveRewardsReq", typeof(CLPF.TaskFetchActiveRewardsReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskFetchActiveRewardsAck", typeof(CLPF.TaskFetchActiveRewardsAck));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveData", typeof(CLPF.TaskAchieveData));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveResetData", typeof(CLPF.TaskAchieveResetData));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveQueryInfoReq", typeof(CLPF.TaskAchieveQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveQueryInfoAck", typeof(CLPF.TaskAchieveQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveFetchRewardReq", typeof(CLPF.TaskAchieveFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.TaskAchieveFetchRewardAck", typeof(CLPF.TaskAchieveFetchRewardAck));
         ProtoBuf.PType.RegisterType("CLPF.MonthCardFetchRewardReq", typeof(CLPF.MonthCardFetchRewardReq));
         ProtoBuf.PType.RegisterType("CLPF.MonthCardFetchRewardAck", typeof(CLPF.MonthCardFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.ReliefGoldFetchReq", typeof(CLPF.ReliefGoldFetchReq));
-        ProtoBuf.PType.RegisterType("CLPF.ReliefGoldFetchAck", typeof(CLPF.ReliefGoldFetchAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberQueryInfoReq", typeof(CLPF.ShakeNumberQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberQueryInfoAck", typeof(CLPF.ShakeNumberQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberActReq", typeof(CLPF.ShakeNumberActReq));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberActAck", typeof(CLPF.ShakeNumberActAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberFetchRewardReq", typeof(CLPF.ShakeNumberFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberFetchRewardAck", typeof(CLPF.ShakeNumberFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberFetchBoxRewardReq", typeof(CLPF.ShakeNumberFetchBoxRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.ShakeNumberFetchBoxRewardAck", typeof(CLPF.ShakeNumberFetchBoxRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.RechargeDailyQueryReq", typeof(CLPF.RechargeDailyQueryReq));
-        ProtoBuf.PType.RegisterType("CLPF.RechargeDailyQueryAck", typeof(CLPF.RechargeDailyQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigQueryInfoReq", typeof(CLPF.WelfarePigQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigQueryInfoAck", typeof(CLPF.WelfarePigQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigFetchMaterialReq", typeof(CLPF.WelfarePigFetchMaterialReq));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigFetchMaterialAck", typeof(CLPF.WelfarePigFetchMaterialAck));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigBrokenReq", typeof(CLPF.WelfarePigBrokenReq));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigBrokenAck", typeof(CLPF.WelfarePigBrokenAck));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigSearchReq", typeof(CLPF.WelfarePigSearchReq));
-        ProtoBuf.PType.RegisterType("CLPF.WelfarePigSearchAck", typeof(CLPF.WelfarePigSearchAck));
-        ProtoBuf.PType.RegisterType("CLPF.InvestGunQueryInfoReq", typeof(CLPF.InvestGunQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.InvestGunQueryInfoAck", typeof(CLPF.InvestGunQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.InvestGunFetchRewardReq", typeof(CLPF.InvestGunFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.InvestGunFetchRewardAck", typeof(CLPF.InvestGunFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.InvestCostQueryInfoReq", typeof(CLPF.InvestCostQueryInfoReq));
-        ProtoBuf.PType.RegisterType("CLPF.InvestCostQueryInfoAck", typeof(CLPF.InvestCostQueryInfoAck));
-        ProtoBuf.PType.RegisterType("CLPF.InvestCostFetchRewardReq", typeof(CLPF.InvestCostFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.InvestCostFetchRewardAck", typeof(CLPF.InvestCostFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.FirstPackageFetchReq", typeof(CLPF.FirstPackageFetchReq));
-        ProtoBuf.PType.RegisterType("CLPF.FirstPackageFetchAck", typeof(CLPF.FirstPackageFetchAck));
         ProtoBuf.PType.RegisterType("CLPF.AnnouncementChangedNtf", typeof(CLPF.AnnouncementChangedNtf));
-        ProtoBuf.PType.RegisterType("CLPF.VipFillUpCurrencyNtf", typeof(CLPF.VipFillUpCurrencyNtf));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsExchangeLog", typeof(CLPF.RealGoodsExchangeLog));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsQueryAddressReq", typeof(CLPF.RealGoodsQueryAddressReq));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsQueryAddressAck", typeof(CLPF.RealGoodsQueryAddressAck));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsCreateOrderReq", typeof(CLPF.RealGoodsCreateOrderReq));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsCreateOrderAck", typeof(CLPF.RealGoodsCreateOrderAck));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsQueryExchangeLogReq", typeof(CLPF.RealGoodsQueryExchangeLogReq));
-        ProtoBuf.PType.RegisterType("CLPF.RealGoodsQueryExchangeLogAck", typeof(CLPF.RealGoodsQueryExchangeLogAck));
         ProtoBuf.PType.RegisterType("CLPF.GuideDataQueryReq", typeof(CLPF.GuideDataQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.GuideDataQueryAck", typeof(CLPF.GuideDataQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.GuideDataActRpt", typeof(CLPF.GuideDataActRpt));
@@ -14725,20 +5932,8 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLPF.SubGamesOnlineCountInfo", typeof(CLPF.SubGamesOnlineCountInfo));
         ProtoBuf.PType.RegisterType("CLPF.SubGamesOnlineCountReq", typeof(CLPF.SubGamesOnlineCountReq));
         ProtoBuf.PType.RegisterType("CLPF.SubGamesOnlineCountAck", typeof(CLPF.SubGamesOnlineCountAck));
-        ProtoBuf.PType.RegisterType("CLPF.CdkeyFetchRewardReq", typeof(CLPF.CdkeyFetchRewardReq));
-        ProtoBuf.PType.RegisterType("CLPF.CdkeyFetchRewardAck", typeof(CLPF.CdkeyFetchRewardAck));
-        ProtoBuf.PType.RegisterType("CLPF.AccountBindStateReq", typeof(CLPF.AccountBindStateReq));
-        ProtoBuf.PType.RegisterType("CLPF.AccountBindStateAck", typeof(CLPF.AccountBindStateAck));
         ProtoBuf.PType.RegisterType("CLPF.AccountPhoneBindReq", typeof(CLPF.AccountPhoneBindReq));
         ProtoBuf.PType.RegisterType("CLPF.AccountPhoneBindAck", typeof(CLPF.AccountPhoneBindAck));
-        ProtoBuf.PType.RegisterType("CLPF.AccountPhoneChange1Req", typeof(CLPF.AccountPhoneChange1Req));
-        ProtoBuf.PType.RegisterType("CLPF.AccountPhoneChange1Ack", typeof(CLPF.AccountPhoneChange1Ack));
-        ProtoBuf.PType.RegisterType("CLPF.AccountPhoneChange2Req", typeof(CLPF.AccountPhoneChange2Req));
-        ProtoBuf.PType.RegisterType("CLPF.AccountPhoneChange2Ack", typeof(CLPF.AccountPhoneChange2Ack));
-        ProtoBuf.PType.RegisterType("CLPF.AccountUniformBindReq", typeof(CLPF.AccountUniformBindReq));
-        ProtoBuf.PType.RegisterType("CLPF.AccountUniformBindAck", typeof(CLPF.AccountUniformBindAck));
-        ProtoBuf.PType.RegisterType("CLPF.AccountUniformUnbindReq", typeof(CLPF.AccountUniformUnbindReq));
-        ProtoBuf.PType.RegisterType("CLPF.AccountUniformUnbindAck", typeof(CLPF.AccountUniformUnbindAck));
         ProtoBuf.PType.RegisterType("CLPF.PlayerNicknameQueryReq", typeof(CLPF.PlayerNicknameQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.PlayerNicknameQueryAck", typeof(CLPF.PlayerNicknameQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.BankPasswordInitReq", typeof(CLPF.BankPasswordInitReq));
@@ -14760,48 +5955,17 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogInfo", typeof(CLPF.BankItemLogInfo));
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogQueryReq", typeof(CLPF.BankItemLogQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogQueryAck", typeof(CLPF.BankItemLogQueryAck));
+        ProtoBuf.PType.RegisterType("CLPF.BankItemDailyLogInfo", typeof(CLPF.BankItemDailyLogInfo));
+        ProtoBuf.PType.RegisterType("CLPF.BankItemDailyLogQueryReq", typeof(CLPF.BankItemDailyLogQueryReq));
+        ProtoBuf.PType.RegisterType("CLPF.BankItemDailyLogQueryAck", typeof(CLPF.BankItemDailyLogQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogDetailQueryReq", typeof(CLPF.BankItemLogDetailQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.BankItemLogDetailQueryAck", typeof(CLPF.BankItemLogDetailQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.LastGameQueryReq", typeof(CLPF.LastGameQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.LastGameQueryAck", typeof(CLPF.LastGameQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.RankRewardFetchReq", typeof(CLPF.RankRewardFetchReq));
-        ProtoBuf.PType.RegisterType("CLPF.RankRewardFetchAck", typeof(CLPF.RankRewardFetchAck));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutBankCard", typeof(CLPF.CashOutBankCard));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutBindBankCardReq", typeof(CLPF.CashOutBindBankCardReq));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutBindBankCardAck", typeof(CLPF.CashOutBindBankCardAck));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutQueryBankCardReq", typeof(CLPF.CashOutQueryBankCardReq));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutQueryBankCardAck", typeof(CLPF.CashOutQueryBankCardAck));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutCreateOrderReq", typeof(CLPF.CashOutCreateOrderReq));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutCreateOrderAck", typeof(CLPF.CashOutCreateOrderAck));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutLog", typeof(CLPF.CashOutLog));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutLogQueryReq", typeof(CLPF.CashOutLogQueryReq));
-        ProtoBuf.PType.RegisterType("CLPF.CashOutLogQueryAck", typeof(CLPF.CashOutLogQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.DdzMatchStartingNtf", typeof(CLPF.DdzMatchStartingNtf));
-        ProtoBuf.PType.RegisterType("CLPF.MagicTradeInReq", typeof(CLPF.MagicTradeInReq));
-        ProtoBuf.PType.RegisterType("CLPF.MagicTradeInAck", typeof(CLPF.MagicTradeInAck));
-        ProtoBuf.PType.RegisterType("CLPF.MagicTradeOutReq", typeof(CLPF.MagicTradeOutReq));
-        ProtoBuf.PType.RegisterType("CLPF.MagicTradeOutAck", typeof(CLPF.MagicTradeOutAck));
-        ProtoBuf.PType.RegisterType("CLPF.WarheadExchangeReq", typeof(CLPF.WarheadExchangeReq));
-        ProtoBuf.PType.RegisterType("CLPF.WarheadExchangeAck", typeof(CLPF.WarheadExchangeAck));
         ProtoBuf.PType.RegisterType("CLPF.HeadUrlQueryReq", typeof(CLPF.HeadUrlQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.HeadUrlQueryAck", typeof(CLPF.HeadUrlQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.ModifyGenderReq", typeof(CLPF.ModifyGenderReq));
         ProtoBuf.PType.RegisterType("CLPF.ModifyGenderAck", typeof(CLPF.ModifyGenderAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildPacketData", typeof(CLPF.GuildPacketData));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketInfo2Req", typeof(CLPF.GuildQueryRedPacketInfo2Req));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryRedPacketInfo2Ack", typeof(CLPF.GuildQueryRedPacketInfo2Ack));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedPacket2CreateReq", typeof(CLPF.GuildRedPacket2CreateReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedPacket2CreateAck", typeof(CLPF.GuildRedPacket2CreateAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedPacket2GrabReq", typeof(CLPF.GuildRedPacket2GrabReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildRedPacket2GrabAck", typeof(CLPF.GuildRedPacket2GrabAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryMembersReq", typeof(CLPF.GuildQueryMembersReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildQueryMembersAck", typeof(CLPF.GuildQueryMembersAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildMemberQueryReq", typeof(CLPF.GuildMemberQueryReq));
-        ProtoBuf.PType.RegisterType("CLPF.GuildMemberQueryAck", typeof(CLPF.GuildMemberQueryAck));
-        ProtoBuf.PType.RegisterType("CLPF.GuildSearch2Req", typeof(CLPF.GuildSearch2Req));
-        ProtoBuf.PType.RegisterType("CLPF.GuildSearch2Ack", typeof(CLPF.GuildSearch2Ack));
-        ProtoBuf.PType.RegisterType("CLPF.MailSendReq", typeof(CLPF.MailSendReq));
-        ProtoBuf.PType.RegisterType("CLPF.MailSendAck", typeof(CLPF.MailSendAck));
         ProtoBuf.PType.RegisterType("CLPF.WeekSignStateQueryReq", typeof(CLPF.WeekSignStateQueryReq));
         ProtoBuf.PType.RegisterType("CLPF.WeekSignStateQueryAck", typeof(CLPF.WeekSignStateQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.WeekSignActReq", typeof(CLPF.WeekSignActReq));
@@ -14817,8 +5981,6 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLPF.FeedbackReadAck", typeof(CLPF.FeedbackReadAck));
         ProtoBuf.PType.RegisterType("CLPF.FeedbackReplyNtf", typeof(CLPF.FeedbackReplyNtf));
         ProtoBuf.PType.RegisterType("CLPF.AddOperationLogRpt", typeof(CLPF.AddOperationLogRpt));
-        ProtoBuf.PType.RegisterType("CLPF.RechargeAgentComplainReq", typeof(CLPF.RechargeAgentComplainReq));
-        ProtoBuf.PType.RegisterType("CLPF.RechargeAgentComplainAck", typeof(CLPF.RechargeAgentComplainAck));
 
     }
 }

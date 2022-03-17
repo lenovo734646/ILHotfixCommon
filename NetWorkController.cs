@@ -12,15 +12,22 @@ using static AssemblyCommon.MySocket;
 
 namespace Hotfix.Common
 {
-	public enum INT_MSGID
+	public class RpcTask
 	{
-		INTERNAL_MSGID_COMMONRP = 1001,
-		INTERNAL_MSGID_JSONFORM = 0xCCCC,
-		INTERNAL_MSGID_BINFORM = 0xBBBB,
-		INTERNAL_MSGID_PB = 0xDDDD,
-		INTERNAL_MSGID_PING = 0xFFFF,
+		public Type tp;
+		public Action<IProtoMessage> callback;
+		public TimeCounter tc = new TimeCounter("");
+		public float timeout = 3.0f;
+		public bool callbackOnTimeout = false;
+		public RpcTask()
+		{
+			tc.Restart();
+		}
+		public bool IsTimeout()
+		{
+			return tc.Elapse() >= timeout;
+		}
 	}
-
 	//网络事情消息
 	public class NetEventArgs
 	{
@@ -29,161 +36,32 @@ namespace Hotfix.Common
 		public byte[] payload;
 	}
 
-	public class MsgPbBase
+	public class NetWorkController:ControllerBase
 	{
-		public byte[] content;
-
-		public void SetProtoMessage(IProtoMessage proto)
+		public enum PlatformType
 		{
-			MemoryStream memstm = new MemoryStream();
-			Google.Protobuf.CodedOutputStream stm = new Google.Protobuf.CodedOutputStream(memstm);
-			proto.Encode(stm);
-			content = memstm.ToArray();
+			Unknown = 0,
+			IOS = 1,
+			ANDROID = 2,
+			WINDOWS = 3,
+			LINUX = 4,
+			MAC = 5,
+			WebGL = 6,
+		}
+		public enum LoginType
+		{
+			Unknown = 0,            //未知
+			Guest = 1,              //游客
+			Phone = 2,             //手机
+			QQ = 3,                 //QQ
+			Wechat = 4,             //微信
+			Facebook = 5,           //Facebook
+			GooglePlay = 6,         //GooglePlay
+			GameCenter = 7,         //GameCenter
 		}
 
-	}
-
-	//Protobuffer消息包
-	public class MsgPbForm : MsgPbBase
-	{
-		public short subCmd = 0;
-		public void Read(BinaryStream stm)
-		{
-			//跳2个int,
-			stm.SetCurentRead(8);
-			subCmd = stm.ReadShort();
-			content = stm.ReadArray(0);
-		}
-
-		public void Write(BinaryStream stm)
-		{
-			stm.SetCurentWrite(4);
-			stm.WriteInt((int)INT_MSGID.INTERNAL_MSGID_PB);
-			stm.WriteShort(subCmd);
-			stm.WriteArray(content, 0, content.Length);
-			stm.WriteDataLengthHeader();
-		}
-	}
-
-	//Protobuffer消息包
-	public class MsgPbFormStringHeader : MsgPbBase
-	{
-		public string protoName;
-		public int encrypted;
-		public int controlFlag;
-
-		byte[] randomKey_;
-		public MsgPbFormStringHeader(byte[] key)
-		{
-			randomKey_ = key;
-		}
-
-		static void rc4Algorithm(byte[] key, byte[] data, int offset)
-		{
-			int[] s = new int[256], k = new int[256];
-			int i = 0, j = 0, temp;
-
-			for (i = 0; i < 256; i++) {
-				s[i] = i;
-				k[i] = key[i % key.Length];
-			}
-			for (i = 0; i < 256; i++) {
-				j = (j + s[i] + k[i]) & 0xff;
-				temp = s[i];
-				s[i] = s[j];
-				s[j] = temp;
-			}
-
-			int x = 0, y = 0, t = 0;
-			for (i = offset; i < data.Length; i++) {
-				x = (x + 1) & 0xff;
-				y = (y + s[x]) & 0xff;
-				temp = s[x];
-				s[x] = s[y];
-				s[y] = temp;
-				t = (s[x] + s[y]) & 0xff;
-				data[i] ^= (byte)s[t];
-			}
-		}
-
-		public void Read(BinaryStream stm)
-		{
-			//跳2个int,
-			stm.SetCurentRead(4);
-			controlFlag = stm.ReadChar();
-
-			encrypted = controlFlag & 0x3F;
-			controlFlag = controlFlag >> 6;
-			if (encrypted != 0) {
-				if(randomKey_ == null) {
-					throw new Exception("randomKey_ == null while encrypted != 0");
-				}
-				else
-					rc4Algorithm(randomKey_, stm.buffer(), stm.reader());
-			}
-			protoName = stm.ReadString(false);
-			content = stm.ReadArray(0);
-		}
-		public void Write(BinaryStream stm)
-		{
-			stm.SetCurentWrite(4);
-			if (randomKey_ == null || randomKey_.Length == 0) {
-				encrypted = 0;
-			}
-			else {
-				encrypted = 1;
-			}
-
-			stm.WriteByte((byte)encrypted);
-			stm.WriteString(protoName);
-			stm.WriteArray(content, 0, content.Length);
-			//5字节以后的内容加密
-			if (encrypted == 1) {
-				rc4Algorithm(randomKey_, stm.buffer(), stm.reader());
-			}
-			stm.WriteDataLengthHeader();
-		}
-	}
-
-	//JSon消息包
-	public class MsgJsonForm
-	{
-		public short subCmd = 0;
-		public short isCompressed = 0;
-
-		public byte[] content;
-
-		public void Read(BinaryStream stm)
-		{
-			//跳2个int,
-			stm.SetCurentRead(8);
-			subCmd = stm.ReadShort();
-			isCompressed = stm.ReadShort();
-			content = stm.ReadArray(0);
-		}
-
-		public void Write(BinaryStream stm)
-		{
-			stm.SetCurentWrite(4);
-			stm.WriteInt((int)INT_MSGID.INTERNAL_MSGID_JSONFORM);
-			stm.WriteShort(subCmd);
-			stm.WriteShort(0);
-			stm.WriteArray(content, 0, content.Length);
-			stm.WriteDataLengthHeader();
-		}
-	}
-
-	public class NetWorkController
-	{
 		public event EventHandler<NetEventArgs> MsgHandler;
-		public SessionBase session = null;
-		public enum EnState
-		{
-			Init,
-			HandshakeSucc,
-			AllConnectionLost,
-		}
-
+		public bool shouldReconnect = false;
 		public void SendJson(short subCmd, string json, MySocket sock = null)
 		{
 			sendStream_.ClearUsedData();
@@ -191,7 +69,7 @@ namespace Hotfix.Common
 			msg.subCmd = subCmd;
 			msg.content = Encoding.UTF8.GetBytes(json);
 			msg.Write(sendStream_);
-			Globals.net.SendMessage(sendStream_, sock);
+			Globals.net.SendMessage(sendStream_);
 		}
 
 		public void SendPing(MySocket sock = null)
@@ -201,34 +79,51 @@ namespace Hotfix.Common
 			sendStream_.SetCurentWrite(4);
 			sendStream_.WriteInt((int)INT_MSGID.INTERNAL_MSGID_PING);
 			sendStream_.WriteDataLengthHeader();
-			Globals.net.SendMessage(sendStream_, sock);
+			Globals.net.SendMessage(sendStream_);
 		}
 		
 		//做RPC调用,方便代码编写
-		public IEnumerator<T> Rpc<T>(IProtoMessage proto, float timeout = 3.0f) where T : IProtoMessage
+		public IEnumerator Rpc<T>(IProtoMessage proto, float timeout = 3.0f) where T : IProtoMessage
 		{
-			T Result = default(T);
+			IProtoMessage Result = null;
+			bool responsed = false;
 			Action<IProtoMessage> callback = (msg)=>{
-				Result = (T)msg;
+				responsed = true;
+				if (msg != null)	Result = (T)msg;
 			};
 
-			Rpc<T>(proto, callback);
-
-			TimeCounter tc = new TimeCounter("");
-			while(Result == null && tc.Elapse() < timeout) {
-				yield return Result;
+			if(Rpc<T>(proto, callback, timeout)) {
+				TimeCounter tc = new TimeCounter("");
+				while (!responsed && tc.Elapse() < timeout) {
+					yield return null;
+				}
 			}
-
 			yield return Result;
 		}
 
-		public void Rpc<T>(IProtoMessage proto, Action<IProtoMessage> callback) where T: IProtoMessage
+		public bool Rpc<T>(IProtoMessage proto, Action<IProtoMessage> callback, float timeout) where T: IProtoMessage
 		{
-			rpcHandler.Add(typeof(T), callback);
-			SendPb2(proto, null);
+			if (rpcHandler.ContainsKey(typeof(T))) {
+				return false;
+			}
+
+			Action<IProtoMessage> wrapper = (msg) => {
+				callback(msg);
+				rpcHandler.Remove(typeof(T));
+			};
+
+			RpcTask tsk = new RpcTask();
+			tsk.tp = typeof(T);
+			tsk.callback = wrapper;
+			tsk.timeout = timeout;
+			tsk.callbackOnTimeout = true;
+			rpcHandler.Add(tsk.tp, tsk);
+
+			SendPb2(proto);
+			return true;
 		}
 
-		public void SendPb(short subCmd, IProtoMessage proto, MySocket sock = null)
+		public void SendPb(short subCmd, IProtoMessage proto)
 		{
 			sendStream_.ClearUsedData();
 			
@@ -237,19 +132,19 @@ namespace Hotfix.Common
 			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
-			Globals.net.SendMessage(sendStream_, sock);
+			Globals.net.SendMessage(sendStream_);
 		}
 
-		public void SendPb2(IProtoMessage proto, MySocket sock)
+		public void SendPb2(IProtoMessage proto)
 		{
 			sendStream_.ClearUsedData();
 			
-			MsgPbFormStringHeader msg = new MsgPbFormStringHeader(sock.randomKey);
+			MsgPbFormStringHeader msg = new MsgPbFormStringHeader();
 			msg.protoName = proto.GetType().FullName;
 			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
-			Globals.net.SendMessage(sendStream_, sock);
+			Globals.net.SendMessage(sendStream_);
 		}
 
 		public void HandleRawData(object sender, BinaryStream evt)
@@ -257,59 +152,13 @@ namespace Hotfix.Common
 			MySocket sock = sender as MySocket;
 			HandleDataFrame_(sock, evt);
 		}
-	
-		public void HandleSockEvent(object sender, MySocket.SocketState st)
+
+		//不论是登录,还是自动重连,走的都是一个流程.
+		public void SetAutoLogin(LoginType tp, string account, string psw, string toGame)
 		{
-			//连接成功,这个事件每个socket会调一次,立即进行握手协议
-			if (st == SocketState.WORKING) {
-				MySocket sock = (MySocket)sender;
-				if(sock.useProtocolParser == ProtocolParser.FLLU3dProtocol) {
-					FLLU3dHandshake handShake = new FLLU3dHandshake(sock);
-
-					handShake.Result += (obj, res) => {
-						if (res == (int)FLLU3dHandshake.State.Succ) {
-							state_ = EnState.HandshakeSucc;
-							handShake.Stop();
-						}
-						else if (res == (int)FLLU3dHandshake.State.Failed) {
-							handShake.Stop();
-						}
-					};
-
-					handShake.Start();
-				}
-				else if(sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
-
-				}
-			}
-			//网络连接完全失败,这个是所有连接都失败之后调用的
-			else if(st == SocketState.FAILED) {
-
-				state_ = EnState.AllConnectionLost;
-				session = null;
-			}
-		}
-	
-		public IEnumerator Start(Dictionary<string, int> hosts, float timeOut)
-		{
-			//注册protobuf类
-			ILRuntime_CLGT.Initlize();
-			ILRuntime_CLPF.Initlize();
-			ILRuntime_Global.Initlize();
-
-
-			Globals.net = new NetManager();
-			Globals.net.RegisterRawDataHandler(HandleRawData);
-			Globals.net.RegisterSockEventHandler(HandleSockEvent);
-			Globals.net.SetHostList(hosts);
-			Globals.net.Start(timeOut, MySocket.ProtocolParser.FLLU3dProtocol);
-			yield return 0;
-		}
-
-		public void Login(CLGT.LoginReq.LoginType tp, string account, string psw, string toGame)
-		{
+			GameToLogin_ = toGame;
 			//设置要登录的账号
-			if (tp == CLGT.LoginReq.LoginType.Guest) {
+			if (tp == LoginType.Guest) {
 				var token = AppController.ins.conf.GetDeviceID();
 				var findit = AppController.ins.accounts.Find((acc) => { return acc.accountName == token; });
 				if (findit != null) {
@@ -337,29 +186,24 @@ namespace Hotfix.Common
 					AppController.ins.lastUseAccount = inf;
 				}
 			}
-
-			EnterGame(toGame);
 		}
 
-
-		public void EnterGame(string game)
+		public void AutoLogin(bool isReconnect)
 		{
-			var gmconf = AppController.ins.conf.FindGameConfig(game);
+			var gmconf = AppController.ins.conf.FindGameConfig(GameToLogin_);
 			//如果两个游戏属于不同的阵营,网络需要重置
 			if(AppController.ins.lastGame != null && AppController.ins.lastGame.module != gmconf.module) {
 				Globals.net.Stop();
 			}
-
-			if (session != null) {
-				session.Stop();
-			}
-
+			
 			if (gmconf.module == GameConfig.Module.FLLU3d) {
-				session = new FLLU3dSession(game);
+				session = new FLLU3dSession(GameToLogin_);
 			}
 			else {
-				session = new KOKOSession(game);
+				session = new KOKOSession(GameToLogin_);
 			}
+			session.isReconnect = isReconnect;
+			session.progress = progress;
 			session.Start();
 		}
 
@@ -373,16 +217,44 @@ namespace Hotfix.Common
 			MsgHandler -= handler;
 		}
 
-		public void Update()
+		public override void Update()
 		{
 			Globals.net?.Update();
-			session?.Update();
+
+			var arr = rpcHandler.ToArray();
+
+			for(int i = 0; i < arr.Count; i++) {
+				var tsk = arr[i].Value;
+				if (tsk.IsTimeout()) {
+					if (tsk.callbackOnTimeout) tsk.callback(null);
+					rpcHandler.Remove(tsk.tp);
+				}
+			}
+
+			if (shouldReconnect) {
+				shouldReconnect = false;
+				AutoLogin(true);
+			}
 		}
 
-		public void Stop()
+		public IEnumerator Reset(bool autoReconnect)
 		{
-			Globals.net.RemoveRawDataHandler(HandleRawData);
-			Globals.net.Stop();
+			if(Globals.net != null) Globals.net.Stop();
+			if (session != null) {
+				if (!autoReconnect) session.Stop();
+				yield return session.WaitStop();
+				session = null;
+			}
+		}
+
+		public override void Start()
+		{
+
+		}
+
+		public override void Stop()
+		{
+			Reset(false);
 		}
 
 		void DispatchNetMsgEvent_(MySocket s, NetEventArgs evt)
@@ -392,7 +264,6 @@ namespace Hotfix.Common
 
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
-			stm.ReadInt();//跳过len
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
 				int cmd = stm.ReadInt();
 				switch (cmd) {
@@ -436,11 +307,12 @@ namespace Hotfix.Common
 
 				//回复一个垃圾数据
 				byte[] data = new byte[5];
-				data[0] = 5; data[4] = 1 << 6;
 				BinaryStream stmAck = new BinaryStream(data, data.Length);
-				Globals.net.SendMessage(stmAck, sock);
+				stmAck.WriteInt(5);
+				stmAck.WriteByte(1 << 6);
+				Globals.net.SendMessage(stmAck, true);
 
-				MsgPbFormStringHeader msg = new MsgPbFormStringHeader(sock.randomKey);
+				MsgPbFormStringHeader msg = new MsgPbFormStringHeader();
 				msg.Read(stm);
 
 				NetEventArgs evt = new NetEventArgs();
@@ -450,7 +322,7 @@ namespace Hotfix.Common
 				var proto = ProtoMessageCreator.CreateMessage(evt.strCmd, evt.payload);
 				if (proto != null) {
 					if (rpcHandler.ContainsKey(proto.GetType())) {
-						var handler = rpcHandler[proto.GetType()];
+						var handler = rpcHandler[proto.GetType()].callback;
 						handler(proto);
 					}
 					else {
@@ -463,13 +335,10 @@ namespace Hotfix.Common
 			}
 		}
 
-		public EnState state()
-		{
-			return state_;
-		}
 
 		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
-		EnState state_ = EnState.Init;
-		Dictionary<Type, Action<IProtoMessage>> rpcHandler = new Dictionary<Type, Action<IProtoMessage>>();
+		DictionaryCached<Type, RpcTask> rpcHandler = new DictionaryCached<Type, RpcTask>();
+		string GameToLogin_;
+		SessionBase session;
 	}
 }

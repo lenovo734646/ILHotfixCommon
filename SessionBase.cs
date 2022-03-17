@@ -29,7 +29,7 @@ namespace Hotfix.Common
 			else if (protoName == "CLGT.LoginAck") {
 				ret = new CLGT.LoginAck();
 			}
-
+			Debug.LogFormat("msg:{0}", protoName);
 			if(ret != null) {
 				ret.Decode(new Google.Protobuf.CodedInputStream(data));
 			}
@@ -37,83 +37,12 @@ namespace Hotfix.Common
 		}
 	}
 
-	//连接握手验证流程,连接只有走完这个流程,才能正常运行
-	public class FLLU3dHandshake
-	{
-		public enum State
-		{
-			//
-			Initiation,
-			//握手中
-			Handshaking,
-			//成功
-			Succ,
-			//失败
-			Failed,
-		}
-		//事件派发
-		public event EventHandler<int> Result;
-		public FLLU3dHandshake(MySocket s)
-		{
-			sock_ = s;
-			state_ = State.Initiation;
-		}
-
-		public bool IsTimeout()
-		{
-			if(state_ == State.Handshaking) {
-				return timeOut.Elapse() > 5.0f;
-			}
-			return false;
-		}
-
-		public void TimeOut()
-		{
-			state_ = State.Failed;
-			Result?.Invoke(this, (int)state_);
-		}
-
-		public void Start()
-		{
-			timeOut.Restart();
-			state_ = State.Handshaking;
-
-			Result?.Invoke(this, (int)state_);
-
- 			CLGT.HandReq msg = new CLGT.HandReq();
-
-			msg.platform = (int) 0;
-			msg.product = 1;
-			msg.version = 1;
-			msg.device = AppController.ins.conf.GetDeviceID();
-			msg.channel = 1;
-			msg.language = "ZH-CN";
-			msg.country = "CN";
-
-			AppController.ins.network.Rpc<CLGT.HandAck>(msg, (pb)=>{
-				var pbthis = (CLGT.HandAck)(pb);
-				sock_.randomKey = pbthis.random_key;
-				state_ = State.Succ;
-				Result?.Invoke(this, (int)state_);
-			});
-		}
-
-		public void Stop()
-		{
-			Result = null;
-		}
-
-		MySocket sock_;
-		State state_;
-		TimeCounter timeOut = new TimeCounter("");
-	}
-
 	public class SessionBase : ControllerBase
 	{
 		public enum EnState
 		{
 			//
-			Initiation,
+			Initiation = 100,
 			HandShake,
 			HandShakeSucc,
 			//获取服务阶段
@@ -139,24 +68,37 @@ namespace Hotfix.Common
 			AuthorizeFailed,
 		}
 
-		public event EventHandler<int> Result;
+		public static Dictionary<EnState, string> desc = new Dictionary<EnState, string>();
+
+		public bool isReconnect = false;
+		public int stop = 0;
+
 		public SessionBase(string game)
 		{
 			gameName_ = game;
+			if(desc.Count == 0) {
+				desc.Add(EnState.HandShake, LangNetWork.HandShake);
+				desc.Add(EnState.HandShakeSucc, LangNetWork.HandShakeSucc);
+				desc.Add(EnState.AcquireService, LangNetWork.AcquireService);
+				desc.Add(EnState.AcquireServiceSucc, LangNetWork.AcquireServiceSucc);
+				desc.Add(EnState.InLobby, LangNetWork.InLobby);
+				desc.Add(EnState.EnterRoom, LangNetWork.EnterRoom);
+				desc.Add(EnState.Gaming, LangNetWork.Gaming);
+				desc.Add(EnState.Disconnected, LangNetWork.Disconnected);
+				desc.Add(EnState.HandShakeFailed, LangNetWork.HandShakeFailed);
+				desc.Add(EnState.AcquireServiceFailed, LangNetWork.AcquireServiceFailed);
+				desc.Add(EnState.EnterRoomFailed, LangNetWork.EnterRoomFailed);
+				desc.Add(EnState.AuthorizeFailed, LangNetWork.AuthorizeFailed);
+			}
 		}
-
-		public void DispatchSessionEvent(int r)
+		public IEnumerator WaitStop()
 		{
-			Result.Invoke(this, r);
+			while (stop != 2) {
+				yield return 0;
+			}
+			yield return 1;
 		}
 
-		protected void SetState(EnState st)
-		{
-			state_ = st;
-			DispatchSessionEvent((int)state_);
-		}
-
-		protected EnState state_;
 		protected string gameName_ = "";
 	}
 }
