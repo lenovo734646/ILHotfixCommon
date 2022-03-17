@@ -166,24 +166,24 @@ namespace Hotfix.Lobby
 			}
 
 			//登录======================================
-			CLGT.LoginReq msg1 = new CLGT.LoginReq();
-			msg1.login_type = app.lastUseAccount.loginType;
-			if (msg1.login_type == (int)NetWorkController.LoginType.Guest) {
-				msg1.token = app.conf.GetDeviceID();
+			CLGT.LoginReq msgReq = new CLGT.LoginReq();
+			msgReq.login_type = app.lastUseAccount.loginType;
+			if (msgReq.login_type == (int)NetWorkController.LoginType.Guest) {
+				msgReq.token = app.conf.GetDeviceID();
 			}
-			else if(msg1.login_type == (int)NetWorkController.LoginType.GameCenter) {
-				msg1.token = app.lastUseAccount.accountName + "," + app.lastUseAccount.psw;
+			else if(msgReq.login_type == (int)NetWorkController.LoginType.GameCenter) {
+				msgReq.token = app.lastUseAccount.accountName + "," + app.lastUseAccount.psw;
 			}
-			Debug.LogFormat("Login Use:{0},{1}", msg1.login_type, msg1.token);
-			var result1 = app.network.Rpc<CLGT.LoginAck>(msg1);
-			yield return result1;
+			Debug.LogFormat("Login Use:{0},{1}", msgReq.login_type, msgReq.token);
+			var resultOfRpc = app.network.Rpc<CLGT.LoginAck>(msgReq);
+			yield return resultOfRpc;
 			
-			if(result1.Current == null) {
+			if(resultOfRpc.Current == null) {
 				progress?.Desc(LangNetWork.AuthorizeFailed);
 				goto Clean;
 			}
 
-			CLGT.LoginAck r = (CLGT.LoginAck)(result1.Current);
+			CLGT.LoginAck r = (CLGT.LoginAck)(resultOfRpc.Current);
 			if(r.errcode != 0) {
 				Debug.LogFormat("登录失败.{0}", r.errcode);
 				progress?.Desc(LangNetWork.AuthorizeFailed);
@@ -203,9 +203,11 @@ namespace Hotfix.Lobby
 
 			//如果只是登录到大厅.结束流程
 			if (gameName_ == app.conf.defaultGame) {
-				var lobby = app.currentApp.game.OpenView<ViewLobby>(true);
+
+				var lobby = AppController.ins.currentApp.game.OpenLobbyView();
 				lobby.Start();
 				lobby.progress = AppController.ins.progress;
+
 			}
 			else {
 				CLGT.AccessServiceReq msg2 = new CLGT.AccessServiceReq();

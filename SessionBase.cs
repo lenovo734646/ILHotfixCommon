@@ -72,7 +72,6 @@ namespace Hotfix.Common
 
 		public bool isReconnect = false;
 		public int stop = 0;
-
 		public SessionBase(string game)
 		{
 			gameName_ = game;
@@ -91,6 +90,7 @@ namespace Hotfix.Common
 				desc.Add(EnState.AuthorizeFailed, LangNetWork.AuthorizeFailed);
 			}
 		}
+
 		public IEnumerator WaitStop()
 		{
 			while (stop != 2) {

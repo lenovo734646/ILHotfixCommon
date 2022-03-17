@@ -23,7 +23,7 @@ namespace Hotfix.Common
 	//每个小游戏的GameController基类
 	//用来管理每个小游戏的逻辑,包括视图管理,游戏逻辑,网络消息处理,流程处理等等.
 	//总之,和小游戏相关的东西,都在这里开始
-	public class GameControllerBase : ControllerBase
+	public abstract class GameControllerBase : ControllerBase
 	{
 		//创建和管理View
 		public ViewBase mainView = null;
@@ -33,6 +33,8 @@ namespace Hotfix.Common
 			if(main) mainView = ret;
 			return ret;
 		}
+
+		public abstract ViewBase OpenLobbyView();
 	}
 	
 	//热更入口类
