@@ -23,6 +23,7 @@ namespace Hotfix.Common
 	//每个小游戏的GameController基类
 	//用来管理每个小游戏的逻辑,包括视图管理,游戏逻辑,网络消息处理,流程处理等等.
 	//总之,和小游戏相关的东西,都在这里开始
+	//
 	public abstract class GameControllerBase : ControllerBase
 	{
 		//创建和管理View
@@ -56,13 +57,46 @@ namespace Hotfix.Common
 			ins = this;
 		}
 
-		public void SwitchGame(string to)
+		public IEnumerator CheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip)
 		{
-			if (currentApp != null) currentApp.Stop();
-			var gmconf = conf.FindGameConfig(to);
-			var entryClass = Type.GetType(gmconf.entryClass);
-			currentApp = (AppBase)Activator.CreateInstance(entryClass);
-			currentApp.Start();
+			Debug.LogFormat("CheckUpdateAndRun");
+			if (conf.scriptType == GameConfig.ScriptType.CSharp) {
+				bool succ = false;
+
+				Globals.resLoader.SetSuffix(conf.suffix);
+				Globals.resLoader.SetWorkingDir(conf.folder);
+
+				if(conf.contentCatalog.Length > 0) {
+					var address = conf.GetCatalogAddress(AddressablesLoader.usingUpdateUrl, Globals.resLoader.GetPlatformString());
+					Debug.LogFormat("Get CatalogAddress:{0}, AddressablesLoader.usingUpdateUrl:{1}", address, AddressablesLoader.usingUpdateUrl);
+					
+					yield return 0;
+
+					var handle = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
+					yield return handle;
+					if (handle.Current == null) goto Clean;
+				}
+
+				var handle1 = HotfixCaller.LoadModule(conf.dllName, conf.pdbName, ip);
+				yield return handle1;
+
+				if ((int)handle1.Current != 0) goto Clean;
+
+				if (currentApp != null) currentApp.Stop();
+
+				var entryClass = Type.GetType(conf.entryClass);
+				currentApp = (AppBase)Activator.CreateInstance(entryClass);
+				currentApp.Start();
+				succ = true;
+			Clean:
+				if (!succ) {
+					Globals.resLoader.SetSuffix(lastGame.suffix);
+					Globals.resLoader.SetWorkingDir(lastGame.folder);
+				}
+			}
+			else {
+
+			}
 		}
 
 		public override void Start()
@@ -79,8 +113,7 @@ namespace Hotfix.Common
 		IEnumerator DoStart_()
 		{
 			conf.Start();
-			SwitchGame(conf.defaultGame);
-			yield return 0;
+			yield return CheckUpdateAndRun(conf.games[conf.defaultGame], null);
 		}
 
 		public override  void Update()
