@@ -29,7 +29,7 @@ namespace Hotfix.Common
 			else if (protoName == "CLGT.LoginAck") {
 				ret = new CLGT.LoginAck();
 			}
-			Debug.LogFormat("msg:{0}", protoName);
+			MyDebug.LogFormat("msg:{0}", protoName);
 			if(ret != null) {
 				ret.Decode(new Google.Protobuf.CodedInputStream(data));
 			}
@@ -69,12 +69,11 @@ namespace Hotfix.Common
 		}
 
 		public static Dictionary<EnState, string> desc = new Dictionary<EnState, string>();
-
+		public int closeByManual = 0;
 		public bool isReconnect = false;
-		public int stop = 0;
-		public SessionBase(string game)
+		public SessionBase(GameConfig game)
 		{
-			gameName_ = game;
+			toGame = game;
 			if(desc.Count == 0) {
 				desc.Add(EnState.HandShake, LangNetWork.HandShake);
 				desc.Add(EnState.HandShakeSucc, LangNetWork.HandShakeSucc);
@@ -91,14 +90,14 @@ namespace Hotfix.Common
 			}
 		}
 
-		public IEnumerator WaitStop()
+		public IEnumerator WaitStopComplete()
 		{
-			while (stop != 2) {
+			while (closeByManual != 2) {
 				yield return 0;
 			}
 			yield return 1;
 		}
 
-		protected string gameName_ = "";
+		protected GameConfig toGame;
 	}
 }

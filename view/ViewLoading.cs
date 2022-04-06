@@ -1,5 +1,6 @@
 ﻿using AssemblyCommon;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,18 +42,15 @@ namespace Hotfix.Common
 
 		protected override void SetLoader()
 		{
-
-			{
-				LoadTask tsk = new LoadTask();
-				tsk.assetPath = "Assets/AssetsFinal/Common/SmartLoadingUI.prefab";
-				tsk.callback = AddToPopup;
-				resNames_.Add(tsk);
-			}
-			
+			ViewLoadTask<GameObject> tsk = new ViewLoadTask<GameObject>();
+			tsk.assetPath = "Assets/AssetsFinal/Common/SmartLoadingUI.prefab";
+			LoadPrefab(tsk);
 		}
 
-		protected override void OnResourceReady()
+		protected override IEnumerator OnResourceReady()
 		{
+			yield return base.OnResourceReady();
+
 			var canvas = GameObject.Find("Canvas");
 			var SmartLoadingUI = canvas.FindChildDeeply("SmartLoadingUI");
 			var WaitResponseUI = SmartLoadingUI.FindChildDeeply("WaitResponseUI");

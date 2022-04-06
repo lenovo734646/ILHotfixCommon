@@ -34,7 +34,7 @@ namespace Hotfix.Common
 		{
 			//不允许同时显示多
 			if(opening != null) {
-				opening.cancelCallback();
+				opening.cancelCallback_();
 				opening.Close();
 			}
 
@@ -46,8 +46,8 @@ namespace Hotfix.Common
 		{
 			content_ = content;
 			flag_ = (Flag)flag;
-			okCallback = ok;
-			cancelCallback = cancel;
+			okCallback_ = ok;
+			cancelCallback_ = cancel;
 		}
 
 		public void SetTitle(string t)
@@ -63,10 +63,10 @@ namespace Hotfix.Common
 		protected override void SetLoader()
 		{
 			{
-				LoadTask tsk = new LoadTask();
+				ViewLoadTask<GameObject> tsk = new ViewLoadTask<GameObject>();
 				tsk.assetPath = "Assets/AssetsFinal/Common/MessageBoxUI_CN.prefab";
 				tsk.callback = AddToPopup;
-				resNames_.Add(tsk);
+				LoadPrefab(tsk);
 			}
 		}
 
@@ -85,12 +85,14 @@ namespace Hotfix.Common
 			}
 
 			//自动关闭的算取消.
-			cancelCallback();
+			cancelCallback_();
 			Close();
 		}
 
-		protected override void OnResourceReady()
+		protected override IEnumerator OnResourceReady()
 		{
+			yield return base.OnResourceReady();
+
 			canvas_ = GameObject.Find("Canvas");
 			var btnOK = canvas_.FindChildDeeply("btnOK");
 			var btnOnlyOK = canvas_.FindChildDeeply("btnOnlyOK");
@@ -103,24 +105,24 @@ namespace Hotfix.Common
 				btnRelease.SetActive(true);
 			}
 			else {
-				btnOnlyOK.SetActive(false);
+				btnOnlyOK.SetActive(true);
 			}
 
-			if (okCallback == null) okCallback = Close;
-			if (cancelCallback == null) cancelCallback = Close;
+			if (okCallback_ == null) okCallback_ = Close;
+			if (cancelCallback_ == null) cancelCallback_ = Close;
 
 			btnOK.GetComponent<Button>().onClick.AddListener(() => {
-				okCallback();
+				okCallback_();
 				Close();
 			});
 
 			btnOnlyOK.GetComponent<Button>().onClick.AddListener(() => {
-				okCallback();
+				okCallback_();
 				Close();
 			});
 
 			btnRelease.GetComponent<Button>().onClick.AddListener(() => {
-				cancelCallback();
+				cancelCallback_();
 				Close();
 			});
 
@@ -128,7 +130,7 @@ namespace Hotfix.Common
 			var txtTitle = canvas_.FindChildDeeply("txtTitle").GetComponent<Text>();
 			txtTitle.text = title_;
 
-			var txtContent = canvas_.FindChildDeeply("txtTitle").GetComponent<Text>();
+			var txtContent = canvas_.FindChildDeeply("txtContent").GetComponent<Text>();
 			txtContent.text = content_;
 
 			if (autoCloseTime_ > 0.01f) {
@@ -152,13 +154,14 @@ namespace Hotfix.Common
 		{
 			if(opening != null) {
 				this.StartCor(DoClose(), true);
+
 			}
 			opening = null;
 		}
 
 		GameObject canvas_;
 		Flag flag_ = Flag.BTN_OK_ONLY;
-		Action okCallback, cancelCallback;
+		Action okCallback_, cancelCallback_;
 		string content_;
 		string title_ = "提示";
 		float autoCloseTime_ = 0.0f;

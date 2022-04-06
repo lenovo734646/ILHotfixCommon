@@ -1,5 +1,6 @@
 ﻿using AssemblyCommon;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,10 +45,10 @@ namespace Hotfix.Common
 		protected override void SetLoader()
 		{
 			{
-				LoadTask tsk = new LoadTask();
+				ViewLoadTask<GameObject> tsk = new ViewLoadTask<GameObject>();
 				tsk.assetPath = "Assets/Res/prefabs/common/FX_UI_DlgTips.prefab";
 				tsk.callback = AddToPopup;
-				resNames_.Add(tsk);
+				LoadPrefab(tsk);
 			}
 		}
 
@@ -57,8 +58,10 @@ namespace Hotfix.Common
 			autoCloseTime_ = autoCloseTime;
 		}
 
-		protected override void OnResourceReady()
+		protected override IEnumerator OnResourceReady()
 		{
+			yield return base.OnResourceReady();
+
 			var canv = GameObject.Find("Canvas");
 			var txt = canv.FindChildDeeply("Text_tips").GetComponent<Text>();
 			txt.text = text_;

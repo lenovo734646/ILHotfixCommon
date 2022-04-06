@@ -17,12 +17,12 @@ namespace Hotfix.Common
 		public const string AcquireServiceSucc = "游戏服务获取成功.";
 		public const string InLobby = "进入大厅成功.";
 		public const string EnterRoom = "正在进入游戏房间...";
-		public const string Gaming = "进入房间成功";
+		public const string Gaming = "进入房间成功.";
 		public const string Disconnected = "网关连接被断开.";
 		public const string HandShakeFailed = "握手失败.";
 		public const string AcquireServiceFailed = "游戏服务获取失败!";
 		public const string EnterRoomFailed = "进入房间失败!";
-		public const string AuthorizeFailed = "登录失败!";
+		public const string AuthorizeFailed = "登录失败!{0}";
 		public const string Connecting = "正在连接...";
 		public const string ConnectSucc = "连接成功.";
 		public const string ConnectFailed = "连接失败.";
@@ -33,5 +33,9 @@ namespace Hotfix.Common
 	public static class LangUITip
 	{
 		public const string PopupAutoCloseInTime = "{0}秒后自动关闭";
+		public const string EnterGameFailed = "进入游戏失败.";
+		public const string RegisterFailed = "注册失败.";
+		public const string ServerIsBusy = "服务器正忙,请稍后再试.";
+
 	}
 }

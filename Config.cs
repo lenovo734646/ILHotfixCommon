@@ -69,7 +69,7 @@ namespace Hotfix.Common
 		public int tag;
 		public bool enabled = true;
 		public string contentCatalog = "", dllName = "", pdbName = "", suffix = "";
-
+		public int gameID = -1;
 		public string GetCatalogAddress(string host, string platform)
 		{
 			return string.Format(contentCatalog, host, folder, platform);
@@ -86,7 +86,8 @@ namespace Hotfix.Common
 			//内网测试服
 			//hosts.Add("192.168.101.221", 16000);
 			//国内测试服
-			hosts.Add("150.158.55.161", 16000);
+			//hosts.Add("150.158.55.161", 16000);
+			hosts.Add("127.0.0.1", 8990);
 			{
 				GameConfig game = new GameConfig();
 				game.name = GameConfig.LingDianBY;
@@ -136,6 +137,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
 				games.Add(game.name, game);
 			}
+
 			{
 				GameConfig game = new GameConfig();
 				game.name = GameConfig.BenChiBaoMa;
@@ -446,7 +448,6 @@ namespace Hotfix.Common
 				games.Add(game.name, game);
 			}
 		}
-
 		public GameConfig FindGameConfig(string name)
 		{
 			foreach(var it in games) {
