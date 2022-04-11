@@ -100,6 +100,7 @@ namespace Hotfix.Common
 				game.dllName = "Assets/Res/Games/HuanleBY/HotFixDll.json";
 				game.pdbName = "Assets/Res/Games/HuanleBY/HotFixDll_pdb.json";
 				game.suffix = GameConfig.HuanleBY;
+				game.gameID = 564;
 				games.Add(game.name, game);
 			}
 

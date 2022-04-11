@@ -71,9 +71,8 @@ namespace Hotfix.Common
 		public static Dictionary<EnState, string> desc = new Dictionary<EnState, string>();
 		public int closeByManual = 0;
 		public bool isReconnect = false;
-		public SessionBase(GameConfig game)
+		public SessionBase()
 		{
-			toGame = game;
 			if(desc.Count == 0) {
 				desc.Add(EnState.HandShake, LangNetWork.HandShake);
 				desc.Add(EnState.HandShakeSucc, LangNetWork.HandShakeSucc);
@@ -92,12 +91,15 @@ namespace Hotfix.Common
 
 		public IEnumerator WaitStopComplete()
 		{
-			while (closeByManual != 2) {
-				yield return 0;
+			while (closeByManual <= 2) {
+				yield return new WaitForSeconds(0.1f);
 			}
 			yield return 1;
 		}
 
-		protected GameConfig toGame;
+		public bool IsWorking()
+		{
+			return closeByManual == 2;
+		}
 	}
 }

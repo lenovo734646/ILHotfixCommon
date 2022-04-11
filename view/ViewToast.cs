@@ -33,7 +33,7 @@ namespace Hotfix.Common
 			if(opening != null) {
 				opening.Close();
 			}
-			opening = null;
+			opening = this;
 		}
 
 		public override void Close()

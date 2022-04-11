@@ -22,9 +22,23 @@ namespace Hotfix.Common
 			return ret;
 		}
 
+		public virtual void OnEnterGameSucc()
+		{
+			prepared_ = true;
+		}
+
 		public void ReleaseWhenClose(AddressablesLoader.LoadTaskBase task)
 		{
 			resourceLoader_.Add(task);
+		}
+		
+		public override void Update()
+		{
+			if (prepared_) {
+				foreach (var view in views_) {
+					view.Update();
+				}
+			}
 		}
 
 		public override void Stop()
@@ -43,6 +57,7 @@ namespace Hotfix.Common
 		//资源加载器,在半闭本窗口的时候,需要释放资源引用.
 		List<AddressablesLoader.LoadTaskBase> resourceLoader_ = new List<AddressablesLoader.LoadTaskBase>();
 		List<ViewBase> views_ = new List<ViewBase>();
+		bool prepared_ = true;
 	}
 
 }

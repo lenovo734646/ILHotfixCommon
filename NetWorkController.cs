@@ -1,5 +1,6 @@
 ﻿using AssemblyCommon;
 using Hotfix.Lobby;
+using Hotfix.Model;
 using LitJson;
 using System;
 using System.Collections;
@@ -48,7 +49,7 @@ namespace Hotfix.Common
 		public byte[] payload;
 	}
 
-	public class NetWorkController:ControllerBase
+	public class NetWorkController : ControllerBase
 	{
 		public enum PlatformType
 		{
@@ -62,7 +63,6 @@ namespace Hotfix.Common
 		}
 
 		public event EventHandler<NetEventArgs> MsgHandler;
-		public bool shouldReconnect = false;
 		public void SendJson(short subCmd, string json, int toserver)
 		{
 			sendStream_.ClearUsedData();
@@ -71,7 +71,9 @@ namespace Hotfix.Common
 			msg.content = json;
 			msg.toserver = toserver;
 			msg.Write(sendStream_);
-			Globals.net.SendMessage(sendStream_);
+			if (!Globals.net.SendMessage(sendStream_)) {
+				MyDebug.LogWarningFormat("Json Message Send failed:{0},{1}", subCmd, json);
+			}
 		}
 
 		public void SendPing()
@@ -98,7 +100,7 @@ namespace Hotfix.Common
 			if (Rpc(msgid, proto, rspID, callback, timeout)) {
 				TimeCounter tc = new TimeCounter("");
 				while (!responsed && tc.Elapse() < timeout) {
-					yield return null;
+					yield return new WaitForSeconds(0.01f);
 				}
 			}
 			yield return Result;
@@ -138,12 +140,12 @@ namespace Hotfix.Common
 		{
 			IProtoMessage Result = null;
 			bool responsed = false;
-			Action<IProtoMessage> callback = (msg)=>{
+			Action<IProtoMessage> callback = (msg) => {
 				responsed = true;
-				if (msg != null)	Result = (T)msg;
+				if (msg != null) Result = (T)msg;
 			};
 
-			if(Rpc<T>(proto, callback, timeout)) {
+			if (Rpc<T>(proto, callback, timeout)) {
 				TimeCounter tc = new TimeCounter("");
 				while (!responsed && tc.Elapse() < timeout) {
 					yield return null;
@@ -152,7 +154,7 @@ namespace Hotfix.Common
 			yield return Result;
 		}
 
-		public bool Rpc<T>(IProtoMessage proto, Action<IProtoMessage> callback, float timeout) where T: IProtoMessage
+		public bool Rpc<T>(IProtoMessage proto, Action<IProtoMessage> callback, float timeout) where T : IProtoMessage
 		{
 			if (rpcHandler.ContainsKey(typeof(T))) {
 				return false;
@@ -183,7 +185,7 @@ namespace Hotfix.Common
 		public void SendPb(short subCmd, IProtoMessage proto)
 		{
 			sendStream_.ClearUsedData();
-			
+
 			MsgPbForm msg = new MsgPbForm();
 			msg.subCmd = subCmd;
 			msg.SetProtoMessage(proto);
@@ -195,7 +197,7 @@ namespace Hotfix.Common
 		public void SendPb2(IProtoMessage proto)
 		{
 			sendStream_.ClearUsedData();
-			
+
 			MsgPbFormStringHeader msg = new MsgPbFormStringHeader();
 			msg.protoName = proto.GetType().FullName;
 			msg.SetProtoMessage(proto);
@@ -208,11 +210,6 @@ namespace Hotfix.Common
 		{
 			MySocket sock = sender as MySocket;
 			HandleDataFrame_(sock, evt);
-		}
-
-		public void SetToGame(string toGame)
-		{
-			GameToLogin_ = toGame;
 		}
 
 		//不论是登录,还是自动重连,走的都是一个流程.
@@ -251,24 +248,160 @@ namespace Hotfix.Common
 				}
 			}
 		}
-
-		public void AutoLogin(bool isReconnect)
+		public IEnumerator ValidSession()
 		{
-			var gmconf = AppController.ins.conf.FindGameConfig(GameToLogin_);
-			//如果两个游戏属于不同的阵营,网络需要重置
-// 			if(AppController.ins.currentGame != null && AppController.ins.currentGame.module != gmconf.module) {
-// 				Globals.net.Stop();
-// 			}
-			
-//			if (gmconf.module == GameConfig.Module.FLLU3d) {
-//				session = new FLLU3dSession(GameToLogin_, resetNet_);
-// 			}
-// 			else {
- 				session = new KoKoSession(gmconf, resetNet_);
-// 			}
-			session.isReconnect = isReconnect;
-			session.progress = progress;
-			session.Start();
+			if (session == null || !session.IsWorking()) {
+				lastPing_ = float.MaxValue;
+
+				session = new KoKoSession();
+				session.progress = progress;
+				session.Start();
+
+				while (session.closeByManual < 2) {
+					yield return new WaitForSeconds(0.1f);
+				}
+
+				if (!session.IsWorking()) {
+					yield return 2;
+				}
+				else {
+					yield return 1;
+				}
+			}
+			else
+				yield return 1;
+		}
+		public void CloseSession()
+		{
+			if (session != null) session.Stop();
+		}
+
+		public IEnumerator EnterGame(GameConfig toGame, bool doLogin)
+		{
+			MyDebug.LogFormat("AutoLogin begin.");
+			if (toGame == null) toGame = AppController.ins.conf.defaultGame;
+			bool succ = false;
+			var app = AppController.ins;
+			//这是开发人员犯错,抛出异常
+			if (app.lastUseAccount == null) {
+				throw new Exception("AppController.ins.lastUseAccount == null,it must be settled before login.");
+			}
+
+			var handleSession = ValidSession();
+			yield return handleSession;
+			if ((int)handleSession.Current != 1) {
+				MyDebug.LogFormat("AutoLogin failed on valid session fail.");
+				goto Clean;
+			}
+			else {
+				MyDebug.LogFormat("valid session succ.");
+			}
+
+			if (doLogin) {
+				MyDebug.LogFormat("will login.");
+				//登录======================================
+				if (app.lastUseAccount.loginType == AccountInfo.LoginType.Guest) {
+					msg_user_register msg = new msg_user_register();
+					msg.type_ = "7";
+					msg.acc_name_ = app.lastUseAccount.accountName;
+					msg.pwd_hash_ = Globals.Md5Hash(app.lastUseAccount.psw);
+					msg.machine_mark_ = app.conf.GetDeviceID();
+					msg.sign_ = Globals.Md5Hash(msg.acc_name_ + msg.pwd_hash_ + msg.machine_mark_ + "{51B539D8-0D9A-4E35-940E-22C6EBFA86A8}");
+					var resultOfRpc = app.network.Rpc((short)AccReqID.msg_user_register, msg, (short)CommID.msg_common_reply);
+					yield return resultOfRpc;
+
+					if (resultOfRpc.Current == null) {
+						progress?.Desc(LangUITip.RegisterFailed);
+						goto Clean;
+					}
+
+					msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
+					msg_common_reply r = (msg_common_reply)(rpcd.msg_);
+
+					if (r.err_ == "-994") {
+						progress?.Desc(LangUITip.ServerIsBusy);
+						goto Clean;
+					}
+					else if (r.err_ != "0" && r.err_ != "-995") {
+						progress?.Desc(LangUITip.RegisterFailed);
+						goto Clean;
+					}
+				}
+
+				{
+					msg_user_login msgReq = new msg_user_login();
+					msgReq.acc_name_ = app.lastUseAccount.accountName;
+					msgReq.pwd_hash_ = Globals.Md5Hash(app.lastUseAccount.psw);
+					msgReq.machine_mark_ = app.conf.GetDeviceID();
+					msgReq.sign_ = Globals.Md5Hash(msgReq.acc_name_ + msgReq.pwd_hash_ + msgReq.machine_mark_ + "{51B539D8-0D9A-4E35-940E-22C6EBFA86A8}");
+					MyDebug.LogFormat($"Login Use:{msgReq.acc_name_},{msgReq.machine_mark_}");
+
+					var resultOfRpc = app.network.Rpc((short)AccReqID.msg_user_login, msgReq, (short)AccRspID.msg_user_login_ret);
+					yield return resultOfRpc;
+
+					if (resultOfRpc.Current == null) {
+						progress?.Desc(LangNetWork.AuthorizeFailed);
+						goto Clean;
+					}
+
+					msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
+
+					msg_user_login_ret r = (msg_user_login_ret)(rpcd.msg_);
+					if (rpcd.err_ != 0) {
+						MyDebug.LogFormat("登录失败.{0}", rpcd.err_);
+						progress?.Desc(LangNetWork.AuthorizeFailed);
+						goto Clean;
+					}
+
+					app.self.gamePlayer = new GamePlayer();
+
+					var self = app.self.gamePlayer;
+					self.iid = int.Parse(r.iid_);
+					self.nickName = r.nickname_;
+					self.uid = r.uid_;
+					self.items[(int)ITEMID.GOLD] = long.Parse(r.gold_);
+				}
+			}
+
+			{
+				msg_get_game_coordinate msg = new msg_get_game_coordinate();
+				msg.gameid_ = toGame.gameID.ToString();
+				msg.uid_ = app.self.gamePlayer.uid;
+
+				var resultOfRpc = app.network.Rpc((short)AccReqID.msg_get_game_coordinate, msg, (short)AccRspID.msg_channel_server);
+				yield return resultOfRpc;
+
+				if (resultOfRpc.Current == null) {
+					progress?.Desc(LangNetWork.AuthorizeFailed);
+					MyDebug.LogFormat("Get Coordinate failed");
+					goto Clean;
+				}
+				else {
+					MyDebug.LogFormat("Get Coordinate succ.");
+				}
+				msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
+				msg_channel_server r = (msg_channel_server)(rpcd.msg_);
+				if (rpcd.err_ != 0) {
+					progress?.Desc(LangNetWork.AuthorizeFailed);
+					MyDebug.LogFormat("Get Coordinate failed,error:{0},game:{1}", rpcd.err_, toGame.gameID);
+					goto Clean;
+				}
+				MyDebug.LogFormat($"Get Coordinate:{r.ip_},{r.port_},game:{toGame.gameID}");
+
+			}
+
+			succ = true;
+			progress?.Desc(LangNetWork.InLobby);
+			//如果只是登录到大厅.结束流程
+			app.currentApp.game.OnEnterGameSucc();
+		Clean:
+			if (!succ) {
+				MyDebug.LogFormat("auto login failed.");
+				yield return 0;
+			}
+			else {
+				yield return 1;
+			}
 		}
 
 		public void RegisterMsgHandler(EventHandler<NetEventArgs> handler)
@@ -307,29 +440,19 @@ namespace Hotfix.Common
 					}
 				}
 			}
-
-			if (shouldReconnect) {
-				shouldReconnect = false;
-				
-				if (AppController.ins.currentGameConfig != null)
-					GameToLogin_ = AppController.ins.currentGameConfig.name;
-				else
-					GameToLogin_ = AppController.ins.conf.defaultGameName;
-
-				AutoLogin(true);
-			}
 		}
 
-		public IEnumerator ResetSession(bool autoReconnect, bool resetNet)
+		public IEnumerator Recounnect()
 		{
-			resetNet_ = resetNet;
-			if (session != null) {
-				if (!autoReconnect || resetNet_) {
-					session.Stop();
-					yield return session.WaitStopComplete();
-				}
-				session = null;
-			}
+			ViewToast.Create(LangNetWork.Connecting, 10.0f);
+			yield return ValidSession();
+			yield return EnterGame(AppController.ins.currentGameConfig, true);
+			ViewToast.Clear();
+		}
+
+		public float TimeElapseSinceLastPing()
+		{
+			return Time.time - lastPing_;
 		}
 
 		public override void Start()
@@ -339,9 +462,8 @@ namespace Hotfix.Common
 
 		public override void Stop()
 		{
-			ResetSession(false, true);
+			session.Stop();
 		}
-
 		void DispatchNetMsgEvent_(MySocket s, NetEventArgs evt)
 		{
 			MsgHandler?.Invoke(s, evt);
@@ -365,7 +487,7 @@ namespace Hotfix.Common
 			}
 			return null;
 		}
-
+		
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
@@ -415,6 +537,7 @@ namespace Hotfix.Common
 							rpcd.err_ = 0;
 							rpcHandler2[(int)INT_MSGID.INTERNAL_MSGID_PING].callback(rpcd);
 						}
+						lastPing_ = Time.time;
 					}
 					break;
 					//Protobuffer消息
@@ -469,12 +592,11 @@ namespace Hotfix.Common
 			}
 		}
 
+		public SessionBase session;
 
 		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
 		DictionaryCached<Type, RpcTask> rpcHandler = new DictionaryCached<Type, RpcTask>();
 		DictionaryCached<int, RpcTask2> rpcHandler2 = new DictionaryCached<int, RpcTask2>();
-		string GameToLogin_;
-		SessionBase session;
-		bool resetNet_ = false;
+		float lastPing_ = float.MaxValue;
 	}
 }

@@ -66,15 +66,12 @@ namespace Hotfix.Common
 				if (currentApp != null) currentApp.Stop();
 				currentApp = null;
 
-				//重置session,但不重置网络连接
-				if (showLogin)
-					yield return network.ResetSession(false, true);
-				else
-					yield return network.ResetSession(false, false);
+				//确保连接
+				MyDebug.LogFormat("network.ValidSession");
+				var handleSess = network.ValidSession();
+				yield return handleSess;
 
 				MyDebug.LogFormat("Run CommonEmptyScene->Game:{0}", conf.name);
-
-				network.SetToGame(conf.name);
 
 				//开启新的场景,这里不需要进度指示是因为这个已经下载好了
 				var sceneHandle = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>("Assets/Scenes/CommonEmptyScene.unity", null);
@@ -85,16 +82,36 @@ namespace Hotfix.Common
 				currentApp = (AppBase)Activator.CreateInstance(entryClass);
 				currentApp.Start();
 
+				if ((int)handleSess.Current != 1) {
+					MyDebug.LogFormat("network.ValidSession failed, will show login.");
+					showLogin = true;
+				}
+				else {
+					MyDebug.LogFormat("network.ValidSession succ.");
+				}
 				if (showLogin)
 					yield return ShowLogin();
-				else
-					network.AutoLogin(false);
+				else {
+					var loginHandle = network.EnterGame(conf, false);
+					yield return loginHandle;
+					//登录失败
+					if((int)loginHandle.Current == 0) {
+						//如果是登录大厅失败,返回登录界面
+						if(conf == ins.conf.defaultGame) {
+							yield return ShowLogin();
+						}
+						//如果登录游戏失败,返回登录大厅
+						else {
+							yield return DoCheckUpdateAndRun(ins.conf.defaultGame, null, false);
+						}
+					}
+				}
+				yield break;
 
-				succ = true;
 			Clean:
 				if (!succ) {
-					ViewToast.Create(LangUITip.EnterGameFailed);
-					MyDebug.LogFormat("CheckUpdateAndRun failed!", conf.name);
+					MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
+					yield return DoCheckUpdateAndRun(ins.conf.defaultGame, null, false);
 				}
 			}
 			else {
