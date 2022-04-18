@@ -38,7 +38,6 @@ namespace Hotfix.Common
 		{
 			var vLogin = currentApp.game.OpenView<ViewLogin>();
 			vLogin.progress = progress;
-			vLogin.Start();
 			yield return vLogin.WaitingForReady();
 		}
 
@@ -132,7 +131,18 @@ namespace Hotfix.Common
 			ILRuntime_CLPF.Initlize();
 			ILRuntime_Global.Initlize();
 
+			network.RegisterMsgHandler(OnNetMsg);
+
 			DoStart_();
+		}
+
+		public void OnNetMsg(object sender, NetEventArgs e)
+		{
+			if(e.cmd == (int)CommID.msg_sync_item) {
+				var msgi = (msg_sync_item)e.msg;
+				self.gamePlayer.items.SetKeyVal(int.Parse(msgi.item_id_), long.Parse(msgi.count_));
+				self.gamePlayer.DispatchDataChanged();
+			}
 		}
 
 		void DoStart_()

@@ -10,6 +10,7 @@ namespace Hotfix.Common
 	public enum CommID
 	{
 		msg_common_reply = 1001,
+		msg_sync_item = 1016,
 	}
 
 	public enum GateReqID

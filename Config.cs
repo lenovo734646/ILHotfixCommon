@@ -67,7 +67,7 @@ namespace Hotfix.Common
 		public ScriptType scriptType = ScriptType.CSharp;
 		public Module module = Module.FLLU3d;
 		public int tag;
-		public bool enabled = true;
+		public bool enabled = false, show = true;
 		public string contentCatalog = "", dllName = "", pdbName = "", suffix = "";
 		public int gameID = -1;
 		public string GetCatalogAddress(string host, string platform)
@@ -88,6 +88,7 @@ namespace Hotfix.Common
 			//国内测试服
 			//hosts.Add("150.158.55.161", 16000);
 			hosts.Add("127.0.0.1", 8990);
+			//hosts.Add("47.100.172.186", 8990);
 			{
 				GameConfig game = new GameConfig();
 				game.name = GameConfig.LingDianBY;
@@ -101,6 +102,7 @@ namespace Hotfix.Common
 				game.pdbName = "Assets/Res/Games/HuanleBY/HotFixDll_pdb.json";
 				game.suffix = GameConfig.HuanleBY;
 				game.gameID = 564;
+				game.enabled = true;
 				games.Add(game.name, game);
 			}
 
@@ -169,7 +171,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
-				game.enabled = false;
+				game.show = false;
 				games.Add(game.name, game);
 			}
 
@@ -181,7 +183,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
-				game.enabled = false;
+				game.show = false;
 				games.Add(game.name, game);
 			}
 
@@ -204,7 +206,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
-				game.enabled = false;
+				game.show = false;
 				games.Add(game.name, game);
 			}
 
@@ -250,7 +252,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
-				game.enabled = false;
+				game.show = false;
 				games.Add(game.name, game);
 			}
 
@@ -262,7 +264,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
-				game.enabled = false;
+				game.show = false;
 				games.Add(game.name, game);
 			}
 
@@ -285,7 +287,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
-				game.enabled = false;
+				game.show = false;
 				games.Add(game.name, game);
 			}
 
@@ -297,7 +299,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
-				game.enabled = false;
+				game.show = false;
 
 				games.Add(game.name, game);
 			}
@@ -310,7 +312,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
-				game.enabled = false;
+				game.show = false;
 
 				games.Add(game.name, game);
 			}
@@ -323,7 +325,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
-				game.enabled = false;
+				game.show = false;
 				games.Add(game.name, game);
 			}
 
@@ -335,7 +337,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
-				game.enabled = false;
+				game.show = false;
 				games.Add(game.name, game);
 			}
 
@@ -369,7 +371,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.Lua;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
-				game.enabled = false;
+				game.show = false;
 				games.Add(game.name, game);
 			}
 

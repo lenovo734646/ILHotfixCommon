@@ -205,8 +205,6 @@ namespace Hotfix.Lobby
 
 				progress?.Desc(LangNetWork.InLobby);
 
-				app.self.gamePlayer = new GamePlayer();
-
 				var self = app.self.gamePlayer;
 				self.iid = r.user_id;
 				self.nickName = r.nickname;
@@ -250,7 +248,7 @@ namespace Hotfix.Lobby
 			ViewToast.Clear();
 			AppController.ins.network.RemoveMsgHandler(OnMsg_);
 
-			closeByManual = 2;
+			closeByManual = 4;
 		}
 
 		public override void Start()
@@ -427,7 +425,7 @@ namespace Hotfix.Lobby
 				//如果握手失败
 				if ((int)handle1.Current != 1) {
 					progress?.Desc(LangNetWork.HandShakeFailed);
-					MyDebug.LogFormat("FLLSession failed with Handshake");
+					MyDebug.LogFormat("KoKoSession failed with Handshake");
 					goto Clean;
 				}
 
@@ -441,10 +439,10 @@ namespace Hotfix.Lobby
 			}
 			MyDebug.LogFormat("Session will exit! Globals.net.IsWorking():{0}, closeByManual:{1}", Globals.net.IsWorking(), closeByManual);
 		Clean:
+			closeByManual = 4;
 			Globals.net.RemoveRawDataHandler(AppController.ins.network.HandleRawData);
 			Globals.net.RemoveSockEventHandler(OnSockEvent_);
 			ViewToast.Clear();
-			closeByManual = 4;
 		}
 
 		public override void Start()

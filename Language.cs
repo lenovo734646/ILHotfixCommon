@@ -36,6 +36,15 @@ namespace Hotfix.Common
 		public const string EnterGameFailed = "进入游戏失败.";
 		public const string RegisterFailed = "注册失败.";
 		public const string ServerIsBusy = "服务器正忙,请稍后再试.";
-
+		public const string WillOpenSoon = "即将开放";
+		public const string PleaseEnterPassword = "请输入密码.";
+		public const string PasswordIncorrect = "账号或密码不正确.";
+		public const string PleaseEnterValue = "请输入数额.";
+		public const string NotEnough = "数额不足.";
+		public const string OperationSucc = "操作成功.";
+		public const string OperationFailed = "操作失败.";
+		public const string CantFindPlayer = "玩家不存在.";
+		public const string ConfirmFailed = "密码不一致.";
+		public const string PleaseWait = "操作太频繁,请稍后再试.";
 	}
 }

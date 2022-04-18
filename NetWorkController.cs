@@ -47,6 +47,9 @@ namespace Hotfix.Common
 		public int cmd;
 		public string strCmd;
 		public byte[] payload;
+
+		public IProtoMessage msgProto;
+		public msg_base msg;
 	}
 
 	public class NetWorkController : ControllerBase
@@ -71,6 +74,7 @@ namespace Hotfix.Common
 			msg.content = json;
 			msg.toserver = toserver;
 			msg.Write(sendStream_);
+			MyDebug.LogWarningFormat("Json Message Send:{0},{1}", subCmd, json);
 			if (!Globals.net.SendMessage(sendStream_)) {
 				MyDebug.LogWarningFormat("Json Message Send failed:{0},{1}", subCmd, json);
 			}
@@ -353,13 +357,13 @@ namespace Hotfix.Common
 						goto Clean;
 					}
 
-					app.self.gamePlayer = new GamePlayer();
-
-					var self = app.self.gamePlayer;
-					self.iid = int.Parse(r.iid_);
-					self.nickName = r.nickname_;
-					self.uid = r.uid_;
-					self.items[(int)ITEMID.GOLD] = long.Parse(r.gold_);
+					var player = app.self.gamePlayer;
+					player.iid = int.Parse(r.iid_);
+					player.nickName = r.nickname_;
+					player.uid = r.uid_;
+					player.items[(int)ITEMID.GOLD] = long.Parse(r.gold_);
+					player.headIco = r.headico_;
+					app.self.phone = r.phone;
 				}
 			}
 
@@ -441,13 +445,28 @@ namespace Hotfix.Common
 				}
 			}
 		}
+		public bool IsReconnecting()
+		{
+			return isReconnecting_;
+		}
 
 		public IEnumerator Recounnect()
 		{
-			ViewToast.Create(LangNetWork.Connecting, 10.0f);
+			isReconnecting_ = true;
+			ViewToast.Create(LangNetWork.Connecting, 10000.0f);
 			yield return ValidSession();
-			yield return EnterGame(AppController.ins.currentGameConfig, true);
+			var handle = EnterGame(AppController.ins.currentGameConfig, true);
+			yield return handle;
+
+			int count = 1;
+			while((int)handle.Current == 0) {
+				MyDebug.LogFormat("Enter Game Failed, retry {0}", count++);
+				handle = EnterGame(AppController.ins.currentGameConfig, true);
+				yield return handle;
+			}
+
 			ViewToast.Clear();
+			isReconnecting_ = false;
 		}
 
 		public float TimeElapseSinceLastPing()
@@ -469,7 +488,7 @@ namespace Hotfix.Common
 			MsgHandler?.Invoke(s, evt);
 		}
 
-		msg_base CreateMsg_(short subMsg, string content)
+		msg_base CreateMsgFromJson_(short subMsg, string content)
 		{
 			switch(subMsg) {
 				case (short)GateRspID.msg_handshake_ret: {
@@ -481,13 +500,30 @@ namespace Hotfix.Common
 				case (short)AccRspID.msg_channel_server: {
 					return JsonMapper.ToObject<msg_channel_server>(content);
 				}
+				case (short)CommID.msg_sync_item: {
+					return JsonMapper.ToObject<msg_sync_item>(content); 
+				}
 				case (short)CommID.msg_common_reply: {
 					return JsonMapper.ToObject<msg_common_reply>(content);
+				}
+				case (short)CorRspID.msg_get_bank_info_ret: {
+					return JsonMapper.ToObject<msg_get_bank_info_ret>(content);
+				}
+				case unchecked((short)INT_MSGID.INTERNAL_MSGID_PING): {
+					return new msg_ping();
 				}
 			}
 			return null;
 		}
-		
+
+		IProtoMessage CreateMsgFromPb_(short subMsg, byte[] content)
+		{
+			switch (subMsg) {
+				
+			}
+			return null;
+		}
+
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
@@ -500,12 +536,20 @@ namespace Hotfix.Common
 						MsgJsonForm msg = new MsgJsonForm();
 						msg.Read(stm);
 
-						var msgRsp = CreateMsg_(msg.subCmd, msg.content);
+						if(msg.subCmd != -1) {
+							MyDebug.LogFormat("Json message recieved:{0},{1}", msg.subCmd, msg.content);
+						}
+
+						var msgRsp = CreateMsgFromJson_(msg.subCmd, msg.content);
 						if (msgRsp != null) {
 							if (rpcHandler2.ContainsKey(msg.subCmd)) {
 								//如果是通用回复
 								msg_rpc_ret rsp = new msg_rpc_ret();
 								rsp.err_ = 0;
+								if(msgRsp.GetType() == typeof(msg_common_reply)) {
+									var commRpl = (msg_common_reply)(msgRsp);
+									rsp.err_ = int.Parse(commRpl.err_);
+								}
 								rsp.msg_ = msgRsp;
 								rpcHandler2[msg.subCmd].callback(rsp);
 							}
@@ -519,6 +563,12 @@ namespace Hotfix.Common
 										//如果是通用回复
 										rpcHandler2[int.Parse(commRpl.rp_cmd_)].callback(rsp);
 									}
+								}
+								else {
+									NetEventArgs evt = new NetEventArgs();
+									evt.cmd = msg.subCmd;
+									evt.msg = msgRsp;
+									DispatchNetMsgEvent_(sock, evt);
 								}
 							}
 						}
@@ -545,9 +595,17 @@ namespace Hotfix.Common
 						MsgPbForm msg = new MsgPbForm();
 						msg.Read(stm);
 
+						var msgRsp = CreateMsgFromPb_(msg.subCmd, msg.content);
+
 						NetEventArgs evt = new NetEventArgs();
 						evt.cmd = msg.subCmd;
-						evt.payload = msg.content;
+
+						if (msgRsp != null) {
+							evt.msgProto = msgRsp;
+						}
+						else {
+							evt.payload = msg.content;
+						}
 						DispatchNetMsgEvent_(sock, evt);
 					}
 					break;
@@ -598,5 +656,6 @@ namespace Hotfix.Common
 		DictionaryCached<Type, RpcTask> rpcHandler = new DictionaryCached<Type, RpcTask>();
 		DictionaryCached<int, RpcTask2> rpcHandler2 = new DictionaryCached<int, RpcTask2>();
 		float lastPing_ = float.MaxValue;
+		bool isReconnecting_ = false;
 	}
 }

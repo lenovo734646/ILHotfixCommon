@@ -22,12 +22,16 @@ namespace Hotfix.Common
 
 	public enum CorRspID
 	{
-
+		msg_get_bank_info_ret = 1024,
 	}
 
 	public class msg_handshake_ret : msg_base
 	{
 		public string ret_;
+	}
+	public class msg_ping : msg_base
+	{
+
 	}
 
 	public class msg_player_info : msg_base
@@ -79,4 +83,9 @@ namespace Hotfix.Common
 		public string server_region_; //0点券服， 1正式服
 	}
 
+	public class msg_sync_item : msg_base
+	{
+		public string item_id_;
+		public string count_;
+	}
 }

@@ -7,8 +7,8 @@ namespace Hotfix.Model
 {
 	public enum ITEMID
 	{
-		GOLD,
-		BANK_GOLD,
+		GOLD = 1,
+		BANK_GOLD = 5,
 	}
 
 	public class PlayerBase
@@ -18,6 +18,21 @@ namespace Hotfix.Model
 		public int iid;
 		public string uid;
 		public int lv;
+		public string headIco;
+		public event System.EventHandler onDataChanged;
+		public long Item(int id)
+		{
+			if (items.ContainsKey(id)) {
+				return items[id];
+			}
+			return 0;
+		}
+
+		public void DispatchDataChanged()
+		{
+			System.EventArgs evt = new System.EventArgs();
+			onDataChanged?.Invoke(this, evt);
+		}
 	}
 
 	//玩家时数据
@@ -36,6 +51,8 @@ namespace Hotfix.Model
 				return pp_;
 			}
 		} 
-		GamePlayer pp_ = null;
+		GamePlayer pp_ = new GamePlayer();
+		public string bankPsw;
+		public string phone;
 	}
 }

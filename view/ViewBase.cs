@@ -76,6 +76,7 @@ namespace Hotfix.Common {
 		//Adressable资源不能正确释放
 		public virtual void Close()
 		{
+			AppController.ins.currentApp.game.OnViewClosed(this);
 			//按加载顺序倒着释放
 			objs.Reverse();
 			foreach(var obj in objs) {

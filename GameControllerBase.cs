@@ -19,7 +19,13 @@ namespace Hotfix.Common
 		{
 			T ret = new T();
 			views_.Add(ret);
+			ret.Start();
 			return ret;
+		}
+		
+		public void OnViewClosed(ViewBase view)
+		{
+			views_.Remove(view);
 		}
 
 		public virtual void OnEnterGameSucc()
@@ -43,7 +49,8 @@ namespace Hotfix.Common
 
 		public override void Stop()
 		{
-			foreach (var view in views_) {
+			List<ViewBase> cpl = new List<ViewBase>(views_);
+			foreach (var view in cpl) {
 				view.Close();
 			}
 
