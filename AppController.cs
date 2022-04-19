@@ -33,7 +33,7 @@ namespace Hotfix.Common
 		{
 			ins = this;
 		}
-
+		
 		IEnumerator DoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
 			MyDebug.LogFormat("===================>CheckUpdateAndRun showlogin={0}", showLogin);
@@ -82,7 +82,7 @@ namespace Hotfix.Common
 					MyDebug.LogFormat("network.ValidSession succ.");
 				}
 				if (showLogin)
-					yield return ShowLogin();
+					yield return currentApp.ShowLogin();
 				else {
 					var loginHandle = network.EnterGame(conf, false);
 					yield return loginHandle;
@@ -90,7 +90,7 @@ namespace Hotfix.Common
 					if((int)loginHandle.Current == 0) {
 						//如果是登录大厅失败,返回登录界面
 						if(conf == ins.conf.defaultGame) {
-							yield return ShowLogin();
+							yield return currentApp.ShowLogin();
 						}
 						//如果登录游戏失败,返回登录大厅
 						else {

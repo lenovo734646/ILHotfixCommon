@@ -24,6 +24,5 @@ namespace Hotfix.Common
 		{
 			yield return 0;
 		}
-
 	}
 }
