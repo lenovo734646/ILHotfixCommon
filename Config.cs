@@ -451,6 +451,13 @@ namespace Hotfix.Common
 				games.Add(game.name, game);
 			}
 		}
+
+		public string defaultGameName = GameConfig.Lobby;
+		public GameConfig defaultGame
+		{
+			get { return FindGameConfig(defaultGameName); }
+		}
+
 		public GameConfig FindGameConfig(string name)
 		{
 			foreach(var it in games) {
