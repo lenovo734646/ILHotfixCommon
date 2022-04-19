@@ -1,4 +1,5 @@
 ﻿using AssemblyCommon;
+using System.Collections;
 
 namespace Hotfix.Common
 {
@@ -19,5 +20,10 @@ namespace Hotfix.Common
 		{
 			game?.Update();
 		}
+		public virtual IEnumerator ShowLogin()
+		{
+			yield return 0;
+		}
+
 	}
 }

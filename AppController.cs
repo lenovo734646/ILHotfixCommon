@@ -34,13 +34,6 @@ namespace Hotfix.Common
 			ins = this;
 		}
 
-		public IEnumerator ShowLogin()
-		{
-			var vLogin = currentApp.game.OpenView<ViewLogin>();
-			vLogin.progress = progress;
-			yield return vLogin.WaitingForReady();
-		}
-
 		IEnumerator DoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
 			MyDebug.LogFormat("===================>CheckUpdateAndRun showlogin={0}", showLogin);
