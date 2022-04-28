@@ -444,6 +444,13 @@ namespace Hotfix.Common
 					}
 				}
 			}
+
+			if (checkSeesionTc_.Elapse() > 5.0f) {
+				checkSeesionTc_.Restart();
+				if (!AppController.ins.network.session.IsWorking() && !AppController.ins.network.IsReconnecting()) {
+					this.StartCor(AppController.ins.network.Recounnect(), true);
+				}
+			}
 		}
 		public bool IsReconnecting()
 		{
@@ -652,6 +659,7 @@ namespace Hotfix.Common
 
 		public SessionBase session;
 
+		TimeCounter checkSeesionTc_ = new TimeCounter("");
 		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
 		DictionaryCached<Type, RpcTask> rpcHandler = new DictionaryCached<Type, RpcTask>();
 		DictionaryCached<int, RpcTask2> rpcHandler2 = new DictionaryCached<int, RpcTask2>();
