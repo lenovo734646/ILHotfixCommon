@@ -15,11 +15,14 @@ namespace Hotfix.Common {
 	//画布命名使用Canvas
 	public abstract class ViewBase : ControllerBase
 	{
-		public class ViewLoadTask<T> where T: UnityEngine.Object
+		public class ViewLoadTask<T> where T : UnityEngine.Object
 		{
 			public string assetPath;
 			public AddressablesLoader.LoadTask<T> loader;
 			public Action<T> callback;
+		}
+		public ViewBase()
+		{
 		}
 
 		public static GameObject GetPopupLayer()
@@ -132,13 +135,19 @@ namespace Hotfix.Common {
 			yield return 0;
 		}
 
-		protected void LoadPrefab(ViewLoadTask<GameObject> task)
+		protected void LoadPrefab(string path, System.Action<GameObject> cb)
 		{
+			ViewLoadTask<GameObject> task = new ViewLoadTask<GameObject>();
+			task.assetPath = path;
+			task.callback = cb;
 			resNames_.Add(task);
 		}
 
-		protected void LoadScene(ViewLoadTask<AddressablesLoader.DownloadScene> task)
+		protected void LoadScene(string path, System.Action<AddressablesLoader.DownloadScene> cb)
 		{
+			ViewLoadTask<AddressablesLoader.DownloadScene> task = new ViewLoadTask<AddressablesLoader.DownloadScene>();
+			task.assetPath = path;
+			task.callback = cb;
 			resScenes_.Add(task);
 		}
 
@@ -148,8 +157,8 @@ namespace Hotfix.Common {
 			SetLoader();
 
 			yield return LoadResources();
-			finished_ = true;
 			yield return OnResourceReady();
+			finished_ = true;
 		}
 
 		List<ViewLoadTask<GameObject>> resNames_ = new List<ViewLoadTask<GameObject>>();
@@ -157,5 +166,24 @@ namespace Hotfix.Common {
 		List<GameObject> objs = new List<GameObject>();
 		List<AddressablesLoader.LoadTaskBase> tasks_ = new List<AddressablesLoader.LoadTaskBase>();
 		bool finished_ = false;
+	}
+
+	public abstract class ViewGameSceneBase : ViewBase
+	{
+		public abstract void OnPlayerEnter(msg_player_seat msg);
+		public abstract void OnPlayerLeave(msg_player_leave msg);
+	}
+
+	public abstract class ViewMultiplayerScene: ViewGameSceneBase
+	{
+		public abstract void OnNetMsg(int cmd, string json);
+		public abstract void OnStateChange(msg_state_change msg);
+		public abstract void OnPlayerSetBet(msg_player_setbet msg);
+		public abstract void OnMyBet(msg_my_setbet msg);
+		public abstract void OnRandomResult(msg_random_result_base msg);
+		public abstract void OnLastRandomResult(msg_last_random_base msg);
+		public abstract void OnBankDepositChanged(msg_banker_deposit_change msg);
+		public abstract void OnBankPromote(msg_banker_promote msg);
+		public abstract void OnGameReport(msg_game_report msg);
 	}
 }

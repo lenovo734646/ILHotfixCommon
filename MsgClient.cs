@@ -21,7 +21,7 @@ namespace Hotfix.Common
 	{
 		msg_handshake_ret = 98,
 	}
-	
+
 	public enum AccReqID
 	{
 		msg_user_login = 100,
@@ -44,6 +44,13 @@ namespace Hotfix.Common
 		msg_get_bank_info = 122,
 		msg_set_bank_psw = 123,
 		msg_bank_op = 124,
+		msg_alloc_game_server = 1030,
+	}
+
+	public enum GameReqID
+	{
+		msg_enter_game_req = 502,
+		msg_enter_game_req2 = 1211,
 	}
 
 	public class msg_base
@@ -110,7 +117,7 @@ namespace Hotfix.Common
 	public class msg_get_game_coordinate : msg_from_client
 	{
 		public string uid_;
-		public string gameid_;
+		public int gameid_;
 		public override int to_server() { return 0; }
 	}
 
@@ -141,55 +148,9 @@ namespace Hotfix.Common
 
 	public class msg_get_verify_code : msg_from_client
 	{
-		public string type_;      //0图片验证码 1手机验证码 2 邮件验证码
+		public int type_;      //0图片验证码 1手机验证码 2 邮件验证码
 		public string mobile_;
 		public override int to_server() { return 0; }
-	}
-
-	public class msg_get_bank_info : msg_from_client
-	{
-		public override int to_server() { return 1; }
-	}
-	public class msg_bank_op : msg_from_client
-	{
-		public string psw_;       //密码
-		public string op_;      //0,提取,1存入
-		public string type_;        //0,K币,1K豆
-		public string count_;
-		public override int to_server() { return 1; }
-	}
-
-	public class msg_set_bank_psw : msg_from_client
-	{
-		public string func_;      //0-设置密码, 1-修改密码, 2-验证密码
-		public string old_psw_;
-		public string psw_;
-		public override int to_server() { return 1; }
-	}
-
-	//送礼物给玩家,暂时只送钱
-	public class msg_send_present : msg_from_client
-	{
-		public string channel_;
-		public string present_id_;
-		public string count_;
-		public string to_;
-		public override int to_server() { return 1; }
-	}
-
-	//加入聊天频道
-	public class msg_join_channel : msg_from_client
-	{
-		public string channel_;
-		public string sn_;
-		public override int to_server() { return 1; }
-	}
-
-	//离开聊天频道
-	public class msg_leave_channel : msg_from_client
-	{
-		public override int to_server() { return 1; }
-
 	}
 
 	//客户端行为埋点
@@ -200,7 +161,7 @@ namespace Hotfix.Common
 			OP_TYPE_INSERT,
 			OP_TYPE_UPDATE,
 		};
-		public string op_type_;       //0-新记录 1-更新
+		public int op_type_;       //0-新记录 1-更新
 		public string action_id_;
 		public string action_data_;
 		public string action_data2_;
@@ -216,6 +177,82 @@ namespace Hotfix.Common
 		public string psw_;
 		public string uid_;
 		public override int to_server() { return 0; }
+	}
+
+
+	public class msg_get_bank_info : msg_from_client
+	{
+		public override int to_server() { return 1; }
+	}
+	public class msg_bank_op : msg_from_client
+	{
+		public string psw_;       //密码
+		public int op_;      //0,提取,1存入
+		public int type_;        //0,K币,1K豆
+		public long count_;
+		public override int to_server() { return 1; }
+	}
+
+	public class msg_set_bank_psw : msg_from_client
+	{
+		public int func_;      //0-设置密码, 1-修改密码, 2-验证密码
+		public string old_psw_;
+		public string psw_;
+		public override int to_server() { return 1; }
+	}
+
+	//送礼物给玩家,暂时只送钱
+	public class msg_send_present : msg_from_client
+	{
+		public int channel_;
+		public int present_id_;
+		public long count_;
+		public string to_;
+		public override int to_server() { return 1; }
+	}
+
+	//加入聊天频道
+	public class msg_join_channel : msg_from_client
+	{
+		public int channel_;
+		public string sn_;
+		public override int to_server() { return 1; }
+	}
+
+	//离开聊天频道
+	public class msg_leave_channel : msg_from_client
+	{
+		public override int to_server() { return 1; }
+
+	}
+
+	public class msg_alloc_game_server : msg_from_client
+	{
+		public int game_id_;
+		public string params_;
+		public override int to_server() { return 1; }
+	}
+
+
+	//请求进入游戏房间,要求服务器锁定一个位置
+	public class msg_enter_game_req : msg_from_client
+	{
+		//room_id_由两部分组成
+		//场次ID = (room_id_>>24)
+		//	需要根据服务器的房间配置数据来发送(通过msg_server_parameter发送)
+		//房间ID = room_id_&0x00FFFFFF
+		//	if 房间ID = 0x00FFFFFF 表示自动进入上次所在的房间(用于掉线重连)
+		//	if 房间ID = 0 表示自动分配房间
+		//	if 房间ID = N 表示进入某个确定的房间
+
+		public long room_id_ = 0;
+		public override int to_server() { return 2; }
+	};
+
+	//通知服务器确认进入游戏房间
+	public class msg_enter_game_req2 : msg_from_client
+	{
+		public override int to_server() { return 2; }
 	}
 
 }

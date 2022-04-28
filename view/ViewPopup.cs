@@ -62,12 +62,7 @@ namespace Hotfix.Common
 
 		protected override void SetLoader()
 		{
-			{
-				ViewLoadTask<GameObject> tsk = new ViewLoadTask<GameObject>();
-				tsk.assetPath = "Assets/AssetsFinal/Common/MessageBoxUI_CN.prefab";
-				tsk.callback = AddToPopup;
-				LoadPrefab(tsk);
-			}
+			LoadPrefab("Assets/AssetsFinal/Common/MessageBoxUI_CN.prefab", AddToPopup);
 		}
 
 		IEnumerator DoAutoClose()

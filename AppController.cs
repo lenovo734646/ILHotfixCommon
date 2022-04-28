@@ -29,6 +29,8 @@ namespace Hotfix.Common
 		public List<AccountInfo> accounts = new List<AccountInfo>();
 		public AccountInfo lastUseAccount = null;
 		public GameConfig currentGameConfig = null;
+		public string defaultGameFromHost;
+		public bool autoLoginFromHost = true;
 		public AppController()
 		{
 			ins = this;
@@ -84,7 +86,7 @@ namespace Hotfix.Common
 				if (showLogin)
 					yield return currentApp.ShowLogin();
 				else {
-					var loginHandle = network.EnterGame(conf, false);
+					var loginHandle = network.EnterGame(conf);
 					yield return loginHandle;
 					//登录失败
 					if((int)loginHandle.Current == 0) {
@@ -124,7 +126,7 @@ namespace Hotfix.Common
 			ILRuntime_CLPF.Initlize();
 			ILRuntime_Global.Initlize();
 
-			network.RegisterMsgHandler(OnNetMsg);
+			network.AddMsgHandler(OnNetMsg);
 
 			DoStart_();
 		}
@@ -141,8 +143,11 @@ namespace Hotfix.Common
 		void DoStart_()
 		{
 			conf.Start();
-			CheckUpdateAndRun(conf.defaultGame, progressFromHost, true);
-
+			if (defaultGameFromHost != "") conf.defaultGameName = defaultGameFromHost;
+			if (conf.defaultGame == null) {
+				throw new Exception($"default game is not exist.{conf.defaultGameName}");
+			}
+			CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
 		public override  void Update()

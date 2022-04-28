@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Hotfix.Common
 {
-	class AShow : IShowDownloadProgress
+	class AShower : IShowDownloadProgress
 	{
 		public WeakReference<ViewLoading> wview_;
 		public void Desc(string desc)
@@ -33,18 +33,16 @@ namespace Hotfix.Common
 
 	public class ViewLoading : ViewBase
 	{
-		AShow shower = new AShow();
+		AShower shower = new AShower();
 		public ViewLoading()
 		{
-			progress = new AShow();
-			((AShow)progress).wview_.SetTarget(this);
+			progress = new AShower();
+			((AShower)progress).wview_.SetTarget(this);
 		}
 
 		protected override void SetLoader()
 		{
-			ViewLoadTask<GameObject> tsk = new ViewLoadTask<GameObject>();
-			tsk.assetPath = "Assets/AssetsFinal/Common/SmartLoadingUI.prefab";
-			LoadPrefab(tsk);
+			LoadPrefab("Assets/AssetsFinal/Common/SmartLoadingUI.prefab", null);
 		}
 
 		protected override IEnumerator OnResourceReady()

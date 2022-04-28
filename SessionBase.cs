@@ -45,6 +45,8 @@ namespace Hotfix.Common
 			Initiation = 100,
 			HandShake,
 			HandShakeSucc,
+			Login,
+			LoginSucc,
 			//获取服务阶段
 			AcquireService,
 			AcquireServiceSucc,
@@ -76,6 +78,8 @@ namespace Hotfix.Common
 			if(desc.Count == 0) {
 				desc.Add(EnState.HandShake, LangNetWork.HandShake);
 				desc.Add(EnState.HandShakeSucc, LangNetWork.HandShakeSucc);
+				desc.Add(EnState.Login, LangNetWork.Login);
+				desc.Add(EnState.LoginSucc, LangNetWork.LoginSucc);
 				desc.Add(EnState.AcquireService, LangNetWork.AcquireService);
 				desc.Add(EnState.AcquireServiceSucc, LangNetWork.AcquireServiceSucc);
 				desc.Add(EnState.InLobby, LangNetWork.InLobby);
@@ -101,5 +105,6 @@ namespace Hotfix.Common
 		{
 			return closeByManual == 2;
 		}
+		public EnState st = EnState.Initiation;
 	}
 }

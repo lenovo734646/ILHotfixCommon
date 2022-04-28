@@ -44,6 +44,7 @@ namespace Hotfix.Common
 	//网络事情消息
 	public class NetEventArgs
 	{
+		public int fromServer;
 		public int cmd;
 		public string strCmd;
 		public byte[] payload;
@@ -280,15 +281,15 @@ namespace Hotfix.Common
 			if (session != null) session.Stop();
 		}
 
-		public IEnumerator EnterGame(GameConfig toGame, bool doLogin)
+		public IEnumerator EnterGame(GameConfig toGame)
 		{
 			MyDebug.LogFormat("AutoLogin begin.");
 			if (toGame == null) toGame = AppController.ins.conf.defaultGame;
 			bool succ = false;
 			var app = AppController.ins;
-			//这是开发人员犯错,抛出异常
+			//没有设置登录账号,使用游客登录
 			if (app.lastUseAccount == null) {
-				throw new Exception("AppController.ins.lastUseAccount == null,it must be settled before login.");
+				AppController.ins.network.SetAutoLogin(AccountInfo.LoginType.Guest, AppController.ins.conf.GetDeviceID(), "893NvalEW9od");
 			}
 
 			var handleSession = ValidSession();
@@ -301,7 +302,7 @@ namespace Hotfix.Common
 				MyDebug.LogFormat("valid session succ.");
 			}
 
-			if (doLogin) {
+			if (session.st == SessionBase.EnState.HandShakeSucc) {
 				MyDebug.LogFormat("will login.");
 				//登录======================================
 				if (app.lastUseAccount.loginType == AccountInfo.LoginType.Guest) {
@@ -369,7 +370,7 @@ namespace Hotfix.Common
 
 			{
 				msg_get_game_coordinate msg = new msg_get_game_coordinate();
-				msg.gameid_ = toGame.gameID.ToString();
+				msg.gameid_ = ((int)toGame.gameID);
 				msg.uid_ = app.self.gamePlayer.uid;
 
 				var resultOfRpc = app.network.Rpc((short)AccReqID.msg_get_game_coordinate, msg, (short)AccRspID.msg_channel_server);
@@ -396,8 +397,32 @@ namespace Hotfix.Common
 
 			succ = true;
 			progress?.Desc(LangNetWork.InLobby);
-			//如果只是登录到大厅.结束流程
-			app.currentApp.game.OnEnterGameSucc();
+			if (toGame.gameID == GameConfig.GameID.Lobby) {
+				//如果只是登录到大厅.结束流程
+				app.currentApp.game.OnGameLoginSucc();
+			}
+			else {
+				{
+					//登录
+					MyDebug.LogFormat("alloc game server...");
+					msg_alloc_game_server msg = new msg_alloc_game_server();
+					msg.game_id_ = (int)toGame.gameID;
+
+					var resultOfRpc = app.network.Rpc((short)CorReqID.msg_alloc_game_server, msg, (short)CorRspID.msg_switch_game_server);
+					yield return resultOfRpc;
+					if (resultOfRpc.Current == null) {
+						progress?.Desc(LangNetWork.AuthorizeFailed);
+						MyDebug.LogFormat("alloc game server failed");
+						goto Clean;
+					}
+					else {
+						MyDebug.LogFormat("alloc game server succ.");
+						msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
+						msg_switch_game_server r = (msg_switch_game_server)(rpcd.msg_);
+					}
+				}
+				app.currentApp.game.OnGameLoginSucc();
+			}
 		Clean:
 			if (!succ) {
 				MyDebug.LogFormat("auto login failed.");
@@ -408,7 +433,53 @@ namespace Hotfix.Common
 			}
 		}
 
-		public void RegisterMsgHandler(EventHandler<NetEventArgs> handler)
+		public IEnumerator EnterGameRoom(int roomid)
+		{
+			bool succ = false;
+			{
+				msg_enter_game_req msg = new msg_enter_game_req();
+				msg.room_id_ = roomid;
+				var resultOfRpc = AppController.ins.network.Rpc((short)GameReqID.msg_enter_game_req, msg, (short)GameRspID.msg_prepare_enter);
+				yield return resultOfRpc;
+				if (resultOfRpc.Current == null) {
+					MyDebug.LogFormat("enter game room msg_enter_game_req failed");
+					goto Clean;
+				}
+
+				yield return AppController.ins.currentApp.game.OnPrepareGameRoom();
+			}
+
+			{
+				msg_enter_game_req2 msg = new msg_enter_game_req2();
+				var resultOfRpc = AppController.ins.network.Rpc((short)GameReqID.msg_enter_game_req2, msg, (short)CommID.msg_common_reply);
+				yield return resultOfRpc;
+				if (resultOfRpc.Current == null) {
+					MyDebug.LogFormat("enter game room msg_enter_game_req2 failed");
+					goto Clean;
+				}
+				msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
+				msg_common_reply r = (msg_common_reply)(rpcd.msg_);
+				if (r.err_ == "0") {
+					yield return AppController.ins.currentApp.game.OnGameRoomSucc();
+				}
+				else {
+					MyDebug.LogFormat("enter game room msg_common_reply failed {0}", r.err_);
+					goto Clean;
+				}
+				succ = true;
+			}
+
+		Clean:
+			if (!succ) {
+				yield return 0;
+			}
+			else {
+				yield return 1;
+			}
+
+		}
+
+		public void AddMsgHandler(EventHandler<NetEventArgs> handler)
 		{
 			MsgHandler += handler;
 		}
@@ -444,6 +515,8 @@ namespace Hotfix.Common
 					}
 				}
 			}
+
+
 		}
 		public bool IsReconnecting()
 		{
@@ -455,13 +528,13 @@ namespace Hotfix.Common
 			isReconnecting_ = true;
 			ViewToast.Create(LangNetWork.Connecting, 10000.0f);
 			yield return ValidSession();
-			var handle = EnterGame(AppController.ins.currentGameConfig, true);
+			var handle = EnterGame(AppController.ins.currentGameConfig);
 			yield return handle;
 
 			int count = 1;
 			while((int)handle.Current == 0) {
 				MyDebug.LogFormat("Enter Game Failed, retry {0}", count++);
-				handle = EnterGame(AppController.ins.currentGameConfig, true);
+				handle = EnterGame(AppController.ins.currentGameConfig);
 				yield return handle;
 			}
 
@@ -512,6 +585,12 @@ namespace Hotfix.Common
 				case unchecked((short)INT_MSGID.INTERNAL_MSGID_PING): {
 					return new msg_ping();
 				}
+				case (int)GameRspID.msg_prepare_enter: {
+					return JsonMapper.ToObject<msg_prepare_enter>(content);
+				}
+				case (short)CorRspID.msg_switch_game_server: {
+					return JsonMapper.ToObject<msg_switch_game_server>(content);
+				}
 			}
 			return null;
 		}
@@ -523,7 +602,15 @@ namespace Hotfix.Common
 			}
 			return null;
 		}
-
+		private void HandlePing_()
+		{
+			if (rpcHandler2.ContainsKey((int)INT_MSGID.INTERNAL_MSGID_PING)) {
+				msg_rpc_ret rpcd = new msg_rpc_ret();
+				rpcd.err_ = 0;
+				rpcHandler2[(int)INT_MSGID.INTERNAL_MSGID_PING].callback(rpcd);
+			}
+			lastPing_ = Time.time;
+		}
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
@@ -537,7 +624,7 @@ namespace Hotfix.Common
 						msg.Read(stm);
 
 						if(msg.subCmd != -1) {
-							MyDebug.LogFormat("Json message recieved:{0},{1}", msg.subCmd, msg.content);
+							MyDebug.LogFormat("Json message recieved:{0},fromserver:{2},{1}", msg.subCmd, msg.content, msg.toserver);
 						}
 
 						var msgRsp = CreateMsgFromJson_(msg.subCmd, msg.content);
@@ -564,8 +651,12 @@ namespace Hotfix.Common
 										rpcHandler2[int.Parse(commRpl.rp_cmd_)].callback(rsp);
 									}
 								}
+								else if(msg.subCmd == unchecked((short)(INT_MSGID.INTERNAL_MSGID_PING))) {
+									HandlePing_();
+								}
 								else {
 									NetEventArgs evt = new NetEventArgs();
+									evt.fromServer = msg.toserver;
 									evt.cmd = msg.subCmd;
 									evt.msg = msgRsp;
 									DispatchNetMsgEvent_(sock, evt);
@@ -575,6 +666,7 @@ namespace Hotfix.Common
 						else {
 							NetEventArgs evt = new NetEventArgs();
 							evt.cmd = msg.subCmd;
+							evt.fromServer = msg.toserver;
 							evt.payload = Encoding.UTF8.GetBytes(msg.content);
 							DispatchNetMsgEvent_(sock, evt);
 						}
@@ -582,12 +674,7 @@ namespace Hotfix.Common
 					break;
 					//系统PING
 					case (int)INT_MSGID.INTERNAL_MSGID_PING: {
-						if (rpcHandler2.ContainsKey((int)INT_MSGID.INTERNAL_MSGID_PING)) {
-							msg_rpc_ret rpcd = new msg_rpc_ret();
-							rpcd.err_ = 0;
-							rpcHandler2[(int)INT_MSGID.INTERNAL_MSGID_PING].callback(rpcd);
-						}
-						lastPing_ = Time.time;
+						HandlePing_();
 					}
 					break;
 					//Protobuffer消息
@@ -599,7 +686,6 @@ namespace Hotfix.Common
 
 						NetEventArgs evt = new NetEventArgs();
 						evt.cmd = msg.subCmd;
-
 						if (msgRsp != null) {
 							evt.msgProto = msgRsp;
 						}
@@ -633,7 +719,6 @@ namespace Hotfix.Common
 				NetEventArgs evt = new NetEventArgs();
 				evt.strCmd = msg.protoName;
 				evt.payload = msg.content;
-
 				var proto = ProtoMessageCreator.CreateMessage(evt.strCmd, evt.payload);
 				if (proto != null) {
 					if (rpcHandler.ContainsKey(proto.GetType())) {

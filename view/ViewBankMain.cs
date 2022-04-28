@@ -17,10 +17,7 @@ namespace Hotfix.Common
 		Text goldText, bankGoldText;
 		protected override void SetLoader()
 		{
-			ViewLoadTask<GameObject> tsk = new ViewLoadTask<GameObject>();
-			tsk.assetPath = "Assets/AssetsFinal/hall/Popup_BankMainPanel.prefab";
-			tsk.callback = AddToPopup;
-			LoadPrefab(tsk);
+			LoadPrefab("Assets/AssetsFinal/hall/Popup_BankMainPanel.prefab", AddToPopup);
 		}
 
 		protected override IEnumerator OnResourceReady()
@@ -110,10 +107,10 @@ namespace Hotfix.Common
 					else {
 
 						msg_bank_op msg = new msg_bank_op();
-						msg.op_ = "0";
+						msg.op_ = 0;
 						msg.psw_ = AppController.ins.self.bankPsw;
-						msg.type_ = "1";
-						msg.count_ = txt.text;
+						msg.type_ = 1;
+						msg.count_ = long.Parse(txt.text);
 
 						bool succ = AppController.ins.network.Rpc((short)CorReqID.msg_bank_op, msg, (short)CommID.msg_common_reply, (rpl) => {
 							if (rpl == null) return;
@@ -163,10 +160,10 @@ namespace Hotfix.Common
 					}
 					else {
 						msg_bank_op msg = new msg_bank_op();
-						msg.op_ = "1";
+						msg.op_ = 1;
 						msg.psw_ = AppController.ins.self.bankPsw;
-						msg.type_ = "1";
-						msg.count_ = txt.text;
+						msg.type_ = 1;
+						msg.count_ = long.Parse(txt.text);
 
 						bool succ = AppController.ins.network.Rpc((short)CorReqID.msg_bank_op, msg, (short)CommID.msg_common_reply, (rpl) => {
 							if (rpl == null) return;
@@ -221,8 +218,8 @@ namespace Hotfix.Common
 					}
 					else {
 						msg_send_present msg = new msg_send_present();
-						msg.present_id_ = ((int)ITEMID.BANK_GOLD).ToString();
-						msg.count_ = txt.text;
+						msg.present_id_ = (int)ITEMID.BANK_GOLD;
+						msg.count_ = long.Parse(txt.text);
 						msg.to_ = recverTag.text;
 						bool succ = AppController.ins.network.Rpc((short)CorReqID.msg_send_present, msg, (short)CommID.msg_common_reply, (rpl) => {
 							if (rpl == null) return;
@@ -291,7 +288,7 @@ namespace Hotfix.Common
 					msg_set_bank_psw msg = new msg_set_bank_psw();
 					msg.old_psw_ = oldTag.text;
 					msg.psw_ = newTag.text;
-					msg.func_ = "1";
+					msg.func_ = 1;
 					AppController.ins.network.Rpc((short)CorReqID.msg_set_bank_psw, msg, (short)CommID.msg_common_reply, (rpl) => {
 						if (rpl == null) return;
 						if (rpl.err_ == 1) {
