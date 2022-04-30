@@ -49,9 +49,10 @@ namespace Hotfix.Common
 			views_.Remove(view);
 		}
 
-		public virtual void OnGameLoginSucc()
+		public virtual IEnumerator OnGameLoginSucc()
 		{
 			prepared_ = true;
+			yield return 0;
 		}
 		protected virtual void OnNetMsg(object sender, NetEventArgs evt)
 		{
@@ -63,7 +64,7 @@ namespace Hotfix.Common
 		}
 		public virtual IEnumerator OnGameRoomSucc()
 		{
-			isEntering = true;
+			isEntering = false;
 			yield return 0;
 		}
 
@@ -185,8 +186,15 @@ namespace Hotfix.Common
 				}
 				break;
 
-				default:
-				mainView?.OnNetMsg(evt.cmd, json); 
+				default: {
+					if(mainView == null) {
+						MyDebug.LogFormat("msg is ignored:{0},{1}", evt.cmd, json);
+					}
+					else {
+						mainView.OnNetMsg(evt.cmd, json);
+					}
+				}
+				
 				break;
 			}
 		}

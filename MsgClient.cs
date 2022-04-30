@@ -50,7 +50,7 @@ namespace Hotfix.Common
 	public enum GameReqID
 	{
 		msg_enter_game_req = 502,
-		msg_enter_game_req2 = 1211,
+		msg_prepare_enter_complete = 1997,
 	}
 
 	public class msg_base
@@ -186,7 +186,7 @@ namespace Hotfix.Common
 	}
 	public class msg_bank_op : msg_from_client
 	{
-		public string psw_;       //密码
+		public string psw_ = "";       //密码
 		public int op_;      //0,提取,1存入
 		public int type_;        //0,K币,1K豆
 		public long count_;
@@ -196,8 +196,8 @@ namespace Hotfix.Common
 	public class msg_set_bank_psw : msg_from_client
 	{
 		public int func_;      //0-设置密码, 1-修改密码, 2-验证密码
-		public string old_psw_;
-		public string psw_;
+		public string old_psw_ = "";
+		public string psw_ = "";
 		public override int to_server() { return 1; }
 	}
 
@@ -207,7 +207,7 @@ namespace Hotfix.Common
 		public int channel_;
 		public int present_id_;
 		public long count_;
-		public string to_;
+		public string to_ = "";
 		public override int to_server() { return 1; }
 	}
 
@@ -229,7 +229,7 @@ namespace Hotfix.Common
 	public class msg_alloc_game_server : msg_from_client
 	{
 		public int game_id_;
-		public string params_;
+		public string params_ = "";
 		public override int to_server() { return 1; }
 	}
 
@@ -250,7 +250,7 @@ namespace Hotfix.Common
 	};
 
 	//通知服务器确认进入游戏房间
-	public class msg_enter_game_req2 : msg_from_client
+	public class msg_prepare_enter_complete : msg_from_client
 	{
 		public override int to_server() { return 2; }
 	}

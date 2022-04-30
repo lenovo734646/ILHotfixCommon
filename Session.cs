@@ -264,6 +264,7 @@ namespace Hotfix.Lobby
 			if (closeByManual == 0)
 				closeByManual = 1;
 			MyDebug.LogFormat("====>Session Stop:{0}", closeByManual);
+			RemoveInstance();
 		}
 
 		//获取消息延时
@@ -305,10 +306,10 @@ namespace Hotfix.Lobby
 				pingCostCounter_.Restart();
 				AppController.ins.network.SendPing();
 			}
-			float tmElapse = AppController.ins.network.TimeElapseSinceLastPing();
-			if (tmElapse > 6.0f) {
-				Globals.net.Stop();
-			}
+// 			float tmElapse = AppController.ins.network.TimeElapseSinceLastPing();
+// 			if (tmElapse > 6.0f) {
+// 				Globals.net.Stop();
+// 			}
 		}
 
 		public void StartKoKoNetwork(Dictionary<string, int> hosts, float timeOut)
@@ -461,6 +462,7 @@ namespace Hotfix.Lobby
 			if (closeByManual <= 2)
 				closeByManual = 4;
 			MyDebug.LogFormat("====>Session Stop:{0}", closeByManual);
+			RemoveInstance();
 		}
 
 		//获取消息延时

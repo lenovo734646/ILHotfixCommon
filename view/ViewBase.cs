@@ -74,12 +74,17 @@ namespace Hotfix.Common {
 			return finished_;
 		}
 
+		public override void Stop()
+		{
+			RemoveInstance();
+		}
+
 		//每个View必须要调用这个Close才能正确的释放资源.
 		//跳过这个直接清理了Canvas会造成资源泄露,
 		//Adressable资源不能正确释放
 		public virtual void Close()
 		{
-			AppController.ins.currentApp.game.OnViewClosed(this);
+			AppController.ins.currentApp?.game?.OnViewClosed(this);
 			//按加载顺序倒着释放
 			objs.Reverse();
 			foreach(var obj in objs) {
@@ -96,6 +101,7 @@ namespace Hotfix.Common {
 			tasks_.Clear();
 			//停止本窗口所有协程
 			this.StopCor(-1);
+			Stop();
 		}
 
 		public IEnumerator LoadResources()

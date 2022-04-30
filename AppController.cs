@@ -65,12 +65,19 @@ namespace Hotfix.Common
 				var handleSess = network.ValidSession();
 				yield return handleSess;
 
+				if((int)handleSess.Current == 0) goto Clean;
+
 				MyDebug.LogFormat("Run CommonEmptyScene->Game:{0}", conf.name);
 
 				//开启新的场景,这里不需要进度指示是因为这个已经下载好了
 				var sceneHandle = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>("Assets/Scenes/CommonEmptyScene.unity", null);
 				yield return sceneHandle;
-				yield return sceneHandle.Current.ActiveScene();
+				if (sceneHandle.Current.succeed) {
+					yield return sceneHandle.Current.ActiveScene();
+				}
+				else {
+					goto Clean;
+				}
 				
 				var entryClass = Type.GetType(conf.entryClass);
 				currentApp = (AppBase)Activator.CreateInstance(entryClass);
@@ -83,6 +90,9 @@ namespace Hotfix.Common
 				else {
 					MyDebug.LogFormat("network.ValidSession succ.");
 				}
+				
+				network.lastState = SessionBase.EnState.Initiation;
+
 				if (showLogin)
 					yield return currentApp.ShowLogin();
 				else {

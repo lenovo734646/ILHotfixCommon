@@ -41,6 +41,12 @@ namespace Hotfix.Common
 	{
 		public enum EnState
 		{
+			//失去部分连接
+			Disconnected,
+			HandShakeFailed,
+			AcquireServiceFailed,
+			EnterRoomFailed,
+			AuthorizeFailed,
 			//
 			Initiation = 100,
 			HandShake,
@@ -61,13 +67,6 @@ namespace Hotfix.Common
 			//
 			PingEnd,
 			ExitRoomSucc,
-
-			//失去部分连接
-			Disconnected,
-			HandShakeFailed,
-			AcquireServiceFailed,
-			EnterRoomFailed,
-			AuthorizeFailed,
 		}
 
 		public static Dictionary<EnState, string> desc = new Dictionary<EnState, string>();
@@ -105,6 +104,12 @@ namespace Hotfix.Common
 		{
 			return closeByManual == 2;
 		}
+
+		public override void Stop()
+		{
+			throw new NotImplementedException();
+		}
+
 		public EnState st = EnState.Initiation;
 	}
 }

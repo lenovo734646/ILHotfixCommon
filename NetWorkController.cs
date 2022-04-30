@@ -4,11 +4,7 @@ using Hotfix.Model;
 using LitJson;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using static AssemblyCommon.MySocket;
 
@@ -67,6 +63,11 @@ namespace Hotfix.Common
 		}
 
 		public event EventHandler<NetEventArgs> MsgHandler;
+		public override string GetDebugInfo()
+		{
+			return $"Network:Time Since Last Ping:{TimeElapseSinceLastPing()}s";
+		}
+
 		public void SendJson(short subCmd, string json, int toserver)
 		{
 			sendStream_.ClearUsedData();
@@ -257,6 +258,8 @@ namespace Hotfix.Common
 		{
 			if (session == null || !session.IsWorking()) {
 				lastPing_ = float.MaxValue;
+				
+				if (session != null) session.Stop();
 
 				session = new KoKoSession();
 				session.progress = progress;
@@ -267,7 +270,7 @@ namespace Hotfix.Common
 				}
 
 				if (!session.IsWorking()) {
-					yield return 2;
+					yield return 0;
 				}
 				else {
 					yield return 1;
@@ -275,10 +278,6 @@ namespace Hotfix.Common
 			}
 			else
 				yield return 1;
-		}
-		public void CloseSession()
-		{
-			if (session != null) session.Stop();
 		}
 
 		public IEnumerator EnterGame(GameConfig toGame)
@@ -294,7 +293,7 @@ namespace Hotfix.Common
 
 			var handleSession = ValidSession();
 			yield return handleSession;
-			if ((int)handleSession.Current != 1) {
+			if ((int)handleSession.Current == 0) {
 				MyDebug.LogFormat("AutoLogin failed on valid session fail.");
 				goto Clean;
 			}
@@ -302,7 +301,7 @@ namespace Hotfix.Common
 				MyDebug.LogFormat("valid session succ.");
 			}
 
-			if (session.st == SessionBase.EnState.HandShakeSucc) {
+			if (session.st <= SessionBase.EnState.HandShakeSucc) {
 				MyDebug.LogFormat("will login.");
 				//登录======================================
 				if (app.lastUseAccount.loginType == AccountInfo.LoginType.Guest) {
@@ -399,7 +398,7 @@ namespace Hotfix.Common
 			progress?.Desc(LangNetWork.InLobby);
 			if (toGame.gameID == GameConfig.GameID.Lobby) {
 				//如果只是登录到大厅.结束流程
-				app.currentApp.game.OnGameLoginSucc();
+				yield return app.currentApp.game.OnGameLoginSucc();
 			}
 			else {
 				{
@@ -420,8 +419,9 @@ namespace Hotfix.Common
 						msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
 						msg_switch_game_server r = (msg_switch_game_server)(rpcd.msg_);
 					}
+
 				}
-				app.currentApp.game.OnGameLoginSucc();
+				yield return app.currentApp.game.OnGameLoginSucc();
 			}
 		Clean:
 			if (!succ) {
@@ -432,43 +432,46 @@ namespace Hotfix.Common
 				yield return 1;
 			}
 		}
-
-		public IEnumerator EnterGameRoom(int roomid)
+		//进入游戏房间,这个函数需要在服务器获取到玩家金钱数据之后进行,如果没有获取到金钱数据,可能会进入失败.
+		public IEnumerator EnterGameRoom(int configid, int roomid)
 		{
 			bool succ = false;
 			{
 				msg_enter_game_req msg = new msg_enter_game_req();
-				msg.room_id_ = roomid;
+				msg.room_id_ = configid << 24 | roomid;
 				var resultOfRpc = AppController.ins.network.Rpc((short)GameReqID.msg_enter_game_req, msg, (short)GameRspID.msg_prepare_enter);
 				yield return resultOfRpc;
 				if (resultOfRpc.Current == null) {
 					MyDebug.LogFormat("enter game room msg_enter_game_req failed");
 					goto Clean;
 				}
-
+				MyDebug.LogFormat("PrepareGameRoom");
 				yield return AppController.ins.currentApp.game.OnPrepareGameRoom();
 			}
 
 			{
-				msg_enter_game_req2 msg = new msg_enter_game_req2();
-				var resultOfRpc = AppController.ins.network.Rpc((short)GameReqID.msg_enter_game_req2, msg, (short)CommID.msg_common_reply);
+				msg_prepare_enter_complete msg = new msg_prepare_enter_complete();
+				var resultOfRpc = AppController.ins.network.Rpc((short)GameReqID.msg_prepare_enter_complete, msg, (short)CommID.msg_common_reply);
 				yield return resultOfRpc;
 				if (resultOfRpc.Current == null) {
-					MyDebug.LogFormat("enter game room msg_enter_game_req2 failed");
+					MyDebug.LogFormat("msg_prepare_enter_complete failed");
 					goto Clean;
 				}
 				msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
 				msg_common_reply r = (msg_common_reply)(rpcd.msg_);
 				if (r.err_ == "0") {
+					MyDebug.LogFormat("OnGameRoomSucc");
 					yield return AppController.ins.currentApp.game.OnGameRoomSucc();
 				}
 				else {
-					MyDebug.LogFormat("enter game room msg_common_reply failed {0}", r.err_);
+					MyDebug.LogFormat("msg_prepare_enter_complete msg_common_reply failed {0}", r.err_);
 					goto Clean;
 				}
 				succ = true;
 			}
-
+			lastState = SessionBase.EnState.Gaming;
+			lastConfigid = configid;
+			lastRoomid = roomid;
 		Clean:
 			if (!succ) {
 				yield return 0;
@@ -531,20 +534,51 @@ namespace Hotfix.Common
 		public IEnumerator Recounnect()
 		{
 			isReconnecting_ = true;
+			MyDebug.LogFormat("Reconnecting");
 			ViewToast.Create(LangNetWork.Connecting, 10000.0f);
-			yield return ValidSession();
-			var handle = EnterGame(AppController.ins.currentGameConfig);
-			yield return handle;
 
-			int count = 1;
-			while((int)handle.Current == 0) {
-				MyDebug.LogFormat("Enter Game Failed, retry {0}", count++);
-				handle = EnterGame(AppController.ins.currentGameConfig);
-				yield return handle;
+			bool succ = false;
+			//确认网络连接
+			var handle1 = ValidSession();
+			yield return handle1;
+
+			if ((int)handle1.Current == 0) {
+				MyDebug.LogFormat("ValidSession failed.");
+				goto Clean;
 			}
 
+			//登录游戏服务器
+			var handle2 = EnterGame(AppController.ins.currentGameConfig);
+			yield return handle2;
+
+			if ((int)handle2.Current == 0) {
+				MyDebug.LogFormat("EnterGame failed.");
+				goto Clean;
+			}
+
+			//如果之前是在房间里,则进入上次的房间
+			if(lastState == SessionBase.EnState.Gaming) {
+				var handle3 = EnterGameRoom(lastConfigid, lastRoomid);
+				yield return handle3;
+				if((int)handle3.Current == 0) { 
+					MyDebug.LogFormat("EnterGameRoom failed.");
+					goto Clean;
+				}
+			}
+
+			succ = true;
+
+			Clean:
 			ViewToast.Clear();
 			isReconnecting_ = false;
+			if (succ) {
+				yield return 1;
+			}
+			else {
+				Globals.net.Stop();
+				MyDebug.LogFormat("Reconnecting failed.");
+				yield return 0;
+			}
 		}
 
 		public float TimeElapseSinceLastPing()
@@ -627,11 +661,9 @@ namespace Hotfix.Common
 					case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
 						MsgJsonForm msg = new MsgJsonForm();
 						msg.Read(stm);
-
-						if(msg.subCmd != -1) {
-							MyDebug.LogFormat("Json message recieved:{0},fromserver:{2},{1}", msg.subCmd, msg.content, msg.toserver);
+						if (msg.subCmd != -1 && msg.toserver == 2) {
+							MyDebug.LogFormat("Json message Recieved:{0},fromserver:{2},{1}", msg.subCmd, msg.content, msg.toserver);
 						}
-
 						var msgRsp = CreateMsgFromJson_(msg.subCmd, msg.content);
 						if (msgRsp != null) {
 							if (rpcHandler2.ContainsKey(msg.subCmd)) {
@@ -741,6 +773,7 @@ namespace Hotfix.Common
 		}
 
 		public SessionBase session;
+		public SessionBase.EnState lastState = SessionBase.EnState.Initiation;
 
 		TimeCounter checkSeesionTc_ = new TimeCounter("");
 		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
@@ -748,5 +781,7 @@ namespace Hotfix.Common
 		DictionaryCached<int, RpcTask2> rpcHandler2 = new DictionaryCached<int, RpcTask2>();
 		float lastPing_ = float.MaxValue;
 		bool isReconnecting_ = false;
+		int lastConfigid, lastRoomid;
+
 	}
 }
