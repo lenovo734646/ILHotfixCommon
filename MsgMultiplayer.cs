@@ -6,7 +6,41 @@ using System.Threading.Tasks;
 
 namespace Hotfix.Common
 {
-	enum GameMultiID
+	enum GameMultiReqID
+	{
+		msg_cancel_banker_req = 3,
+		msg_apply_banker_req = 4,
+		msg_set_bets_req = 5,
+		msg_get_player_count = 6,
+		msg_get_lottery_record =  7,
+		msg_get_banker_ranking = 8,
+		msg_clear_my_bets = 9,
+	}
+
+	public class msg_set_bets_req : msg_from_client
+	{
+		//筹码ID
+		public int pid_;
+		//压注项
+		public int present_id_;
+	}
+
+	public class msg_clear_my_bets : msg_from_client
+	{
+		
+	}
+
+	public class msg_apply_banker_req : msg_from_client
+	{
+
+	}
+
+	public class msg_cancel_banker_req : msg_from_client
+	{
+
+	}
+
+	enum GameMultiRspID
 	{
 		msg_state_change = 10,
 		msg_rand_result = 11,
@@ -33,7 +67,9 @@ namespace Hotfix.Common
 		msg_brnn_result = 32,
 		msg_bjl_result = 33,
 		msg_game_info_longhu = 34,
+		msg_game_info = 1120,
 	}
+
 
 	public class msg_banker_promote : msg_player_seat
 	{
@@ -98,7 +134,7 @@ namespace Hotfix.Common
 	{
 
 	}
-	
+
 	public class msg_last_random_base : msg_room_msg
 	{
 
@@ -169,5 +205,13 @@ namespace Hotfix.Common
 		public string data_;
 	}
 
+	public class msg_game_info : msg_base
+	{
+		public string turn_;
+		//出奖项ID
+		public string pids_;
+		//出奖数量
+		public string counts_;
+	}
 
 }

@@ -25,6 +25,7 @@ namespace Hotfix.Common
 		msg_currency_change = 1007,
 		msg_player_seat = 1110,
 		msg_player_leave = 1112,
+		msg_deposit_change2 = 1113,
 	}
 
 	public class msg_common_reply : msg_base
@@ -164,5 +165,24 @@ namespace Hotfix.Common
 	{
 		public string phase_;
 		public string pos_;
+	}
+
+
+	//玩家保证金变化
+	public class msg_deposit_change2 : msg_room_msg
+	{
+		public enum dp
+		{
+			display_type_sync_gold,
+			display_type_show_gold,
+			display_type_gold_change,
+			display_type_sync_exp = 10,
+			display_type_sync_score = 11,
+			display_type_sync_pri_score = 12,
+		};
+		public string credits_;           //玩家资金数 8字节
+		public string why_;
+		public string pos_;
+		public string display_type_;      //0，不需要飘字 1,要飘字, 2 保证金变化
 	}
 }

@@ -14,23 +14,10 @@ using UnityEngine.SceneManagement;
 
 namespace Hotfix.Common
 {
-
 	//热更入口类
-	public class AppController : ControllerBase
+	public class AppController : ResourceMonitor
 	{
 		public class GameRunQueue { };
-		public static AppController ins = null;
-		public Config conf = new Config();
-		public AppBase currentApp = null;
-		//进度指示器,由宿主工程设置
-		public IShowDownloadProgress progressFromHost;
-		public NetWorkController network = new NetWorkController();
-		public SelfPlayer self = new SelfPlayer();
-		public List<AccountInfo> accounts = new List<AccountInfo>();
-		public AccountInfo lastUseAccount = null;
-		public GameConfig currentGameConfig = null;
-		public string defaultGameFromHost;
-		public bool autoLoginFromHost = true;
 		public AppController()
 		{
 			ins = this;
@@ -150,6 +137,23 @@ namespace Hotfix.Common
 			}
 		}
 
+		void CachedResources_()
+		{
+			for(int i = 1; i <= 10; i++) {
+				int index = i;
+				LoadAssets<Texture2D>($"Assets/ForReBuild/Res/PlazaUI/UserInfo/head/img_head_{i}.png", (task) => {
+					headIcons.Add(index, task.Result);
+				});
+			}
+
+			for (int i = 1; i <= 8; i++) {
+				int index = i;
+				LoadAssets<Texture2D>($"Assets/ForReBuild/Res/PlazaUI/UserInfo/headFrame/img_headframe_{i}.png", (task) => {
+					headFrames.Add(index, task.Result);
+				});
+			}
+		}
+
 		void DoStart_()
 		{
 			conf.Start();
@@ -157,6 +161,7 @@ namespace Hotfix.Common
 			if (conf.defaultGame == null) {
 				throw new Exception($"default game is not exist.{conf.defaultGameName}");
 			}
+			CachedResources_();
 			CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
@@ -170,8 +175,25 @@ namespace Hotfix.Common
 		{
 			if (currentApp != null) currentApp.Stop();
 			network.Stop();
+
 			this.StopAllCor();
+			base.Stop();
 		}
+
+		public static AppController ins = null;
+		public Config conf = new Config();
+		public AppBase currentApp = null;
+		//进度指示器,由宿主工程设置
+		public IShowDownloadProgress progressFromHost;
+		public NetWorkController network = new NetWorkController();
+		public SelfPlayer self = new SelfPlayer();
+		public List<AccountInfo> accounts = new List<AccountInfo>();
+		public AccountInfo lastUseAccount = null;
+		public GameConfig currentGameConfig = null;
+		public string defaultGameFromHost;
+		public bool autoLoginFromHost = true;
+		public Dictionary<int, Texture2D> headIcons = new Dictionary<int, Texture2D>();
+		public Dictionary<int, Texture2D> headFrames = new Dictionary<int, Texture2D>();
 
 		GameRunQueue runQueue = new GameRunQueue();
 	}

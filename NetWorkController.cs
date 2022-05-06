@@ -615,6 +615,9 @@ namespace Hotfix.Common
 				case (short)CommID.msg_sync_item: {
 					return JsonMapper.ToObject<msg_sync_item>(content); 
 				}
+				case (short)GameRspID.msg_currency_change: {
+					return JsonMapper.ToObject<msg_currency_change>(content);
+				}
 				case (short)CommID.msg_common_reply: {
 					return JsonMapper.ToObject<msg_common_reply>(content);
 				}
@@ -655,14 +658,14 @@ namespace Hotfix.Common
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
 				stm.SetCurentRead(4);
 				int cmd = stm.ReadInt();
-
+				int order = stm.ReadInt();
 				switch (cmd) {
 					//Json消息
 					case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
 						MsgJsonForm msg = new MsgJsonForm();
 						msg.Read(stm);
 						if (msg.subCmd != -1 && msg.toserver == 2) {
-							MyDebug.LogFormat("Json message Recieved:{0},fromserver:{2},{1}", msg.subCmd, msg.content, msg.toserver);
+							MyDebug.LogFormat("Json message Recieved:{0},fromserver:{2},{1}", order, msg.content, msg.toserver);
 						}
 						var msgRsp = CreateMsgFromJson_(msg.subCmd, msg.content);
 						if (msgRsp != null) {

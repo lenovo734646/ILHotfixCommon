@@ -75,11 +75,6 @@ namespace Hotfix.Common
 			base.Start();
 		}
 
-		public void ReleaseWhenClose(AddressablesLoader.LoadTaskBase task)
-		{
-			resourceLoader_.Add(task);
-		}
-		
 		public override void Update()
 		{
 			if (prepared_) {
@@ -96,11 +91,6 @@ namespace Hotfix.Common
 				view.Close();
 			}
 
-			foreach (var tsk in resourceLoader_) {
-				tsk.Release();
-			}
-
-			resourceLoader_.Clear();
 			AppController.ins.network.RemoveMsgHandler(OnNetMsg);
 		}
 		
@@ -109,9 +99,6 @@ namespace Hotfix.Common
 			return new GamePlayer();
 		}
 
-
-		//资源加载器,在半闭本窗口的时候,需要释放资源引用.
-		List<AddressablesLoader.LoadTaskBase> resourceLoader_ = new List<AddressablesLoader.LoadTaskBase>();
 		List<ViewBase> views_ = new List<ViewBase>();
 		bool prepared_ = true;
 	}
@@ -123,69 +110,100 @@ namespace Hotfix.Common
 		public abstract msg_last_random_base CreateLastRandom(string json);
 		protected override void OnNetMsg(object sender, NetEventArgs evt)
 		{
-			if (evt.payload == null) return;
-			string json = Encoding.UTF8.GetString(evt.payload);
+			if (evt.payload == null && evt.msg == null && evt.msgProto == null) return;
+			string json = "";
+			if(evt.payload != null) json = Encoding.UTF8.GetString(evt.payload);
 			switch (evt.cmd) {
 				case (int)GameRspID.msg_player_seat: {
-					var msg = JsonMapper.ToObject<msg_player_seat>(json);
+					msg_player_seat msg = (msg_player_seat)evt.msg;
+					if(msg == null) msg = JsonMapper.ToObject<msg_player_seat>(json);
 					mainView.OnPlayerEnter(msg);
 				}
 				break;
 
 				case (int)GameRspID.msg_player_leave: {
-					var msg = JsonMapper.ToObject<msg_player_leave>(json);
+					msg_player_leave msg = (msg_player_leave)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_player_leave>(json);
 					mainView.OnPlayerLeave(msg);
 				}
 				break;
 
-				case (int)GameMultiID.msg_state_change: {
-					var msg = JsonMapper.ToObject<msg_state_change>(json);
+				case (int)GameMultiRspID.msg_state_change: {
+					msg_state_change msg = (msg_state_change)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_state_change>(json);
 					mainView.OnStateChange(msg);
 				}
 				break;
 
-				case (int)GameMultiID.msg_rand_result: {
-					var msg = CreateRandomResult(json);
+				case (int)GameMultiRspID.msg_rand_result:
+				case (int)GameMultiRspID.msg_random_result_slwh:
+				case (int)GameMultiRspID.msg_brnn_result:
+				case (int)GameMultiRspID.msg_bjl_result: {
+					msg_random_result_base msg = (msg_random_result_base)evt.msg;
+					if (msg == null) msg = CreateRandomResult(json);
 					mainView.OnRandomResult(msg);
 				}
 				break;
-
-				case (int)GameMultiID.msg_last_random: {
-					var msg = CreateLastRandom(json);
+	
+				case (int)GameMultiRspID.msg_last_random: {
+					msg_last_random_base msg = (msg_last_random_base)evt.msg;
+					if (msg == null) msg = CreateLastRandom(json);
 					mainView.OnLastRandomResult(msg);
 				}
 				break;
 
-				case (int)GameMultiID.msg_player_setbet: {
-					var msg = JsonMapper.ToObject<msg_player_setbet>(json);
+				case (int)GameMultiRspID.msg_player_setbet: {
+					msg_player_setbet msg = (msg_player_setbet)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_player_setbet>(json);
 					mainView.OnPlayerSetBet(msg);
 				}
 				break;
 
-				case (int)GameMultiID.msg_my_setbet: {
-					var msg = JsonMapper.ToObject<msg_my_setbet>(json);
+				case (int)GameMultiRspID.msg_my_setbet: {
+					msg_my_setbet msg = (msg_my_setbet)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_my_setbet>(json);
 					mainView.OnMyBet(msg);
 				}
 				break;
 
-				case (int)GameMultiID.msg_banker_deposit_change: {
-					var msg = JsonMapper.ToObject<msg_banker_deposit_change>(json);
+				case (int)GameMultiRspID.msg_banker_deposit_change: {
+					msg_banker_deposit_change msg = (msg_banker_deposit_change)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_banker_deposit_change>(json);
 					mainView.OnBankDepositChanged(msg);
 				}
 				break;
 
-				case (int)GameMultiID.msg_banker_promote: {
-					var msg = JsonMapper.ToObject<msg_banker_promote>(json);
+				case (int)GameMultiRspID.msg_banker_promote: {
+					msg_banker_promote msg = (msg_banker_promote)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_banker_promote>(json);
 					mainView.OnBankPromote(msg);
 				}
 				break;
 
-				case (int)GameMultiID.msg_game_report: {
-					var msg = JsonMapper.ToObject<msg_game_report>(json);
+				case (int)GameMultiRspID.msg_game_report: {
+					msg_game_report msg = (msg_game_report)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_game_report>(json);
 					mainView.OnGameReport(msg);
 				}
 				break;
-
+				case (int)GameMultiRspID.msg_game_info: {
+					msg_game_info msg = (msg_game_info)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_game_info>(json);
+					mainView.OnGameInfo(msg);
+				}
+				break;
+				case (int)GameRspID.msg_deposit_change2: {
+					msg_deposit_change2 msg = (msg_deposit_change2)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_deposit_change2>(json);
+					mainView.OnGoldChange(msg);
+				}
+				break;
+				case (int)GameRspID.msg_currency_change: {
+					msg_currency_change msg = (msg_currency_change)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_currency_change>(json);
+					mainView.OnGoldChange(msg);
+				}
+				break;
 				default: {
 					if(mainView == null) {
 						MyDebug.LogFormat("msg is ignored:{0},{1}", evt.cmd, json);

@@ -9,11 +9,40 @@ using UnityEngine;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 
-namespace Hotfix.Common {
+namespace Hotfix.Common 
+{
+	//监视游戏资源,在模块结束时释放
+	//ViewBase, 资源生存周期和视图一样
+	//AppBase,资源生存周期和游戏一样
+	//AppController,资源生存周期与整个APP一样
+	public class ResourceMonitor : ControllerBase
+	{
+		public void LoadAssets<T>(string path, Action<AddressablesLoader.LoadTask<T>> callback) where T : UnityEngine.Object
+		{
+			Action<AddressablesLoader.LoadTask<T>> callbackWrapper = (AddressablesLoader.LoadTask<T> loader) => {
+				callback(loader);
+				resourceLoader_.Add(loader);
+			};
+
+			Globals.resLoader.LoadAsync(path, callbackWrapper, progress);
+		}
+
+		public override void Stop()
+		{
+			foreach (var tsk in resourceLoader_) {
+				tsk.Release();
+			}
+
+			resourceLoader_.Clear();
+		}
+
+		//资源加载器,在半闭本窗口的时候,需要释放资源引用.
+		protected List<AddressablesLoader.LoadTaskBase> resourceLoader_ = new List<AddressablesLoader.LoadTaskBase>();
+	}
 
 	//所有界面操作代码继承自这个类
 	//画布命名使用Canvas
-	public abstract class ViewBase : ControllerBase
+	public abstract class ViewBase : ResourceMonitor
 	{
 		public class ViewLoadTask<T> where T : UnityEngine.Object
 		{
@@ -77,6 +106,7 @@ namespace Hotfix.Common {
 		public override void Stop()
 		{
 			RemoveInstance();
+			base.Stop();
 		}
 
 		//每个View必须要调用这个Close才能正确的释放资源.
@@ -95,10 +125,6 @@ namespace Hotfix.Common {
 			resNames_.Clear();
 			resScenes_.Clear();
 
-			foreach (var obj in tasks_) {
-				obj.Release();
-			}
-			tasks_.Clear();
 			//停止本窗口所有协程
 			this.StopCor(-1);
 			Stop();
@@ -116,7 +142,7 @@ namespace Hotfix.Common {
 				var result = Globals.resLoader.LoadAsync<GameObject>(it.assetPath, progress);
 				yield return result;
 				it.loader = result.Current;
-				tasks_.Add(it.loader);
+				resourceLoader_.Add(it.loader);
 			}
 		}
 
@@ -141,7 +167,7 @@ namespace Hotfix.Common {
 			yield return 0;
 		}
 
-		protected void LoadPrefab(string path, System.Action<GameObject> cb)
+		protected void LoadPrefab(string path, Action<GameObject> cb)
 		{
 			ViewLoadTask<GameObject> task = new ViewLoadTask<GameObject>();
 			task.assetPath = path;
@@ -149,7 +175,7 @@ namespace Hotfix.Common {
 			resNames_.Add(task);
 		}
 
-		protected void LoadScene(string path, System.Action<AddressablesLoader.DownloadScene> cb)
+		protected void LoadScene(string path, Action<AddressablesLoader.DownloadScene> cb)
 		{
 			ViewLoadTask<AddressablesLoader.DownloadScene> task = new ViewLoadTask<AddressablesLoader.DownloadScene>();
 			task.assetPath = path;
@@ -170,13 +196,18 @@ namespace Hotfix.Common {
 		List<ViewLoadTask<GameObject>> resNames_ = new List<ViewLoadTask<GameObject>>();
 		List<ViewLoadTask<AddressablesLoader.DownloadScene>> resScenes_ = new List<ViewLoadTask<AddressablesLoader.DownloadScene>>();
 		List<GameObject> objs = new List<GameObject>();
-		List<AddressablesLoader.LoadTaskBase> tasks_ = new List<AddressablesLoader.LoadTaskBase>();
 		bool finished_ = false;
 	}
 
 	public abstract class ViewGameSceneBase : ViewBase
 	{
-		public abstract void OnPlayerEnter(msg_player_seat msg);
+		public virtual void OnPlayerEnter(msg_player_seat msg)
+		{
+			if (AppController.ins.self.gamePlayer.uid == msg.uid_) {
+				AppController.ins.self.gamePlayer.serverPos = int.Parse(msg.pos_);
+				AppController.ins.self.gamePlayer.lv = int.Parse(msg.lv_);
+			}
+		}
 		public abstract void OnPlayerLeave(msg_player_leave msg);
 	}
 
@@ -191,5 +222,8 @@ namespace Hotfix.Common {
 		public abstract void OnBankDepositChanged(msg_banker_deposit_change msg);
 		public abstract void OnBankPromote(msg_banker_promote msg);
 		public abstract void OnGameReport(msg_game_report msg);
+		public abstract void OnGameInfo(msg_game_info msg);
+		public abstract void OnGoldChange(msg_deposit_change2 msg);
+		public abstract void OnGoldChange(msg_currency_change msg);
 	}
 }

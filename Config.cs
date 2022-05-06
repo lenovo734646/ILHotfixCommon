@@ -68,7 +68,6 @@ namespace Hotfix.Common
 		public const string ShenHaiBY = "FishingSH";
 		public const string CaoFangBY = "FishingCF";
 		public const string LaBa3D = "LHJC";
-
 		public string name;
 		public string folder;
 		public string entryClass;
