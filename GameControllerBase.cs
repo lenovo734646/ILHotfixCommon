@@ -49,6 +49,11 @@ namespace Hotfix.Common
 			views_.Remove(view);
 		}
 
+		public virtual IEnumerator ShowLogin()
+		{
+			yield return 0;
+		}
+
 		public virtual IEnumerator OnGameLoginSucc()
 		{
 			prepared_ = true;

@@ -25,9 +25,5 @@ namespace Hotfix.Common
 		{
 			game?.Update();
 		}
-		public virtual IEnumerator ShowLogin()
-		{
-			yield return 0;
-		}
 	}
 }

@@ -81,15 +81,15 @@ namespace Hotfix.Common
 				network.lastState = SessionBase.EnState.Initiation;
 
 				if (showLogin)
-					yield return currentApp.ShowLogin();
+					yield return currentApp.game.ShowLogin();
 				else {
 					var loginHandle = network.EnterGame(conf);
 					yield return loginHandle;
 					//登录失败
-					if((int)loginHandle.Current == 0) {
+					if ((int)loginHandle.Current == 0) {
 						//如果是登录大厅失败,返回登录界面
-						if(conf == ins.conf.defaultGame) {
-							yield return currentApp.ShowLogin();
+						if (conf == ins.conf.defaultGame) {
+							yield return currentApp.game.ShowLogin();
 						}
 						//如果登录游戏失败,返回登录大厅
 						else {
