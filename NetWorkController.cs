@@ -519,9 +519,9 @@ namespace Hotfix.Common
 				}
 			}
 
-			if (checkSeesionTc_.Elapse() > 5.0f) {
+			if (checkSeesionTc_.Elapse() > 5.0f && AppController.ins.network.session != null) {
 				checkSeesionTc_.Restart();
-				if (AppController.ins.network.session != null && 
+				if (!AppController.ins.disableNetwork &&
 					!AppController.ins.network.session.IsWorking() && 
 					!AppController.ins.network.IsReconnecting()) {
 					this.StartCor(AppController.ins.network.Recounnect(), true);
@@ -539,11 +539,6 @@ namespace Hotfix.Common
 			isReconnecting_ = true;
 			MyDebug.LogFormat("Reconnecting");
 			ViewToast.Create(LangNetWork.Connecting, 10000.0f);
-
-			if (AppController.ins.disableNetwork) {
-				succ = true;
-				goto Clean;
-			}
 			//确认网络连接
 			var handle1 = ValidSession();
 			yield return handle1;
