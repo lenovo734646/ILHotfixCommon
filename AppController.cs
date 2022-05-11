@@ -52,8 +52,13 @@ namespace Hotfix.Common
 				var handleSess = network.ValidSession();
 				yield return handleSess;
 
-				if((int)handleSess.Current == 0) goto Clean;
-
+				if ((int)handleSess.Current == 0) {
+					if(ins.conf.defaultGame == conf) {
+						showLogin = true;
+					}
+					else
+						goto Clean;
+				}
 				MyDebug.LogFormat("Run CommonEmptyScene->Game:{0}", conf.name);
 
 				//开启新的场景,这里不需要进度指示是因为这个已经下载好了
@@ -93,7 +98,7 @@ namespace Hotfix.Common
 						}
 						//如果登录游戏失败,返回登录大厅
 						else {
-							yield return DoCheckUpdateAndRun(ins.conf.defaultGame, null, false);
+							yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 						}
 					}
 				}
@@ -102,7 +107,7 @@ namespace Hotfix.Common
 			Clean:
 				if (!succ) {
 					MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
-					yield return DoCheckUpdateAndRun(ins.conf.defaultGame, null, false);
+					yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 				}
 			}
 			else {
@@ -191,7 +196,7 @@ namespace Hotfix.Common
 		public AccountInfo lastUseAccount = null;
 		public GameConfig currentGameConfig = null;
 		public string defaultGameFromHost;
-		public bool autoLoginFromHost = true;
+		public bool autoLoginFromHost = true, disableNetwork = false;
 		public Dictionary<int, Texture2D> headIcons = new Dictionary<int, Texture2D>();
 		public Dictionary<int, Texture2D> headFrames = new Dictionary<int, Texture2D>();
 

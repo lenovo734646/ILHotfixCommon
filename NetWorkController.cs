@@ -521,7 +521,9 @@ namespace Hotfix.Common
 
 			if (checkSeesionTc_.Elapse() > 5.0f) {
 				checkSeesionTc_.Restart();
-				if (!AppController.ins.network.session.IsWorking() && !AppController.ins.network.IsReconnecting()) {
+				if (AppController.ins.network.session != null && 
+					!AppController.ins.network.session.IsWorking() && 
+					!AppController.ins.network.IsReconnecting()) {
 					this.StartCor(AppController.ins.network.Recounnect(), true);
 				}
 			}
@@ -533,11 +535,15 @@ namespace Hotfix.Common
 
 		public IEnumerator Recounnect()
 		{
+			bool succ = false;
 			isReconnecting_ = true;
 			MyDebug.LogFormat("Reconnecting");
 			ViewToast.Create(LangNetWork.Connecting, 10000.0f);
 
-			bool succ = false;
+			if (AppController.ins.disableNetwork) {
+				succ = true;
+				goto Clean;
+			}
 			//确认网络连接
 			var handle1 = ValidSession();
 			yield return handle1;
