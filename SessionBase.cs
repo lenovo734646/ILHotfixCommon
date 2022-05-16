@@ -12,31 +12,6 @@ using UnityEngine;
 
 namespace Hotfix.Common
 {
-	public static class ProtoMessageCreator
-	{
-		public static IProtoMessage CreateMessage(string protoName, byte[] data)
-		{
-			IProtoMessage ret = null;
-			if (protoName == "CLGT.KeepAliveAck") {
-				ret = new CLGT.KeepAliveAck();
-			}
-			else if (protoName == "CLGT.DisconnectNtf") {
-				ret = new CLGT.DisconnectNtf();
-			}
-			else if (protoName == "CLGT.HandAck") {
-				ret = new CLGT.HandAck();
-			}
-			else if (protoName == "CLGT.LoginAck") {
-				ret = new CLGT.LoginAck();
-			}
-			MyDebug.LogFormat("msg:{0}", protoName);
-			if(ret != null) {
-				ret.Decode(new Google.Protobuf.CodedInputStream(data));
-			}
-			return ret;
-		}
-	}
-
 	public class SessionBase : ControllerBase
 	{
 		public enum EnState

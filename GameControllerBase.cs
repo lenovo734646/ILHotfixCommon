@@ -59,10 +59,7 @@ namespace Hotfix.Common
 			prepared_ = true;
 			yield return 0;
 		}
-		protected virtual void OnNetMsg(object sender, NetEventArgs evt)
-		{
-
-		}
+		protected abstract void OnNetMsg(object sender, NetEventArgs evt);
 		public virtual IEnumerator OnPrepareGameRoom()
 		{
 			yield return 0;

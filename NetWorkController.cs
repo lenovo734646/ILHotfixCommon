@@ -49,6 +49,31 @@ namespace Hotfix.Common
 		public msg_base msg;
 	}
 
+	public static class ProtoMessageCreator
+	{
+		public static IProtoMessage CreateMessage(string protoName, byte[] data)
+		{
+			IProtoMessage ret = null;
+			if (protoName == "CLGT.KeepAliveAck") {
+				ret = new CLGT.KeepAliveAck();
+			}
+			else if (protoName == "CLGT.DisconnectNtf") {
+				ret = new CLGT.DisconnectNtf();
+			}
+			else if (protoName == "CLGT.HandAck") {
+				ret = new CLGT.HandAck();
+			}
+			else if (protoName == "CLGT.LoginAck") {
+				ret = new CLGT.LoginAck();
+			}
+			MyDebug.LogFormat("msg:{0}", protoName);
+			if (ret != null) {
+				ret.Decode(new Google.Protobuf.CodedInputStream(data));
+			}
+			return ret;
+		}
+	}
+
 	public class NetWorkController : ControllerBase
 	{
 		public enum PlatformType
@@ -68,7 +93,7 @@ namespace Hotfix.Common
 			return $"Network:Time Since Last Ping:{TimeElapseSinceLastPing()}s";
 		}
 
-		public void SendJson(short subCmd, string json, int toserver)
+		public void SendMessage(short subCmd, string json, int toserver)
 		{
 			sendStream_.ClearUsedData();
 			MsgJsonForm msg = new MsgJsonForm();
@@ -136,7 +161,7 @@ namespace Hotfix.Common
 
 			rpcHandler2.Add(tsk.rspID, tsk);
 			rpcHandler2.Add(msgid, tsk);
-			SendJson(msgid, proto);
+			SendMessage(msgid, proto);
 			return true;
 		}
 
@@ -178,29 +203,29 @@ namespace Hotfix.Common
 			tsk.callbackOnTimeout = true;
 			rpcHandler.Add(tsk.tp, tsk);
 
-			SendPb2(proto);
+			SendMessage(proto);
 			return true;
 		}
 
-		public void SendJson(short subCmd, msg_base content)
+		public void SendMessage(short subCmd, msg_base content)
 		{
 			string json = JsonMapper.ToJson(content);
-			SendJson(subCmd, json, content.to_server());
+			SendMessage(subCmd, json, content.to_server());
 		}
 
-		public void SendPb(short subCmd, IProtoMessage proto)
+		public void SendMessage(string subCmd, IProtoMessage proto)
 		{
 			sendStream_.ClearUsedData();
 
 			MsgPbForm msg = new MsgPbForm();
-			msg.subCmd = subCmd;
+			msg.protoName = subCmd;
 			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
 			Globals.net.SendMessage(sendStream_);
 		}
 
-		public void SendPb2(IProtoMessage proto)
+		public void SendMessage(IProtoMessage proto)
 		{
 			sendStream_.ClearUsedData();
 
@@ -254,6 +279,7 @@ namespace Hotfix.Common
 				}
 			}
 		}
+
 		public IEnumerator ValidSession()
 		{
 			if (session == null || !session.IsWorking()) {
@@ -638,7 +664,7 @@ namespace Hotfix.Common
 			return null;
 		}
 
-		IProtoMessage CreateMsgFromPb_(short subMsg, byte[] content)
+		IProtoMessage CreateMsgFromPb_(string subMsg, byte[] content)
 		{
 			switch (subMsg) {
 				
@@ -654,6 +680,7 @@ namespace Hotfix.Common
 			}
 			lastPing_ = Time.time;
 		}
+
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
@@ -723,10 +750,10 @@ namespace Hotfix.Common
 						MsgPbForm msg = new MsgPbForm();
 						msg.Read(stm);
 
-						var msgRsp = CreateMsgFromPb_(msg.subCmd, msg.content);
+						var msgRsp = CreateMsgFromPb_(msg.protoName, msg.content);
 
 						NetEventArgs evt = new NetEventArgs();
-						evt.cmd = msg.subCmd;
+						evt.strCmd = msg.protoName;
 						if (msgRsp != null) {
 							evt.msgProto = msgRsp;
 						}
