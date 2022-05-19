@@ -14,21 +14,10 @@ using UnityEngine.SceneManagement;
 
 namespace Hotfix.Common
 {
-
 	//热更入口类
-	public class AppController : ControllerBase
+	public class AppController : ResourceMonitor
 	{
 		public class GameRunQueue { };
-		public static AppController ins = null;
-		public Config conf = new Config();
-		public AppBase currentApp = null;
-		//进度指示器,由宿主工程设置
-		public IShowDownloadProgress progressFromHost;
-		public NetWorkController network = new NetWorkController();
-		public SelfPlayer self = new SelfPlayer();
-		public List<AccountInfo> accounts = new List<AccountInfo>();
-		public AccountInfo lastUseAccount = null;
-		public GameConfig currentGameConfig = null;
 		public AppController()
 		{
 			ins = this;
@@ -63,12 +52,24 @@ namespace Hotfix.Common
 				var handleSess = network.ValidSession();
 				yield return handleSess;
 
+				if ((int)handleSess.Current == 0) {
+					if(ins.conf.defaultGame == conf) {
+						showLogin = true;
+					}
+					else
+						goto Clean;
+				}
 				MyDebug.LogFormat("Run CommonEmptyScene->Game:{0}", conf.name);
 
 				//开启新的场景,这里不需要进度指示是因为这个已经下载好了
 				var sceneHandle = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>("Assets/Scenes/CommonEmptyScene.unity", null);
 				yield return sceneHandle;
-				yield return sceneHandle.Current.ActiveScene();
+				if (sceneHandle.Current.succeed) {
+					yield return sceneHandle.Current.ActiveScene();
+				}
+				else {
+					goto Clean;
+				}
 				
 				var entryClass = Type.GetType(conf.entryClass);
 				currentApp = (AppBase)Activator.CreateInstance(entryClass);
@@ -81,20 +82,23 @@ namespace Hotfix.Common
 				else {
 					MyDebug.LogFormat("network.ValidSession succ.");
 				}
+				
+				network.lastState = SessionBase.EnState.Initiation;
+
 				if (showLogin)
-					yield return currentApp.ShowLogin();
+					yield return currentApp.game.ShowLogin();
 				else {
-					var loginHandle = network.EnterGame(conf, false);
+					var loginHandle = network.EnterGame(conf);
 					yield return loginHandle;
 					//登录失败
-					if((int)loginHandle.Current == 0) {
+					if ((int)loginHandle.Current == 0) {
 						//如果是登录大厅失败,返回登录界面
-						if(conf == ins.conf.defaultGame) {
-							yield return currentApp.ShowLogin();
+						if (conf == ins.conf.defaultGame) {
+							yield return currentApp.game.ShowLogin();
 						}
 						//如果登录游戏失败,返回登录大厅
 						else {
-							yield return DoCheckUpdateAndRun(ins.conf.defaultGame, null, false);
+							yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 						}
 					}
 				}
@@ -103,7 +107,7 @@ namespace Hotfix.Common
 			Clean:
 				if (!succ) {
 					MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
-					yield return DoCheckUpdateAndRun(ins.conf.defaultGame, null, false);
+					yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 				}
 			}
 			else {
@@ -124,7 +128,7 @@ namespace Hotfix.Common
 			ILRuntime_CLPF.Initlize();
 			ILRuntime_Global.Initlize();
 
-			network.RegisterMsgHandler(OnNetMsg);
+			network.AddMsgHandler(OnNetMsg);
 
 			DoStart_();
 		}
@@ -138,11 +142,32 @@ namespace Hotfix.Common
 			}
 		}
 
+		void CachedResources_()
+		{
+			for(int i = 1; i <= 10; i++) {
+				int index = i;
+				LoadAssets<Texture2D>($"Assets/ForReBuild/Res/PlazaUI/UserInfo/head/img_head_{i}.png", (task) => {
+					headIcons.Add(index, task.Result);
+				});
+			}
+
+			for (int i = 1; i <= 8; i++) {
+				int index = i;
+				LoadAssets<Texture2D>($"Assets/ForReBuild/Res/PlazaUI/UserInfo/headFrame/img_headframe_{i}.png", (task) => {
+					headFrames.Add(index, task.Result);
+				});
+			}
+		}
+
 		void DoStart_()
 		{
 			conf.Start();
-			CheckUpdateAndRun(conf.defaultGame, progressFromHost, true);
-
+			if (defaultGameFromHost != "") conf.defaultGameName = defaultGameFromHost;
+			if (conf.defaultGame == null) {
+				throw new Exception($"default game is not exist.{conf.defaultGameName}");
+			}
+			CachedResources_();
+			CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
 		public override  void Update()
@@ -155,8 +180,25 @@ namespace Hotfix.Common
 		{
 			if (currentApp != null) currentApp.Stop();
 			network.Stop();
+
 			this.StopAllCor();
+			base.Stop();
 		}
+
+		public static AppController ins = null;
+		public Config conf = new Config();
+		public AppBase currentApp = null;
+		//进度指示器,由宿主工程设置
+		public IShowDownloadProgress progressFromHost;
+		public NetWorkController network = new NetWorkController();
+		public SelfPlayer self = new SelfPlayer();
+		public List<AccountInfo> accounts = new List<AccountInfo>();
+		public AccountInfo lastUseAccount = null;
+		public GameConfig currentGameConfig = null;
+		public string defaultGameFromHost;
+		public bool autoLoginFromHost = true, disableNetwork = false;
+		public Dictionary<int, Texture2D> headIcons = new Dictionary<int, Texture2D>();
+		public Dictionary<int, Texture2D> headFrames = new Dictionary<int, Texture2D>();
 
 		GameRunQueue runQueue = new GameRunQueue();
 	}

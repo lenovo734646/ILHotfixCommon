@@ -13,6 +13,8 @@ namespace Hotfix.Common
 		public const string ResovingDNSSucc = "解析成功.";
 		public const string HandShake = "正在握手...";
 		public const string HandShakeSucc = "握手成功.";
+		public const string Login = "正在登录.";
+		public const string LoginSucc = "登录成功.";
 		public const string AcquireService = "正在获取游戏服务...";
 		public const string AcquireServiceSucc = "游戏服务获取成功.";
 		public const string InLobby = "进入大厅成功.";

@@ -14,10 +14,7 @@ namespace Hotfix.Common
 	{
 		protected override void SetLoader()
 		{
-			ViewLoadTask<GameObject> tsk = new ViewLoadTask<GameObject>();
-			tsk.assetPath = "Assets/AssetsFinal/hall/Popup_BankLoginPanel.prefab";
-			tsk.callback = AddToPopup;
-			LoadPrefab(tsk);
+			LoadPrefab("Assets/AssetsFinal/hall/Popup_BankLoginPanel.prefab", AddToPopup);
 		}
 
 		protected override IEnumerator OnResourceReady()
@@ -53,7 +50,7 @@ namespace Hotfix.Common
 			}
 			else {
 				msg_set_bank_psw msg = new msg_set_bank_psw();
-				msg.func_ = "2";
+				msg.func_ = 2;
 				msg.psw_ = psw.text;
 				msg.old_psw_ = psw.text;
 

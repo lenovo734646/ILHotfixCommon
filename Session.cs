@@ -254,7 +254,7 @@ namespace Hotfix.Lobby
 		public override void Start()
 		{
 			MyDebug.LogFormat("New FLLSession Start {0}", GetHashCode());
-			AppController.ins.network.RegisterMsgHandler(OnMsg_);
+			AppController.ins.network.AddMsgHandler(OnMsg_);
 			//这个协程进行排队.避免多个一起进行
 			AppController.ins.StartCor(DoStart(), true);
 		}
@@ -264,6 +264,7 @@ namespace Hotfix.Lobby
 			if (closeByManual == 0)
 				closeByManual = 1;
 			MyDebug.LogFormat("====>Session Stop:{0}", closeByManual);
+			RemoveInstance();
 		}
 
 		//获取消息延时
@@ -305,10 +306,10 @@ namespace Hotfix.Lobby
 				pingCostCounter_.Restart();
 				AppController.ins.network.SendPing();
 			}
-			float tmElapse = AppController.ins.network.TimeElapseSinceLastPing();
-			if (tmElapse > 6.0f) {
-				Globals.net.Stop();
-			}
+// 			float tmElapse = AppController.ins.network.TimeElapseSinceLastPing();
+// 			if (tmElapse > 6.0f) {
+// 				Globals.net.Stop();
+// 			}
 		}
 
 		public void StartKoKoNetwork(Dictionary<string, int> hosts, float timeOut)
@@ -390,7 +391,7 @@ namespace Hotfix.Lobby
 		IEnumerator DoStart()
 		{
 			MyDebug.LogFormat("New FLLSession Runing:{0}", GetHashCode());
-			closeByManual = 1;
+			st = EnState.HandShake;
 
 			progress?.Desc(LangNetWork.Connecting);
 
@@ -432,6 +433,7 @@ namespace Hotfix.Lobby
 				progress?.Desc(LangNetWork.HandShakeSucc);
 				
 			}
+			st = EnState.HandShakeSucc;
 			closeByManual = 2;
 			while (Globals.net.IsWorking() && closeByManual == 2) {
 				Update();
@@ -440,6 +442,7 @@ namespace Hotfix.Lobby
 			MyDebug.LogFormat("Session will exit! Globals.net.IsWorking():{0}, closeByManual:{1}", Globals.net.IsWorking(), closeByManual);
 		Clean:
 			closeByManual = 4;
+			st = EnState.HandShakeFailed;
 			Globals.net.RemoveRawDataHandler(AppController.ins.network.HandleRawData);
 			Globals.net.RemoveSockEventHandler(OnSockEvent_);
 			ViewToast.Clear();
@@ -459,6 +462,7 @@ namespace Hotfix.Lobby
 			if (closeByManual <= 2)
 				closeByManual = 4;
 			MyDebug.LogFormat("====>Session Stop:{0}", closeByManual);
+			RemoveInstance();
 		}
 
 		//获取消息延时

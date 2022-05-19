@@ -12,39 +12,22 @@ using UnityEngine;
 
 namespace Hotfix.Common
 {
-	public static class ProtoMessageCreator
-	{
-		public static IProtoMessage CreateMessage(string protoName, byte[] data)
-		{
-			IProtoMessage ret = null;
-			if (protoName == "CLGT.KeepAliveAck") {
-				ret = new CLGT.KeepAliveAck();
-			}
-			else if (protoName == "CLGT.DisconnectNtf") {
-				ret = new CLGT.DisconnectNtf();
-			}
-			else if (protoName == "CLGT.HandAck") {
-				ret = new CLGT.HandAck();
-			}
-			else if (protoName == "CLGT.LoginAck") {
-				ret = new CLGT.LoginAck();
-			}
-			MyDebug.LogFormat("msg:{0}", protoName);
-			if(ret != null) {
-				ret.Decode(new Google.Protobuf.CodedInputStream(data));
-			}
-			return ret;
-		}
-	}
-
 	public class SessionBase : ControllerBase
 	{
 		public enum EnState
 		{
+			//失去部分连接
+			Disconnected,
+			HandShakeFailed,
+			AcquireServiceFailed,
+			EnterRoomFailed,
+			AuthorizeFailed,
 			//
 			Initiation = 100,
 			HandShake,
 			HandShakeSucc,
+			Login,
+			LoginSucc,
 			//获取服务阶段
 			AcquireService,
 			AcquireServiceSucc,
@@ -59,13 +42,6 @@ namespace Hotfix.Common
 			//
 			PingEnd,
 			ExitRoomSucc,
-
-			//失去部分连接
-			Disconnected,
-			HandShakeFailed,
-			AcquireServiceFailed,
-			EnterRoomFailed,
-			AuthorizeFailed,
 		}
 
 		public static Dictionary<EnState, string> desc = new Dictionary<EnState, string>();
@@ -76,6 +52,8 @@ namespace Hotfix.Common
 			if(desc.Count == 0) {
 				desc.Add(EnState.HandShake, LangNetWork.HandShake);
 				desc.Add(EnState.HandShakeSucc, LangNetWork.HandShakeSucc);
+				desc.Add(EnState.Login, LangNetWork.Login);
+				desc.Add(EnState.LoginSucc, LangNetWork.LoginSucc);
 				desc.Add(EnState.AcquireService, LangNetWork.AcquireService);
 				desc.Add(EnState.AcquireServiceSucc, LangNetWork.AcquireServiceSucc);
 				desc.Add(EnState.InLobby, LangNetWork.InLobby);
@@ -101,5 +79,12 @@ namespace Hotfix.Common
 		{
 			return closeByManual == 2;
 		}
+
+		public override void Stop()
+		{
+			throw new NotImplementedException();
+		}
+
+		public EnState st = EnState.Initiation;
 	}
 }

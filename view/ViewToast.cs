@@ -44,12 +44,7 @@ namespace Hotfix.Common
 
 		protected override void SetLoader()
 		{
-			{
-				ViewLoadTask<GameObject> tsk = new ViewLoadTask<GameObject>();
-				tsk.assetPath = "Assets/Res/prefabs/common/FX_UI_DlgTips.prefab";
-				tsk.callback = AddToPopup;
-				LoadPrefab(tsk);
-			}
+			LoadPrefab("Assets/Res/prefabs/common/FX_UI_DlgTips.prefab", AddToPopup);
 		}
 
 		public void SetParams(string text, float autoCloseTime)

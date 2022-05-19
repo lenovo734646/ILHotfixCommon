@@ -29,6 +29,15 @@ namespace Hotfix.Common
 			FLLU3d,
 			YuanSan,
 		}
+
+		public enum GameID
+		{
+			Lobby = -1,
+			ShenLingWuHui92 = 14,
+			HuanleBY = 564,
+			BenChiBaoMa = 37,
+		}
+
 		public const string HuanleBY = "HuanleBY";
 		public const string Lobby = "Lobby";
 		public const string BaiRenNiuniu = "BRNN";
@@ -60,7 +69,6 @@ namespace Hotfix.Common
 		public const string ShenHaiBY = "FishingSH";
 		public const string CaoFangBY = "FishingCF";
 		public const string LaBa3D = "LHJC";
-
 		public string name;
 		public string folder;
 		public string entryClass;
@@ -69,7 +77,7 @@ namespace Hotfix.Common
 		public int tag;
 		public bool enabled = false, show = true;
 		public string contentCatalog = "", dllName = "", pdbName = "", suffix = "";
-		public int gameID = -1;
+		public GameID gameID = GameID.Lobby;
 		public string GetCatalogAddress(string host, string platform)
 		{
 			return string.Format(contentCatalog, host, folder, platform);
@@ -101,7 +109,7 @@ namespace Hotfix.Common
 				game.dllName = "Assets/Res/Games/HuanleBY/HotFixDll.json";
 				game.pdbName = "Assets/Res/Games/HuanleBY/HotFixDll_pdb.json";
 				game.suffix = GameConfig.HuanleBY;
-				game.gameID = 564;
+				game.gameID = GameConfig.GameID.HuanleBY;
 				game.enabled = true;
 				games.Add(game.name, game);
 			}
@@ -117,6 +125,7 @@ namespace Hotfix.Common
 				game.dllName = "Assets/Res/HotFixDll.json";
 				game.pdbName = "Assets/Res/HotFixDll_pdb.json";
 				games.Add(game.name, game);
+				game.gameID = GameConfig.GameID.Lobby;
 			}
 
 			{
@@ -124,7 +133,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.BaiRenNiuniu;
 				game.folder = GameConfig.BaiRenNiuniu;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
 				games.Add(game.name, game);
@@ -135,7 +144,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.BaiJiaLe;
 				game.folder = GameConfig.BaiJiaLe;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
 				games.Add(game.name, game);
@@ -146,9 +155,10 @@ namespace Hotfix.Common
 				game.name = GameConfig.BenChiBaoMa;
 				game.folder = GameConfig.BenChiBaoMa;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
+				game.gameID = GameConfig.GameID.BenChiBaoMa;
 				games.Add(game.name, game);
 			}
 
@@ -157,7 +167,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.FeiQingZhouSou;
 				game.folder = GameConfig.FeiQingZhouSou;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
 				games.Add(game.name, game);
@@ -168,7 +178,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.HongHeiDaZhan;
 				game.folder = GameConfig.HongHeiDaZhan;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
 				game.show = false;
@@ -180,7 +190,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.HuhuShengWei;
 				game.folder = GameConfig.HuhuShengWei;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
 				game.show = false;
@@ -189,10 +199,11 @@ namespace Hotfix.Common
 
 			{
 				GameConfig game = new GameConfig();
+				game.gameID = GameConfig.GameID.ShenLingWuHui92;
 				game.name = GameConfig.ShenLingWuHui;
 				game.folder = GameConfig.ShenLingWuHui;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
 				games.Add(game.name, game);
@@ -203,7 +214,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.DeZhouPuke;
 				game.folder = GameConfig.DeZhouPuke;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
 				game.show = false;
@@ -216,7 +227,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.DouDiZhu;
 				game.folder = GameConfig.DouDiZhu;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				games.Add(game.name, game);
@@ -227,7 +238,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.MaJiang2;
 				game.folder = GameConfig.MaJiang2;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				games.Add(game.name, game);
@@ -238,7 +249,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.QiangZhuangNiuniu;
 				game.folder = GameConfig.QiangZhuangNiuniu;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				games.Add(game.name, game);
@@ -249,7 +260,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.ShiSanShui;
 				game.folder = GameConfig.ShiSanShui;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				game.show = false;
@@ -261,7 +272,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.TongBiNiuniu;
 				game.folder = GameConfig.TongBiNiuniu;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				game.show = false;
@@ -273,7 +284,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.ZhaJingHua;
 				game.folder = GameConfig.ZhaJingHua;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				games.Add(game.name, game);
@@ -284,7 +295,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.Bianlian2;
 				game.folder = GameConfig.Bianlian2;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
@@ -296,7 +307,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.CaiShenDao;
 				game.folder = GameConfig.CaiShenDao;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
@@ -309,7 +320,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.DaHuaXiYou;
 				game.folder = GameConfig.DaHuaXiYou;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
@@ -322,7 +333,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.DuoCaiDuofu;
 				game.folder = GameConfig.DuoCaiDuofu;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
@@ -334,7 +345,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.HuoYuanLianji;
 				game.folder = GameConfig.HuoYuanLianji;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
@@ -346,7 +357,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.JiuXianLaWang;
 				game.folder = GameConfig.JiuXianLaWang;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots | (int)GameConfig.Tag.Hot;
 				games.Add(game.name, game);
@@ -357,7 +368,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.XingGanNvYou;
 				game.folder = GameConfig.XingGanNvYou;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				games.Add(game.name, game);
@@ -368,7 +379,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.LuoMaDaMaoXian;
 				game.folder = GameConfig.LuoMaDaMaoXian;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
@@ -380,7 +391,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.ShuiGuoMali;
 				game.folder = GameConfig.ShuiGuoMali;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				games.Add(game.name, game);
@@ -391,7 +402,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.ShuiHuZhuan;
 				game.folder = GameConfig.ShuiHuZhuan;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots |(int)GameConfig.Tag.Hot;
 				games.Add(game.name, game);
@@ -402,7 +413,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.JiJieHaoBY;
 				game.folder = GameConfig.JiJieHaoBY;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Fishing | (int)GameConfig.Tag.Hot;
 				games.Add(game.name, game);
@@ -413,7 +424,7 @@ namespace Hotfix.Common
 // 				game.name = GameConfig.LingDianBY;
 // 				game.folder = GameConfig.LingDianBY;
 // 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-// 				game.scriptType = GameConfig.ScriptType.Lua;
+// 				game.scriptType = GameConfig.ScriptType.CSharp;
 // 				game.module = GameConfig.Module.FLLU3d;
 // 				game.tag = (int)GameConfig.Tag.Fishing | (int)GameConfig.Tag.Hot;
 // 				games.Add(game.name, game);
@@ -424,7 +435,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.ShenHaiBY;
 				game.folder = GameConfig.ShenHaiBY;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Fishing | (int)GameConfig.Tag.Hot;
 				games.Add(game.name, game);
@@ -434,7 +445,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.CaoFangBY;
 				game.folder = GameConfig.CaoFangBY;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Fishing | (int)GameConfig.Tag.Hot;
 				games.Add(game.name, game);
@@ -445,7 +456,7 @@ namespace Hotfix.Common
 				game.name = GameConfig.LaBa3D;
 				game.folder = GameConfig.LaBa3D;
 				game.entryClass = "Hotfix." + game.folder + ".MyApp";
-				game.scriptType = GameConfig.ScriptType.Lua;
+				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				games.Add(game.name, game);
