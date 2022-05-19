@@ -132,18 +132,6 @@ namespace CLGT
                 }
             }
         }
-        [global::ProtoBuf.ProtoContract()]
-        public enum PlatformType
-        {
-            Unknown = 0,
-            IOS = 1,
-            ANDROID = 2,
-            WINDOWS = 3,
-            LINUX = 4,
-            MAC = 5,
-            WebGL = 6,
-        }
-
     }
 
     [global::ProtoBuf.ProtoContract()]
@@ -371,6 +359,142 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
+    public partial class ShellCheckUpdateReq : AssemblyCommon.IProtoMessage
+    {
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class ShellCheckUpdateAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public bool success { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public int shell_version { get; set; }
+
+        [global::ProtoBuf.ProtoMember(4)]
+        public string shell_update_name { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(5)]
+        public string shell_update_url { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(6)]
+        public string script_update_dns { get; set; } = "";
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(success != false)
+            {
+                writer.WriteTag(16);
+                writer.WriteBool(success);
+            }
+            if(shell_version != 0)
+            {
+                writer.WriteTag(24);
+                writer.WriteInt32(shell_version);
+            }
+            if(shell_update_name != "")
+            {
+                writer.WriteTag(34);
+                writer.WriteString(shell_update_name);
+            }
+            if(shell_update_url != "")
+            {
+                writer.WriteTag(42);
+                writer.WriteString(shell_update_url);
+            }
+            if(script_update_dns != "")
+            {
+                writer.WriteTag(50);
+                writer.WriteString(script_update_dns);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            success = false;
+
+            shell_version = 0;
+
+            shell_update_name = "";
+
+            shell_update_url = "";
+
+            script_update_dns = "";
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            success = reader.ReadBool();
+                        }
+                        break;
+                    case 24:
+                        {
+                            shell_version = reader.ReadInt32();
+                        }
+                        break;
+                    case 34:
+                        {
+                            shell_update_name = reader.ReadString();
+                        }
+                        break;
+                    case 42:
+                        {
+                            shell_update_url = reader.ReadString();
+                        }
+                        break;
+                    case 50:
+                        {
+                            script_update_dns = reader.ReadString();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
     public partial class LoginReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
@@ -499,10 +623,25 @@ namespace CLGT
         public long bank_currency { get; set; }
 
         [global::ProtoBuf.ProtoMember(42)]
-        public string last_game_appid { get; set; } = "";
+        public int last_game_id { get; set; }
 
         [global::ProtoBuf.ProtoMember(43)]
+        public int last_room_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(44)]
         public string head_url { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(45)]
+        public int max_start { get; set; }
+
+        [global::ProtoBuf.ProtoMember(46)]
+        public global::System.Collections.Generic.List<string> agent_server_list { get; private set; } = new global::System.Collections.Generic.List<string>();
+
+        [global::ProtoBuf.ProtoMember(47, IsPacked = true)]
+        public global::System.Collections.Generic.List<int> game_kind_list { get; private set; } = new global::System.Collections.Generic.List<int>();
+
+        [global::ProtoBuf.ProtoMember(48)]
+        public bool state { get; set; }
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -631,15 +770,42 @@ namespace CLGT
                 writer.WriteTag(328);
                 writer.WriteInt64(bank_currency);
             }
-            if(last_game_appid != "")
+            if(last_game_id != 0)
             {
-                writer.WriteTag(338);
-                writer.WriteString(last_game_appid);
+                writer.WriteTag(336);
+                writer.WriteInt32(last_game_id);
+            }
+            if(last_room_id != 0)
+            {
+                writer.WriteTag(344);
+                writer.WriteInt32(last_room_id);
             }
             if(head_url != "")
             {
-                writer.WriteTag(346);
+                writer.WriteTag(354);
                 writer.WriteString(head_url);
+            }
+            if(max_start != 0)
+            {
+                writer.WriteTag(360);
+                writer.WriteInt32(max_start);
+            }
+            foreach(var itor in agent_server_list)
+            {
+                writer.WriteTag(370);
+                writer.WriteString(itor);
+            }
+            writer.WriteTag(378);
+            writer.WriteRepeated((listw) => {
+                foreach(var itor in game_kind_list)
+                {
+                    listw.WriteInt32(itor);
+                }
+            });
+            if(state != false)
+            {
+                writer.WriteTag(384);
+                writer.WriteBool(state);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
@@ -692,9 +858,19 @@ namespace CLGT
 
             bank_currency = 0;
 
-            last_game_appid = "";
+            last_game_id = 0;
+
+            last_room_id = 0;
 
             head_url = "";
+
+            max_start = 0;
+
+            agent_server_list.Clear();
+
+            game_kind_list.Clear();
+
+            state = false;
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -826,14 +1002,43 @@ namespace CLGT
                             bank_currency = reader.ReadInt64();
                         }
                         break;
-                    case 338:
+                    case 336:
                         {
-                            last_game_appid = reader.ReadString();
+                            last_game_id = reader.ReadInt32();
                         }
                         break;
-                    case 346:
+                    case 344:
+                        {
+                            last_room_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 354:
                         {
                             head_url = reader.ReadString();
+                        }
+                        break;
+                    case 360:
+                        {
+                            max_start = reader.ReadInt32();
+                        }
+                        break;
+                    case 370:
+                        {
+                            var o = reader.ReadString();
+                            agent_server_list.Add(o);
+                        }
+                        break;
+                    case 378:
+                        {
+                            reader.ReadRepeated((listr) => {
+                                var o = listr.ReadInt32();
+                                game_kind_list.Add(o);
+                            });
+                        }
+                        break;
+                    case 384:
+                        {
+                            state = reader.ReadBool();
                         }
                         break;
                     default:
@@ -847,61 +1052,61 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccessServiceReq : AssemblyCommon.IProtoMessage
+    public partial class EmailSendCodeReq : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
-        public string server_name { get; set; } = "";
+        public int intent { get; set; }
 
         [global::ProtoBuf.ProtoMember(2)]
-        public int action { get; set; }
+        public bool hai_wai { get; set; }
 
         [global::ProtoBuf.ProtoMember(3)]
-        public string app_id { get; set; } = "";
+        public string email { get; set; } = "";
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
-            if(server_name != "")
+            if(intent != 0)
             {
-                writer.WriteTag(10);
-                writer.WriteString(server_name);
+                writer.WriteTag(8);
+                writer.WriteInt32(intent);
             }
-            if(action != 0)
+            if(hai_wai != false)
             {
                 writer.WriteTag(16);
-                writer.WriteInt32(action);
+                writer.WriteBool(hai_wai);
             }
-            if(app_id != "")
+            if(email != "")
             {
                 writer.WriteTag(26);
-                writer.WriteString(app_id);
+                writer.WriteString(email);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
-            server_name = "";
+            intent = 0;
 
-            action = 0;
+            hai_wai = false;
 
-            app_id = "";
+            email = "";
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
             {
                 switch (tag)
                 {
-                    case 10:
+                    case 8:
                         {
-                            server_name = reader.ReadString();
+                            intent = reader.ReadInt32();
                         }
                         break;
                     case 16:
                         {
-                            action = reader.ReadInt32();
+                            hai_wai = reader.ReadBool();
                         }
                         break;
                     case 26:
                         {
-                            app_id = reader.ReadString();
+                            email = reader.ReadString();
                         }
                         break;
                     default:
@@ -915,13 +1120,10 @@ namespace CLGT
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class AccessServiceAck : AssemblyCommon.IProtoMessage
+    public partial class EmailSendCodeAck : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
-
-        [global::ProtoBuf.ProtoMember(2)]
-        public string errmessage { get; set; } = "";
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -930,17 +1132,10 @@ namespace CLGT
                 writer.WriteTag(8);
                 writer.WriteInt32(errcode);
             }
-            if(errmessage != "")
-            {
-                writer.WriteTag(18);
-                writer.WriteString(errmessage);
-            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
             errcode = 0;
-
-            errmessage = "";
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -952,9 +1147,593 @@ namespace CLGT
                             errcode = reader.ReadInt32();
                         }
                         break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class PhoneSendCodeReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int intent { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string phone { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public int sms_channel { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(intent != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(intent);
+            }
+            if(phone != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(phone);
+            }
+            if(sms_channel != 0)
+            {
+                writer.WriteTag(24);
+                writer.WriteInt32(sms_channel);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            intent = 0;
+
+            phone = "";
+
+            sms_channel = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            intent = reader.ReadInt32();
+                        }
+                        break;
                     case 18:
                         {
-                            errmessage = reader.ReadString();
+                            phone = reader.ReadString();
+                        }
+                        break;
+                    case 24:
+                        {
+                            sms_channel = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class PhoneSendCodeAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class CheckAccountExistReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public string account { get; set; } = "";
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(account != "")
+            {
+                writer.WriteTag(10);
+                writer.WriteString(account);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            account = "";
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 10:
+                        {
+                            account = reader.ReadString();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class CheckAccountExistAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public bool is_exist { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(is_exist != false)
+            {
+                writer.WriteTag(16);
+                writer.WriteBool(is_exist);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            is_exist = false;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            is_exist = reader.ReadBool();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class AccountRegisterReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public string account { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string password { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public string phone { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(4)]
+        public string email { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(5)]
+        public string code { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(6)]
+        public int platform { get; set; }
+
+        [global::ProtoBuf.ProtoMember(7)]
+        public string device { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(8)]
+        public int channel { get; set; }
+
+        [global::ProtoBuf.ProtoMember(9)]
+        public string nickname { get; set; } = "";
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(account != "")
+            {
+                writer.WriteTag(10);
+                writer.WriteString(account);
+            }
+            if(password != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(password);
+            }
+            if(phone != "")
+            {
+                writer.WriteTag(26);
+                writer.WriteString(phone);
+            }
+            if(email != "")
+            {
+                writer.WriteTag(34);
+                writer.WriteString(email);
+            }
+            if(code != "")
+            {
+                writer.WriteTag(42);
+                writer.WriteString(code);
+            }
+            if(platform != 0)
+            {
+                writer.WriteTag(48);
+                writer.WriteInt32(platform);
+            }
+            if(device != "")
+            {
+                writer.WriteTag(58);
+                writer.WriteString(device);
+            }
+            if(channel != 0)
+            {
+                writer.WriteTag(64);
+                writer.WriteInt32(channel);
+            }
+            if(nickname != "")
+            {
+                writer.WriteTag(74);
+                writer.WriteString(nickname);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            account = "";
+
+            password = "";
+
+            phone = "";
+
+            email = "";
+
+            code = "";
+
+            platform = 0;
+
+            device = "";
+
+            channel = 0;
+
+            nickname = "";
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 10:
+                        {
+                            account = reader.ReadString();
+                        }
+                        break;
+                    case 18:
+                        {
+                            password = reader.ReadString();
+                        }
+                        break;
+                    case 26:
+                        {
+                            phone = reader.ReadString();
+                        }
+                        break;
+                    case 34:
+                        {
+                            email = reader.ReadString();
+                        }
+                        break;
+                    case 42:
+                        {
+                            code = reader.ReadString();
+                        }
+                        break;
+                    case 48:
+                        {
+                            platform = reader.ReadInt32();
+                        }
+                        break;
+                    case 58:
+                        {
+                            device = reader.ReadString();
+                        }
+                        break;
+                    case 64:
+                        {
+                            channel = reader.ReadInt32();
+                        }
+                        break;
+                    case 74:
+                        {
+                            nickname = reader.ReadString();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class AccountRegisterAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public int user_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public string nickname { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(4)]
+        public int head { get; set; }
+
+        [global::ProtoBuf.ProtoMember(5)]
+        public int head_frame { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(user_id != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt32(user_id);
+            }
+            if(nickname != "")
+            {
+                writer.WriteTag(26);
+                writer.WriteString(nickname);
+            }
+            if(head != 0)
+            {
+                writer.WriteTag(32);
+                writer.WriteInt32(head);
+            }
+            if(head_frame != 0)
+            {
+                writer.WriteTag(40);
+                writer.WriteInt32(head_frame);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            user_id = 0;
+
+            nickname = "";
+
+            head = 0;
+
+            head_frame = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            user_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 26:
+                        {
+                            nickname = reader.ReadString();
+                        }
+                        break;
+                    case 32:
+                        {
+                            head = reader.ReadInt32();
+                        }
+                        break;
+                    case 40:
+                        {
+                            head_frame = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class AccountResetPasswordReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public string account { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string new_password { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public string phone { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(4)]
+        public string email { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(5)]
+        public string code { get; set; } = "";
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(account != "")
+            {
+                writer.WriteTag(10);
+                writer.WriteString(account);
+            }
+            if(new_password != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(new_password);
+            }
+            if(phone != "")
+            {
+                writer.WriteTag(26);
+                writer.WriteString(phone);
+            }
+            if(email != "")
+            {
+                writer.WriteTag(34);
+                writer.WriteString(email);
+            }
+            if(code != "")
+            {
+                writer.WriteTag(42);
+                writer.WriteString(code);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            account = "";
+
+            new_password = "";
+
+            phone = "";
+
+            email = "";
+
+            code = "";
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 10:
+                        {
+                            account = reader.ReadString();
+                        }
+                        break;
+                    case 18:
+                        {
+                            new_password = reader.ReadString();
+                        }
+                        break;
+                    case 26:
+                        {
+                            phone = reader.ReadString();
+                        }
+                        break;
+                    case 34:
+                        {
+                            email = reader.ReadString();
+                        }
+                        break;
+                    case 42:
+                        {
+                            code = reader.ReadString();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class AccountResetPasswordAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
                         }
                         break;
                     default:
@@ -1068,10 +1847,20 @@ public class ILRuntime_CLGT
         ProtoBuf.PType.RegisterType("CLGT.HandAck", typeof(CLGT.HandAck));
         ProtoBuf.PType.RegisterType("CLGT.DisconnectNtf", typeof(CLGT.DisconnectNtf));
         ProtoBuf.PType.RegisterType("CLGT.ItemInfo", typeof(CLGT.ItemInfo));
+        ProtoBuf.PType.RegisterType("CLGT.ShellCheckUpdateReq", typeof(CLGT.ShellCheckUpdateReq));
+        ProtoBuf.PType.RegisterType("CLGT.ShellCheckUpdateAck", typeof(CLGT.ShellCheckUpdateAck));
         ProtoBuf.PType.RegisterType("CLGT.LoginReq", typeof(CLGT.LoginReq));
         ProtoBuf.PType.RegisterType("CLGT.LoginAck", typeof(CLGT.LoginAck));
-        ProtoBuf.PType.RegisterType("CLGT.AccessServiceReq", typeof(CLGT.AccessServiceReq));
-        ProtoBuf.PType.RegisterType("CLGT.AccessServiceAck", typeof(CLGT.AccessServiceAck));
+        ProtoBuf.PType.RegisterType("CLGT.EmailSendCodeReq", typeof(CLGT.EmailSendCodeReq));
+        ProtoBuf.PType.RegisterType("CLGT.EmailSendCodeAck", typeof(CLGT.EmailSendCodeAck));
+        ProtoBuf.PType.RegisterType("CLGT.PhoneSendCodeReq", typeof(CLGT.PhoneSendCodeReq));
+        ProtoBuf.PType.RegisterType("CLGT.PhoneSendCodeAck", typeof(CLGT.PhoneSendCodeAck));
+        ProtoBuf.PType.RegisterType("CLGT.CheckAccountExistReq", typeof(CLGT.CheckAccountExistReq));
+        ProtoBuf.PType.RegisterType("CLGT.CheckAccountExistAck", typeof(CLGT.CheckAccountExistAck));
+        ProtoBuf.PType.RegisterType("CLGT.AccountRegisterReq", typeof(CLGT.AccountRegisterReq));
+        ProtoBuf.PType.RegisterType("CLGT.AccountRegisterAck", typeof(CLGT.AccountRegisterAck));
+        ProtoBuf.PType.RegisterType("CLGT.AccountResetPasswordReq", typeof(CLGT.AccountResetPasswordReq));
+        ProtoBuf.PType.RegisterType("CLGT.AccountResetPasswordAck", typeof(CLGT.AccountResetPasswordAck));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveReq", typeof(CLGT.KeepAliveReq));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveAck", typeof(CLGT.KeepAliveAck));
         ProtoBuf.PType.RegisterType("CLGT.TestNetInterruptRpt", typeof(CLGT.TestNetInterruptRpt));
