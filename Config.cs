@@ -35,6 +35,7 @@ namespace Hotfix.Common
 			Lobby = -1,
 			ShenLingWuHui92 = 14,
 			HuanleBY = 564,
+			BenChiBaoMa = 37,
 		}
 
 		public const string HuanleBY = "HuanleBY";
@@ -157,6 +158,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
+				game.gameID = GameConfig.GameID.BenChiBaoMa;
 				games.Add(game.name, game);
 			}
 
