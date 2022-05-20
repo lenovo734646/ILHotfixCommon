@@ -22,15 +22,14 @@ namespace Hotfix.Common
 
 		public static ViewToast Create(string content, float autoCloseTime = 3.0f)
 		{
-			ViewToast toast = new ViewToast();
+			ViewToast toast = new ViewToast(null);
 			toast.SetParams(content, autoCloseTime);
 			toast.Start();
 			return toast;
 		}
-
-		public ViewToast()
+		public ViewToast(IShowDownloadProgress ip) : base(ip)
 		{
-			if(opening != null) {
+			if (opening != null) {
 				opening.Close();
 			}
 			opening = this;

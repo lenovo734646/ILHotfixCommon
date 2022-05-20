@@ -36,9 +36,9 @@ namespace Hotfix.Common
 
 		public bool isEntering = true;
 		//创建和管理View
-		public T OpenView<T>() where T : ViewBase, new()
+		public T OpenView<T>(IShowDownloadProgress ip) where T : ViewBase
 		{
-			T ret = new T();
+			T ret = (T)Activator.CreateInstance(typeof(T), ip);
 			views_.Add(ret);
 			ret.Start();
 			return ret;
@@ -113,8 +113,11 @@ namespace Hotfix.Common
 		protected override void OnNetMsg(object sender, NetEventArgs evt)
 		{
 			if (evt.payload == null && evt.msg == null && evt.msgProto == null) return;
+
 			string json = "";
-			if(evt.payload != null) json = Encoding.UTF8.GetString(evt.payload);
+			if (evt.payload != null) json = Encoding.UTF8.GetString(evt.payload);
+			if (mainView == null) return;
+
 			switch (evt.cmd) {
 				case (int)GameRspID.msg_player_seat: {
 					msg_player_seat msg = (msg_player_seat)evt.msg;

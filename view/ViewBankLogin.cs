@@ -12,6 +12,10 @@ namespace Hotfix.Common
 {
 	public class ViewBankLogin : ViewBase
 	{
+		public ViewBankLogin(IShowDownloadProgress ip) : base(ip)
+		{
+
+		}
 		protected override void SetLoader()
 		{
 			LoadPrefab("Assets/AssetsFinal/hall/Popup_BankLoginPanel.prefab", AddToPopup);
@@ -58,7 +62,7 @@ namespace Hotfix.Common
 					if (rpl == null) return;
 					if (rpl.err_ == 1) {
 						Close();
-						var view = AppController.ins.currentApp.game.OpenView<ViewBankMain>();
+						var view = AppController.ins.currentApp.game.OpenView<ViewBankMain>(null);
 						AppController.ins.self.bankPsw = msg.psw_;
 					}
 					else {

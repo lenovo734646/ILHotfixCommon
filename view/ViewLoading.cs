@@ -34,10 +34,11 @@ namespace Hotfix.Common
 	public class ViewLoading : ViewBase
 	{
 		AShower shower = new AShower();
-		public ViewLoading()
+
+		public ViewLoading(IShowDownloadProgress ip) : base(ip)
 		{
-			progress = new AShower();
-			((AShower)progress).wview_.SetTarget(this);
+			shower = new AShower();
+			shower.wview_.SetTarget(this);
 		}
 
 		protected override void SetLoader()

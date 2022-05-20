@@ -288,7 +288,7 @@ namespace Hotfix.Common
 				if (session != null) session.Stop();
 
 				session = new KoKoSession();
-				session.progress = progress;
+				session.progressOfLoading = progressOfLoading;
 				session.Start();
 
 				while (session.closeByManual < 2) {
@@ -341,7 +341,7 @@ namespace Hotfix.Common
 					yield return resultOfRpc;
 
 					if (resultOfRpc.Current == null) {
-						progress?.Desc(LangUITip.RegisterFailed);
+						progressOfLoading?.Desc(LangUITip.RegisterFailed);
 						goto Clean;
 					}
 
@@ -349,11 +349,11 @@ namespace Hotfix.Common
 					msg_common_reply r = (msg_common_reply)(rpcd.msg_);
 
 					if (r.err_ == "-994") {
-						progress?.Desc(LangUITip.ServerIsBusy);
+						progressOfLoading?.Desc(LangUITip.ServerIsBusy);
 						goto Clean;
 					}
 					else if (r.err_ != "0" && r.err_ != "-995") {
-						progress?.Desc(LangUITip.RegisterFailed);
+						progressOfLoading?.Desc(LangUITip.RegisterFailed);
 						goto Clean;
 					}
 				}
@@ -370,7 +370,7 @@ namespace Hotfix.Common
 					yield return resultOfRpc;
 
 					if (resultOfRpc.Current == null) {
-						progress?.Desc(LangNetWork.AuthorizeFailed);
+						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 						goto Clean;
 					}
 
@@ -379,7 +379,7 @@ namespace Hotfix.Common
 					msg_user_login_ret r = (msg_user_login_ret)(rpcd.msg_);
 					if (rpcd.err_ != 0) {
 						MyDebug.LogFormat("登录失败.{0}", rpcd.err_);
-						progress?.Desc(LangNetWork.AuthorizeFailed);
+						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 						goto Clean;
 					}
 
@@ -402,7 +402,7 @@ namespace Hotfix.Common
 				yield return resultOfRpc;
 
 				if (resultOfRpc.Current == null) {
-					progress?.Desc(LangNetWork.AuthorizeFailed);
+					progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 					MyDebug.LogFormat("Get Coordinate failed");
 					goto Clean;
 				}
@@ -412,7 +412,7 @@ namespace Hotfix.Common
 				msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
 				msg_channel_server r = (msg_channel_server)(rpcd.msg_);
 				if (rpcd.err_ != 0) {
-					progress?.Desc(LangNetWork.AuthorizeFailed);
+					progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 					MyDebug.LogFormat("Get Coordinate failed,error:{0},game:{1}", rpcd.err_, toGame.gameID);
 					goto Clean;
 				}
@@ -421,7 +421,7 @@ namespace Hotfix.Common
 			}
 
 			succ = true;
-			progress?.Desc(LangNetWork.InLobby);
+			progressOfLoading?.Desc(LangNetWork.InLobby);
 			if (toGame.gameID == GameConfig.GameID.Lobby) {
 				//如果只是登录到大厅.结束流程
 				yield return app.currentApp.game.OnGameLoginSucc();
@@ -436,7 +436,7 @@ namespace Hotfix.Common
 					var resultOfRpc = app.network.Rpc((short)CorReqID.msg_alloc_game_server, msg, (short)CorRspID.msg_switch_game_server);
 					yield return resultOfRpc;
 					if (resultOfRpc.Current == null) {
-						progress?.Desc(LangNetWork.AuthorizeFailed);
+						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 						MyDebug.LogFormat("alloc game server failed");
 						goto Clean;
 					}

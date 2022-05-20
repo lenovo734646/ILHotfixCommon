@@ -45,7 +45,7 @@ namespace Hotfix.Lobby
 		}
 		public void StartFLLU3dNetwork(Dictionary<string, int> hosts, float timeOut)
 		{
-			progress?.Desc(LangNetWork.InitNetwork);
+			progressOfLoading?.Desc(LangNetWork.InitNetwork);
 
 			if (Globals.net != null) {
 				Globals.net.Stop();
@@ -104,22 +104,22 @@ namespace Hotfix.Lobby
 			}
 			//网络连接完全失败,这个是所有连接都失败之后调用的
 			else if (st == SocketState.ConnectFailed) {
-				progress?.Desc(LangNetWork.ConnectFailed);
+				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 			}
 			else if (st == SocketState.Resolving) {
-				progress?.Desc(LangNetWork.ResovingDNS);
+				progressOfLoading?.Desc(LangNetWork.ResovingDNS);
 			}
 			else if (st == SocketState.ResolveSucc) {
-				progress?.Desc(LangNetWork.ResovingDNSSucc);
+				progressOfLoading?.Desc(LangNetWork.ResovingDNSSucc);
 			}
 			else if (st == SocketState.Connecting) {
-				progress?.Desc(LangNetWork.Connecting);
+				progressOfLoading?.Desc(LangNetWork.Connecting);
 			}
 			else if (st == SocketState.ClosedByRemote) {
-				progress?.Desc(LangNetWork.ConnectionCloseByRemote);
+				progressOfLoading?.Desc(LangNetWork.ConnectionCloseByRemote);
 			}
 			else if (st == SocketState.Closed) {
-				progress?.Desc(LangNetWork.Closed);
+				progressOfLoading?.Desc(LangNetWork.Closed);
 			}
 		}
 
@@ -133,7 +133,7 @@ namespace Hotfix.Lobby
 				closeByManual = 1;
 			}
 
-			progress?.Desc(LangNetWork.Connecting);
+			progressOfLoading?.Desc(LangNetWork.Connecting);
 
 			var app = AppController.ins;
 			TimeCounter tc = new TimeCounter("");
@@ -153,24 +153,24 @@ namespace Hotfix.Lobby
 			}
 			//网络没连接上,跳出
 			if (!Globals.net.IsWorking()) {
-				progress?.Desc(LangNetWork.ConnectFailed);
+				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 				MyDebug.LogFormat("FLLSession failed with !Globals.net.IsWorking()");
 				goto Clean;
 			}
 
 			if (netReseted) {
-				progress?.Desc(LangNetWork.HandShake);
+				progressOfLoading?.Desc(LangNetWork.HandShake);
 				//握手===================================
 				var handle1 = Handshake_();
 				yield return handle1;
 				//如果握手失败
 				if ((int)handle1.Current != 1) {
-					progress?.Desc(LangNetWork.HandShakeFailed);
+					progressOfLoading?.Desc(LangNetWork.HandShakeFailed);
 					MyDebug.LogFormat("FLLSession failed with Handshake");
 					goto Clean;
 				}
 
-				progress?.Desc(LangNetWork.HandShakeSucc);
+				progressOfLoading?.Desc(LangNetWork.HandShakeSucc);
 				//这是开发人员犯错,抛出异常
 				if (app.lastUseAccount == null) {
 					throw new Exception("AppController.ins.lastUseAccount == null,it must be settled before login.");
@@ -192,18 +192,18 @@ namespace Hotfix.Lobby
 				yield return resultOfRpc;
 
 				if (resultOfRpc.Current == null) {
-					progress?.Desc(LangNetWork.AuthorizeFailed);
+					progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 					goto Clean;
 				}
 
 				CLGT.LoginAck r = (CLGT.LoginAck)(resultOfRpc.Current);
 				if (r.errcode != 0) {
 					MyDebug.LogFormat("登录失败.{0}", r.errcode);
-					progress?.Desc(LangNetWork.AuthorizeFailed);
+					progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 					goto Clean;
 				}
 
-				progress?.Desc(LangNetWork.InLobby);
+				progressOfLoading?.Desc(LangNetWork.InLobby);
 
 				var self = app.self.gamePlayer;
 				self.iid = r.user_id;
@@ -314,7 +314,7 @@ namespace Hotfix.Lobby
 
 		public void StartKoKoNetwork(Dictionary<string, int> hosts, float timeOut)
 		{
-			progress?.Desc(LangNetWork.InitNetwork);
+			progressOfLoading?.Desc(LangNetWork.InitNetwork);
 
 			if (Globals.net != null) {
 				Globals.net.Stop();
@@ -369,22 +369,22 @@ namespace Hotfix.Lobby
 			}
 			//网络连接完全失败,这个是所有连接都失败之后调用的
 			else if (st == SocketState.ConnectFailed) {
-				progress?.Desc(LangNetWork.ConnectFailed);
+				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 			}
 			else if (st == SocketState.Resolving) {
-				progress?.Desc(LangNetWork.ResovingDNS);
+				progressOfLoading?.Desc(LangNetWork.ResovingDNS);
 			}
 			else if (st == SocketState.ResolveSucc) {
-				progress?.Desc(LangNetWork.ResovingDNSSucc);
+				progressOfLoading?.Desc(LangNetWork.ResovingDNSSucc);
 			}
 			else if (st == SocketState.Connecting) {
-				progress?.Desc(LangNetWork.Connecting);
+				progressOfLoading?.Desc(LangNetWork.Connecting);
 			}
 			else if (st == SocketState.ClosedByRemote) {
-				progress?.Desc(LangNetWork.ConnectionCloseByRemote);
+				progressOfLoading?.Desc(LangNetWork.ConnectionCloseByRemote);
 			}
 			else if (st == SocketState.Closed) {
-				progress?.Desc(LangNetWork.Closed);
+				progressOfLoading?.Desc(LangNetWork.Closed);
 			}
 		}
 
@@ -393,7 +393,7 @@ namespace Hotfix.Lobby
 			MyDebug.LogFormat("New FLLSession Runing:{0}", GetHashCode());
 			st = EnState.HandShake;
 
-			progress?.Desc(LangNetWork.Connecting);
+			progressOfLoading?.Desc(LangNetWork.Connecting);
 
 			var app = AppController.ins;
 			TimeCounter tc = new TimeCounter("");
@@ -413,24 +413,24 @@ namespace Hotfix.Lobby
 			}
 			//网络没连接上,跳出
 			if (!Globals.net.IsWorking()) {
-				progress?.Desc(LangNetWork.ConnectFailed);
+				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 				MyDebug.LogFormat("KoKoSession failed with !Globals.net.IsWorking()");
 				goto Clean;
 			}
 
 			if (netReseted) {
-				progress?.Desc(LangNetWork.HandShake);
+				progressOfLoading?.Desc(LangNetWork.HandShake);
 				//握手===================================
 				var handle1 = Handshake_();
 				yield return handle1;
 				//如果握手失败
 				if ((int)handle1.Current != 1) {
-					progress?.Desc(LangNetWork.HandShakeFailed);
+					progressOfLoading?.Desc(LangNetWork.HandShakeFailed);
 					MyDebug.LogFormat("KoKoSession failed with Handshake");
 					goto Clean;
 				}
 
-				progress?.Desc(LangNetWork.HandShakeSucc);
+				progressOfLoading?.Desc(LangNetWork.HandShakeSucc);
 				
 			}
 			st = EnState.HandShakeSucc;
