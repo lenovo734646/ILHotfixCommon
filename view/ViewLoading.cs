@@ -53,6 +53,8 @@ namespace Hotfix.Common
 			var canvas = GameObject.Find("Canvas");
 			var SmartLoadingUI = canvas.FindChildDeeply("SmartLoadingUI");
 			var WaitResponseUI = SmartLoadingUI.FindChildDeeply("WaitResponseUI");
+			shower.SetUIRoot(SmartLoadingUI);
+
 			WaitResponseUI.StartDoTweenAnim();
 
 			var PopupMask = SmartLoadingUI.FindChildDeeply("PopupMask");
