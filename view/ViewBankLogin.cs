@@ -58,7 +58,8 @@ namespace Hotfix.Common
 					if (rpl == null) return;
 					if (rpl.err_ == 1) {
 						Close();
-						var view = AppController.ins.currentApp.game.OpenView<ViewBankMain>();
+						var view = new ViewBankMain(null);
+						AppController.ins.currentApp.game.OpenView(view);
 						AppController.ins.self.bankPsw = msg.psw_;
 					}
 					else {

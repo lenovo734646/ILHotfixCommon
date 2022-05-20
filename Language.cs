@@ -48,5 +48,6 @@ namespace Hotfix.Common
 		public const string CantFindPlayer = "玩家不存在.";
 		public const string ConfirmFailed = "密码不一致.";
 		public const string PleaseWait = "操作太频繁,请稍后再试.";
+		public const string LoadingResource = "正在加载资源.";
 	}
 }

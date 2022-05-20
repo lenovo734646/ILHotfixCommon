@@ -36,14 +36,12 @@ namespace Hotfix.Common
 
 		public bool isEntering = true;
 		//创建和管理View
-		public T OpenView<T>() where T : ViewBase, new()
+		public void OpenView(ViewBase view)
 		{
-			T ret = new T();
-			views_.Add(ret);
-			ret.Start();
-			return ret;
+			views_.Add(view);
+			view.Start();
 		}
-		
+
 		public void OnViewClosed(ViewBase view)
 		{
 			views_.Remove(view);

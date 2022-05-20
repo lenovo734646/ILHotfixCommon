@@ -50,7 +50,7 @@ namespace Hotfix.Common
 			public AddressablesLoader.LoadTask<T> loader;
 			public Action<T> callback;
 		}
-		public ViewBase()
+		public ViewBase(IShowDownloadProgress loadingProgress):base()
 		{
 		}
 
@@ -185,7 +185,7 @@ namespace Hotfix.Common
 
 		protected IEnumerator DoStart_()
 		{
-			progress?.Desc("..");
+			progressOfLoading?.Desc(LangUITip.LoadingResource);
 			SetLoader();
 
 			yield return LoadResources();
