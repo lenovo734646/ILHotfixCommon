@@ -49,20 +49,25 @@ namespace Hotfix.Common
 
 				//确保连接
 				MyDebug.LogFormat("network.ValidSession");
+				network.progressOfLoading = ip;
 				var handleSess = network.ValidSession();
 				yield return handleSess;
 
-				if ((int)handleSess.Current == 0) {
+				if ((int)handleSess.Current != 1) {
 					if(ins.conf.defaultGame == conf) {
+						MyDebug.LogFormat("network.ValidSession failed, will show login.");
 						showLogin = true;
 					}
-					else
+					else {
+						MyDebug.LogFormat("network.ValidSession failed goto Clean");
 						goto Clean;
+					}
+						
 				}
 				MyDebug.LogFormat("Run CommonEmptyScene->Game:{0}", conf.name);
 
 				//开启新的场景,这里不需要进度指示是因为这个已经下载好了
-				var sceneHandle = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>("Assets/Scenes/CommonEmptyScene.unity", null);
+				var sceneHandle = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>("Assets/Scenes/CommonEmptyScene.unity", ip);
 				yield return sceneHandle;
 				if (sceneHandle.Current.succeed) {
 					yield return sceneHandle.Current.ActiveScene();
@@ -70,19 +75,14 @@ namespace Hotfix.Common
 				else {
 					goto Clean;
 				}
-				
+
 				var entryClass = Type.GetType(conf.entryClass);
 				currentApp = (AppBase)Activator.CreateInstance(entryClass);
+				MyDebug.LogFormat("CurrentApp Starting.");
+				currentApp.progressOfLoading = ip;
 				currentApp.Start();
+				MyDebug.LogFormat("CurrentApp Started.");
 
-				if ((int)handleSess.Current != 1) {
-					MyDebug.LogFormat("network.ValidSession failed, will show login.");
-					showLogin = true;
-				}
-				else {
-					MyDebug.LogFormat("network.ValidSession succ.");
-				}
-				
 				network.lastState = SessionBase.EnState.Initiation;
 
 				if (showLogin)

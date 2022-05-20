@@ -12,7 +12,7 @@ namespace Hotfix.Common
 	class AShower : IShowDownloadProgress
 	{
 		public WeakReference<ViewLoading> wview_;
-		public void Desc(string desc)
+		public override void Desc(string desc)
 		{
 // 			ViewLoading loading;
 // 			if(wview_.TryGetTarget(out loading)) {
@@ -20,12 +20,12 @@ namespace Hotfix.Common
 // 			}
 		}
 
-		public void Progress(long downed, long totalLength)
+		public override void Progress(long downed, long totalLength)
 		{
 			
 		}
 
-		public void SetState(DownloadState st)
+		public override void SetState(DownloadState st)
 		{
 			
 		}
@@ -34,10 +34,11 @@ namespace Hotfix.Common
 	public class ViewLoading : ViewBase
 	{
 		AShower shower = new AShower();
-		public ViewLoading()
+
+		public ViewLoading(IShowDownloadProgress ip) : base(ip)
 		{
-			progress = new AShower();
-			((AShower)progress).wview_.SetTarget(this);
+			shower = new AShower();
+			shower.wview_.SetTarget(this);
 		}
 
 		protected override void SetLoader()
@@ -60,6 +61,5 @@ namespace Hotfix.Common
 			var LoadlingIcon = SmartLoadingUI.FindChildDeeply("LoadlingIcon");
 			LoadlingIcon.StartAnim();
 		}
-		
 	}
 }

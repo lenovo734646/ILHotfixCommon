@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hotfix.Common
 {
-	enum GameMultiReqID
+	public enum GameMultiReqID
 	{
 		msg_cancel_banker_req = 3,
 		msg_apply_banker_req = 4,
@@ -40,7 +40,7 @@ namespace Hotfix.Common
 
 	}
 
-	enum GameMultiRspID
+	public enum GameMultiRspID
 	{
 		msg_state_change = 10,
 		msg_rand_result = 11,
