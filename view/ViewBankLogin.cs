@@ -12,6 +12,10 @@ namespace Hotfix.Common
 {
 	public class ViewBankLogin : ViewBase
 	{
+		public ViewBankLogin(IShowDownloadProgress ip) : base(ip)
+		{
+
+		}
 		protected override void SetLoader()
 		{
 			LoadPrefab("Assets/AssetsFinal/hall/Popup_BankLoginPanel.prefab", AddToPopup);

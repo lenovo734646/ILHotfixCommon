@@ -24,7 +24,7 @@ namespace Hotfix.Common
 				resourceLoader_.Add(loader);
 			};
 
-			Globals.resLoader.LoadAsync(path, callbackWrapper, progress);
+			Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading);
 		}
 
 		public override void Stop()
@@ -52,6 +52,7 @@ namespace Hotfix.Common
 		}
 		public ViewBase(IShowDownloadProgress loadingProgress):base()
 		{
+			progressOfLoading = loadingProgress;
 		}
 
 		public static GameObject GetPopupLayer()
@@ -133,13 +134,13 @@ namespace Hotfix.Common
 		public IEnumerator LoadResources()
 		{
 			foreach (var it in resScenes_) {
-				var result = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(it.assetPath, progress);
+				var result = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(it.assetPath, progressOfLoading);
 				yield return result;
 				it.loader = result.Current;
 			}
 
 			foreach (var it in resNames_) {
-				var result = Globals.resLoader.LoadAsync<GameObject>(it.assetPath, progress);
+				var result = Globals.resLoader.LoadAsync<GameObject>(it.assetPath, progressOfLoading);
 				yield return result;
 				it.loader = result.Current;
 				resourceLoader_.Add(it.loader);
@@ -201,6 +202,10 @@ namespace Hotfix.Common
 
 	public abstract class ViewGameSceneBase : ViewBase
 	{
+		public ViewGameSceneBase(IShowDownloadProgress ip):base(ip)
+		{
+
+		}
 		public virtual void OnPlayerEnter(msg_player_seat msg)
 		{
 			if (AppController.ins.self.gamePlayer.uid == msg.uid_) {
@@ -213,6 +218,10 @@ namespace Hotfix.Common
 
 	public abstract class ViewMultiplayerScene: ViewGameSceneBase
 	{
+		public ViewMultiplayerScene(IShowDownloadProgress ip) : base(ip)
+		{
+
+		}
 		public abstract void OnNetMsg(int cmd, string json);
 		public abstract void OnStateChange(msg_state_change msg);
 		public abstract void OnPlayerSetBet(msg_player_setbet msg);

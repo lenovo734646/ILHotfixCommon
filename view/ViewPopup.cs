@@ -22,18 +22,17 @@ namespace Hotfix.Common
 		public static ViewPopup Create(	string content, int flag, Action okCallback,
 										float autoCloseTime = 0.0f, Action cancelCallback = null, string title = "")
 		{
-			ViewPopup popup = new ViewPopup();
+			ViewPopup popup = new ViewPopup(null);
 			popup.SetParams(content, flag, okCallback, cancelCallback);
 			if (title != "") popup.SetTitle(title);
 			popup.SetAutoClose(autoCloseTime);
 			popup.Start();
 			return popup;
 		}
-
-		public ViewPopup()
+		public ViewPopup(IShowDownloadProgress ip) : base(ip)
 		{
 			//不允许同时显示多
-			if(opening != null) {
+			if (opening != null) {
 				opening.cancelCallback_();
 				opening.Close();
 			}
@@ -149,7 +148,6 @@ namespace Hotfix.Common
 		{
 			if(opening != null) {
 				this.StartCor(DoClose(), true);
-
 			}
 			opening = null;
 		}

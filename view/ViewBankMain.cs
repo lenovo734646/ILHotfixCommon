@@ -20,6 +20,11 @@ namespace Hotfix.Common
 			LoadPrefab("Assets/AssetsFinal/hall/Popup_BankMainPanel.prefab", AddToPopup);
 		}
 
+		public ViewBankMain(IShowDownloadProgress ip) : base(ip)
+		{
+
+		}
+
 		protected override IEnumerator OnResourceReady()
 		{
 			yield return base.OnResourceReady();
