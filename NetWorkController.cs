@@ -666,10 +666,11 @@ namespace Hotfix.Common
 
 		IProtoMessage CreateMsgFromPb_(string subMsg, byte[] content)
 		{
-			switch (subMsg) {
-				
-			}
-			return null;
+            switch (subMsg)
+            {
+
+            }
+            return null;
 		}
 		private void HandlePing_()
 		{
