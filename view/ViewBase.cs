@@ -1,4 +1,5 @@
 ﻿using AssemblyCommon;
+using Hotfix.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace Hotfix.Common
 			public AddressablesLoader.LoadTask<T> loader;
 			public Action<T> callback;
 		}
-		public ViewBase(IShowDownloadProgress loadingProgress):base()
+		public ViewBase(IShowDownloadProgress loadingProgress)
 		{
 			progressOfLoading = loadingProgress;
 		}
@@ -133,17 +134,25 @@ namespace Hotfix.Common
 
 		public IEnumerator LoadResources()
 		{
+			int loaded = 0;
+			if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"(0/{resScenes_.Count + resNames_.Count})");
 			foreach (var it in resScenes_) {
+				loaded++;
 				var result = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(it.assetPath, progressOfLoading);
 				yield return result;
 				it.loader = result.Current;
+				if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"({loaded}/{resScenes_.Count + resNames_.Count})");
+				if (progressOfLoading != null) progressOfLoading.Progress(loaded, resScenes_.Count + resNames_.Count);
 			}
 
 			foreach (var it in resNames_) {
+				loaded++;
 				var result = Globals.resLoader.LoadAsync<GameObject>(it.assetPath, progressOfLoading);
 				yield return result;
 				it.loader = result.Current;
 				resourceLoader_.Add(it.loader);
+				if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"({loaded}/{resScenes_.Count + resNames_.Count})");
+				if (progressOfLoading != null) progressOfLoading.Progress(loaded, resScenes_.Count + resNames_.Count);
 			}
 		}
 
@@ -206,14 +215,30 @@ namespace Hotfix.Common
 		{
 
 		}
-		public virtual void OnPlayerEnter(msg_player_seat msg)
+		public virtual GamePlayer OnPlayerEnter(msg_player_seat msg)
 		{
 			if (AppController.ins.self.gamePlayer.uid == msg.uid_) {
 				AppController.ins.self.gamePlayer.serverPos = int.Parse(msg.pos_);
 				AppController.ins.self.gamePlayer.lv = int.Parse(msg.lv_);
+				return AppController.ins.self.gamePlayer;
+			}
+			else {
+				var game = AppController.ins.currentApp.game;
+				var pp = game.CreateGamePlayer();
+				pp.serverPos = int.Parse(msg.pos_);
+				pp.nickName = msg.uname_;
+				pp.headFrame = msg.headframe_id_;
+				pp.headIco = msg.head_ico_;
+				pp.lv = int.Parse(msg.lv_);
+				game.AddPlayer(pp);
+				return pp;
 			}
 		}
-		public abstract void OnPlayerLeave(msg_player_leave msg);
+		public virtual void OnPlayerLeave(msg_player_leave msg)
+		{
+			var game = AppController.ins.currentApp.game;
+			
+		}
 	}
 
 	public abstract class ViewMultiplayerScene: ViewGameSceneBase
@@ -222,7 +247,9 @@ namespace Hotfix.Common
 		{
 
 		}
+
 		public abstract void OnNetMsg(int cmd, string json);
+		public abstract void OnCommonReply(msg_common_reply msg);
 		public abstract void OnStateChange(msg_state_change msg);
 		public abstract void OnPlayerSetBet(msg_player_setbet msg);
 		public abstract void OnMyBet(msg_my_setbet msg);
@@ -234,5 +261,8 @@ namespace Hotfix.Common
 		public abstract void OnGameInfo(msg_game_info msg);
 		public abstract void OnGoldChange(msg_deposit_change2 msg);
 		public abstract void OnGoldChange(msg_currency_change msg);
+		public abstract void OnApplyBanker(msg_new_banker_applyed msg);
+		public abstract void OnCancelBanker(msg_apply_banker_canceled msg);
+		protected GameControllerBase.GameState st;
 	}
 }
