@@ -36,6 +36,7 @@ namespace Hotfix.Common
 			ShenLingWuHui92 = 14,
 			HuanleBY = 564,
 			BenChiBaoMa = 37,
+			FeiQingZhouSou = 63,
 		}
 
 		public const string HuanleBY = "HuanleBY";
@@ -170,6 +171,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
+				game.gameID = GameConfig.GameID.FeiQingZhouSou;
 				games.Add(game.name, game);
 			}
 
