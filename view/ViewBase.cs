@@ -59,6 +59,13 @@ namespace Hotfix.Common
 		public static GameObject GetPopupLayer()
 		{
 			var canv = GameObject.Find("Canvas");
+
+			if (canv == null)
+				canv = GameObject.Find("Canvas2D");
+
+			if (canv == null)
+				canv = GameObject.FindObjectOfType<Canvas>().gameObject;
+
 			var top = canv.FindChildDeeply("UITopLayer");
 			if(top == null) {
 				return canv;
@@ -71,6 +78,13 @@ namespace Hotfix.Common
 		public static void ClearAndAddToCanvas(GameObject obj)
 		{
 			var canv = GameObject.Find("Canvas");
+
+			if (canv == null)
+				canv = GameObject.Find("Canvas2D");
+
+			if (canv == null)
+				canv = GameObject.FindObjectOfType<Canvas>().gameObject;
+
 			if (canv != null) {
 				canv.RemoveAllChildren();
 				canv.AddChild(obj);
@@ -80,7 +94,14 @@ namespace Hotfix.Common
 		public static void AddToCanvas(GameObject obj)
 		{
 			var canv = GameObject.Find("Canvas");
-			if(canv != null) canv.AddChild(obj);
+
+			if (canv == null)
+				canv = GameObject.Find("Canvas2D");
+
+			if (canv == null)
+				canv = GameObject.FindObjectOfType<Canvas>().gameObject;
+
+			if (canv != null) canv.AddChild(obj);
 		}
 
 		public static void AddToPopup(GameObject obj)
@@ -134,26 +155,30 @@ namespace Hotfix.Common
 
 		public IEnumerator LoadResources()
 		{
-			int loaded = 0;
-			if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"(0/{resScenes_.Count + resNames_.Count})");
+			if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"(0/{Globals.resLoader.taskCount})");
 			foreach (var it in resScenes_) {
-				loaded++;
-				var result = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(it.assetPath, progressOfLoading);
-				yield return result;
-				it.loader = result.Current;
-				if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"({loaded}/{resScenes_.Count + resNames_.Count})");
-				if (progressOfLoading != null) progressOfLoading.Progress(loaded, resScenes_.Count + resNames_.Count);
+				var tsk = it;
+				Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(it.assetPath, t=> {
+					tsk.loader = t;
+					resourceLoader_.Add(tsk.loader);
+				}, progressOfLoading);
 			}
 
 			foreach (var it in resNames_) {
-				loaded++;
-				var result = Globals.resLoader.LoadAsync<GameObject>(it.assetPath, progressOfLoading);
-				yield return result;
-				it.loader = result.Current;
-				resourceLoader_.Add(it.loader);
-				if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"({loaded}/{resScenes_.Count + resNames_.Count})");
-				if (progressOfLoading != null) progressOfLoading.Progress(loaded, resScenes_.Count + resNames_.Count);
+				var tsk = it;
+				Globals.resLoader.LoadAsync<GameObject>(it.assetPath, t => {
+					tsk.loader = t;
+					resourceLoader_.Add(tsk.loader);
+				}, progressOfLoading);
 			}
+
+			while (!Globals.resLoader.IsFree()) {
+				if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"({Globals.resLoader.loaded}/{Globals.resLoader.taskCount})");
+				if (progressOfLoading != null) progressOfLoading.Progress(Globals.resLoader.loaded, Globals.resLoader.taskCount);
+				yield return 0;
+			}
+			if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"({Globals.resLoader.loaded}/{Globals.resLoader.taskCount})");
+			if (progressOfLoading != null) progressOfLoading.Progress(Globals.resLoader.loaded, Globals.resLoader.taskCount);
 		}
 
 		protected abstract void SetLoader();
@@ -247,21 +272,35 @@ namespace Hotfix.Common
 		{
 
 		}
-
+		//网络消息回调,这是原始的网络消息
 		public abstract void OnNetMsg(int cmd, string json);
+		//通用错误回复
 		public abstract void OnCommonReply(msg_common_reply msg);
+		//状态机变化
 		public abstract void OnStateChange(msg_state_change msg);
+		//其它玩家下注通知
 		public abstract void OnPlayerSetBet(msg_player_setbet msg);
+		//我的下注通知
 		public abstract void OnMyBet(msg_my_setbet msg);
+		//开奖结果
 		public abstract void OnRandomResult(msg_random_result_base msg);
+		//历史开奖记录
 		public abstract void OnLastRandomResult(msg_last_random_base msg);
+		//庄家货币变化
 		public abstract void OnBankDepositChanged(msg_banker_deposit_change msg);
+		//玩家上庄
 		public abstract void OnBankPromote(msg_banker_promote msg);
+		//每个玩家输赢结果通知
 		public abstract void OnGameReport(msg_game_report msg);
+		//游戏信息
 		public abstract void OnGameInfo(msg_game_info msg);
+		//玩家货币变币
 		public abstract void OnGoldChange(msg_deposit_change2 msg);
+		//玩家货币变币
 		public abstract void OnGoldChange(msg_currency_change msg);
+		//玩家申请上庄通知
 		public abstract void OnApplyBanker(msg_new_banker_applyed msg);
+		//玩家取消上庄通知
 		public abstract void OnCancelBanker(msg_apply_banker_canceled msg);
 		protected GameControllerBase.GameState st;
 	}

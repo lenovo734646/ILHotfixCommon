@@ -57,8 +57,22 @@ namespace Hotfix.Common
 			return dic[key];
 		}
 
-		public static void OnClick(this GameObject obj, UnityAction act )
+		//lockTime 多久不能重新点击
+		static Dictionary<GameObject, float> lastClicked = new Dictionary<GameObject, float>();
+		public static void OnClick(this GameObject obj, UnityAction act, float lockTime = 0.0f)
 		{
+			if(lockTime > 0) {
+				if (!lastClicked.ContainsKey(obj)) {
+					lastClicked.Add(obj, Time.time);
+				}
+				else {
+					if (Time.time - lastClicked[obj] < lockTime) {
+						return;
+					}
+					lastClicked[obj] = Time.time;
+				}
+			}
+
 			var btn = obj.GetComponent<Button>();
 			btn.onClick.AddListener(act);
 		}
