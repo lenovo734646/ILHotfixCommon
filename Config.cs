@@ -36,6 +36,8 @@ namespace Hotfix.Common
 			ShenLingWuHui92 = 14,
 			HuanleBY = 564,
 			BenChiBaoMa = 37,
+			FeiQingZhouSou = 64,
+			BaiJiaLe = 35,
 		}
 
 		public const string HuanleBY = "HuanleBY";
@@ -95,7 +97,7 @@ namespace Hotfix.Common
 			//hosts.Add("192.168.101.221", 16000);
 			//国内测试服
 			//hosts.Add("150.158.55.161", 16000);
-			hosts.Add("127.0.0.1", 8990);
+			hosts.Add("192.168.101.106", 8990);
 			//hosts.Add("47.100.172.186", 8990);
 			{
 				GameConfig game = new GameConfig();
@@ -147,6 +149,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
+				game.gameID = GameConfig.GameID.BaiJiaLe;
 				games.Add(game.name, game);
 			}
 
@@ -170,6 +173,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
+				game.gameID = GameConfig.GameID.FeiQingZhouSou;
 				games.Add(game.name, game);
 			}
 

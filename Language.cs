@@ -42,12 +42,20 @@ namespace Hotfix.Common
 		public const string PleaseEnterPassword = "请输入密码.";
 		public const string PasswordIncorrect = "账号或密码不正确.";
 		public const string PleaseEnterValue = "请输入数额.";
-		public const string NotEnough = "数额不足.";
+		public const string NotEnoughMoney = "货币余额不足.";
+		public const string NotEnoughBankMoney = "银行余额不足.";
 		public const string OperationSucc = "操作成功.";
 		public const string OperationFailed = "操作失败.";
 		public const string CantFindPlayer = "玩家不存在.";
 		public const string ConfirmFailed = "密码不一致.";
 		public const string PleaseWait = "操作太频繁,请稍后再试.";
 		public const string LoadingResource = "正在加载资源.";
+	}
+
+	public static class LangMultiplayer
+	{
+		public const string WaitingForBet = "下注中";
+		public const string RandomResult = "开奖中";
+		public const string BalanceResult = "结算中";
 	}
 }

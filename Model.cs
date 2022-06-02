@@ -41,20 +41,24 @@ namespace Hotfix.Model
 		//…Ë÷√Õ∑œÒ
 		public void SetHeadPic(Image img)
 		{
-			if (headIco == null) return;
+			if (headIco == null) headIco = "1";
 			int ico = int.Parse(headIco);
 			if (ico < 1) ico = 1;
 			if (ico > 10) ico = 10;
-			img.ChangeSprite(AppController.ins.headIcons[ico]);
+
+			var texture = AppController.ins.headIcons[ico];
+			img.ChangeSprite(texture);
 		}
 
 		public void SetHeadFrame(Image img)
 		{
-			if (headFrame == null) return;
+			if (headFrame == null) headFrame = "1";
 			int ico = int.Parse(headFrame);
 			if (ico < 1) ico = 1;
-			if (ico > 10) ico = 10;
-			img.ChangeSprite(AppController.ins.headFrames[ico]);
+			if (ico > 8) ico = 8;
+
+			var texture = AppController.ins.headFrames[ico];
+			img.ChangeSprite(texture);
 		}
 	}
 

@@ -127,7 +127,7 @@ namespace Hotfix.Common
 								ViewToast.Create(LangUITip.PasswordIncorrect);
 							}
 							else if (rpl.err_ == 3) {
-								ViewToast.Create(LangUITip.NotEnough);
+								ViewToast.Create(LangUITip.NotEnoughBankMoney);
 							}
 						}, 3.0f);
 
@@ -180,7 +180,7 @@ namespace Hotfix.Common
 								ViewToast.Create(LangUITip.PasswordIncorrect);
 							}
 							else if (rpl.err_ == 3) {
-								ViewToast.Create(LangUITip.NotEnough);
+								ViewToast.Create(LangUITip.NotEnoughMoney);
 							}
 						}, 3.0f);
 
@@ -236,7 +236,7 @@ namespace Hotfix.Common
 								ViewToast.Create(LangUITip.CantFindPlayer);
 							}
 							else if(rpl.err_ == 3) {
-								ViewToast.Create(LangUITip.NotEnough);
+								ViewToast.Create(LangUITip.NotEnoughBankMoney);
 							}
 						}, 3.0f);
 

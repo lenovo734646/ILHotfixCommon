@@ -115,9 +115,9 @@ namespace Hotfix.Common
 			}
 		}
 
-		public void CheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
+		public IEnumerator CheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
-			runQueue.StartCor(DoCheckUpdateAndRun(conf, ip, showLogin), true);
+			yield return DoCheckUpdateAndRun(conf, ip, showLogin);
 		}
 
 		public override void Start()
@@ -130,7 +130,7 @@ namespace Hotfix.Common
 
 			network.AddMsgHandler(OnNetMsg);
 
-			DoStart_();
+			runQueue.StartCor(DoStart_(), true);
 		}
 
 		public void OnNetMsg(object sender, NetEventArgs e)
@@ -142,7 +142,7 @@ namespace Hotfix.Common
 			}
 		}
 
-		void CachedResources_()
+		IEnumerator CachedResources_()
 		{
 			for(int i = 1; i <= 10; i++) {
 				int index = i;
@@ -157,17 +157,18 @@ namespace Hotfix.Common
 					headFrames.Add(index, task.Result);
 				});
 			}
+			yield return Globals.resLoader.WaitForAllTaskCompletion();
 		}
 
-		void DoStart_()
+		IEnumerator DoStart_()
 		{
 			conf.Start();
 			if (defaultGameFromHost != "") conf.defaultGameName = defaultGameFromHost;
 			if (conf.defaultGame == null) {
 				throw new Exception($"default game is not exist.{conf.defaultGameName}");
 			}
-			CachedResources_();
-			CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
+			yield return CachedResources_();
+			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
 		public override  void Update()
