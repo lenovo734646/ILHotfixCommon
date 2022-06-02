@@ -150,6 +150,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
 				game.gameID = GameConfig.GameID.BaiJiaLe;
+				game.enabled = true;
 				games.Add(game.name, game);
 			}
 
@@ -162,6 +163,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
 				game.gameID = GameConfig.GameID.BenChiBaoMa;
+				game.enabled = true;
 				games.Add(game.name, game);
 			}
 
@@ -174,6 +176,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
 				game.gameID = GameConfig.GameID.FeiQingZhouSou;
+				game.enabled = true;
 				games.Add(game.name, game);
 			}
 
@@ -210,6 +213,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
+				game.enabled = true;
 				games.Add(game.name, game);
 			}
 
