@@ -30,13 +30,30 @@ namespace Hotfix.Common
 
 		public override void Stop()
 		{
-			foreach (var tsk in resourceLoader_) {
-				tsk.Release();
+			string path = "";
+			try {
+				foreach (var tsk in resourceLoader_) {
+					path = tsk.path;
+					tsk.Release();
+				}
+			}
+			catch(Exception ex) {
+				MyDebug.LogErrorFormat("Release Addressable Task Error:{0}", path);
 			}
 
 			resourceLoader_.Clear();
 		}
 
+		public override bool IsReady()
+		{
+			if (!base.IsReady()) return false;
+			foreach(var tsk in resourceLoader_) {
+				if(tsk.status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.None) {
+					return false;
+				}
+			}
+			return true;
+		}
 		//资源加载器,在半闭本窗口的时候,需要释放资源引用.
 		protected List<AddressablesLoader.LoadTaskBase> resourceLoader_ = new List<AddressablesLoader.LoadTaskBase>();
 	}
@@ -56,15 +73,25 @@ namespace Hotfix.Common
 			progressOfLoading = loadingProgress;
 		}
 
-		public static GameObject GetPopupLayer()
+		public static GameObject GetCanvas()
 		{
 			var canv = GameObject.Find("Canvas");
 
 			if (canv == null)
 				canv = GameObject.Find("Canvas2D");
 
-			if (canv == null)
-				canv = GameObject.FindObjectOfType<Canvas>().gameObject;
+			if (canv == null) {
+				var can = GameObject.FindObjectOfType<Canvas>();
+				if(can != null)
+					canv = can.gameObject;
+			}
+			return canv;
+		}
+
+		public static GameObject GetPopupLayer()
+		{
+			var canv = GetCanvas();
+			if (canv == null) return canv;
 
 			var top = canv.FindChildDeeply("UITopLayer");
 			if(top == null) {
@@ -77,13 +104,7 @@ namespace Hotfix.Common
 
 		public static void ClearAndAddToCanvas(GameObject obj)
 		{
-			var canv = GameObject.Find("Canvas");
-
-			if (canv == null)
-				canv = GameObject.Find("Canvas2D");
-
-			if (canv == null)
-				canv = GameObject.FindObjectOfType<Canvas>().gameObject;
+			var canv = GetCanvas();
 
 			if (canv != null) {
 				canv.RemoveAllChildren();
@@ -93,14 +114,7 @@ namespace Hotfix.Common
 
 		public static void AddToCanvas(GameObject obj)
 		{
-			var canv = GameObject.Find("Canvas");
-
-			if (canv == null)
-				canv = GameObject.Find("Canvas2D");
-
-			if (canv == null)
-				canv = GameObject.FindObjectOfType<Canvas>().gameObject;
-
+			var canv = GetCanvas();
 			if (canv != null) canv.AddChild(obj);
 		}
 
@@ -123,6 +137,7 @@ namespace Hotfix.Common
 
 		public override bool IsReady()
 		{
+			if (!base.IsReady()) return false;
 			return finished_;
 		}
 
@@ -146,7 +161,7 @@ namespace Hotfix.Common
 			objs.Clear();
 
 			resNames_.Clear();
-			resScenes_.Clear();
+			resScenes_ = null;
 
 			//停止本窗口所有协程
 			this.StopCor(-1);
@@ -155,30 +170,44 @@ namespace Hotfix.Common
 
 		public IEnumerator LoadResources()
 		{
-			if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"(0/{Globals.resLoader.taskCount})");
-			foreach (var it in resScenes_) {
-				var tsk = it;
-				Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(it.assetPath, t=> {
-					tsk.loader = t;
-					resourceLoader_.Add(tsk.loader);
-				}, progressOfLoading);
-			}
+			int willLoad = (resScenes_ == null? 0: 1) + resNames_.Count;
+			int loaded = 0;
+			progressOfLoading?.Desc(LangUITip.LoadingResource + $"(0/{willLoad})");
 
 			foreach (var it in resNames_) {
 				var tsk = it;
 				Globals.resLoader.LoadAsync<GameObject>(it.assetPath, t => {
 					tsk.loader = t;
 					resourceLoader_.Add(tsk.loader);
+					loaded++;
 				}, progressOfLoading);
 			}
 
-			while (!Globals.resLoader.IsFree()) {
-				if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"({Globals.resLoader.loaded}/{Globals.resLoader.taskCount})");
-				if (progressOfLoading != null) progressOfLoading.Progress(Globals.resLoader.loaded, Globals.resLoader.taskCount);
+			while (loaded < resNames_.Count) {
+				progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{willLoad})");
+				progressOfLoading?.Progress(loaded, willLoad);
 				yield return 0;
 			}
-			if (progressOfLoading != null) progressOfLoading.Desc(LangUITip.LoadingResource + $"({Globals.resLoader.loaded}/{Globals.resLoader.taskCount})");
-			if (progressOfLoading != null) progressOfLoading.Progress(Globals.resLoader.loaded, Globals.resLoader.taskCount);
+
+			progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{willLoad})");
+			progressOfLoading?.Progress(loaded, willLoad);
+
+			yield return 0;
+
+			if(resScenes_ != null) {
+				resScenes_.loader = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(resScenes_.assetPath, t => {
+					loaded++;
+				}, progressOfLoading);
+
+
+				while (!resScenes_.loader.SceneHandle.IsDone) {
+					progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{willLoad})");
+					progressOfLoading?.Progress((int)resScenes_.loader.SceneHandle.PercentComplete * 100, 100);
+					yield return 0;
+				}
+				resScenes_ = null;
+				yield return 0;
+			}
 		}
 
 		protected abstract void SetLoader();
@@ -186,12 +215,7 @@ namespace Hotfix.Common
 		protected virtual IEnumerator OnResourceReady() 
 		{
 			MyDebug.Log("ViewBase.OnResourceReady()");
-			foreach (var it in resScenes_) {
-				yield return it.loader.ActiveScene();
-			}
-
-			resScenes_.Clear();
-
+			
 			foreach (var it in resNames_) {
 				var obj = it.loader.Instantiate();
 				if(it.callback != null) it.callback(obj);
@@ -215,7 +239,7 @@ namespace Hotfix.Common
 			ViewLoadTask<AddressablesLoader.DownloadScene> task = new ViewLoadTask<AddressablesLoader.DownloadScene>();
 			task.assetPath = path;
 			task.callback = cb;
-			resScenes_.Add(task);
+			resScenes_ = task;
 		}
 
 		protected IEnumerator DoStart_()
@@ -229,7 +253,7 @@ namespace Hotfix.Common
 		}
 
 		List<ViewLoadTask<GameObject>> resNames_ = new List<ViewLoadTask<GameObject>>();
-		List<ViewLoadTask<AddressablesLoader.DownloadScene>> resScenes_ = new List<ViewLoadTask<AddressablesLoader.DownloadScene>>();
+		ViewLoadTask<AddressablesLoader.DownloadScene> resScenes_;
 		List<GameObject> objs = new List<GameObject>();
 		bool finished_ = false;
 	}

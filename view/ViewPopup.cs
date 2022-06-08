@@ -87,7 +87,7 @@ namespace Hotfix.Common
 		{
 			yield return base.OnResourceReady();
 
-			canvas_ = GameObject.Find("Canvas");
+			canvas_ = GameObject.Find("MessageBoxUI_CN");
 			var btnOK = canvas_.FindChildDeeply("btnOK");
 			var btnOnlyOK = canvas_.FindChildDeeply("btnOnlyOK");
 			var btnRelease = canvas_.FindChildDeeply("btnRelease");
@@ -131,13 +131,13 @@ namespace Hotfix.Common
 				this.StartCor(DoAutoClose(), false);
 			}
 
-			var animNode = canvas_.FindChildDeeply("MessageBoxUI_CN").FindChildDeeply("animNode");
+			var animNode = canvas_.FindChildDeeply("animNode");
 			animNode.StartDoTweenAnim();
 		}
 
 		IEnumerator DoClose()
 		{
-			var animNode = canvas_.FindChildDeeply("MessageBoxUI_CN").FindChildDeeply("animNode");
+			var animNode = canvas_.FindChildDeeply("animNode");
 			animNode.StartDoTweenAnim(true);
 			yield return new WaitForSeconds(0.2f);
 

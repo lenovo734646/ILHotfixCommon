@@ -163,8 +163,8 @@ namespace Hotfix.Common
 
 	public class msg_cards : msg_room_msg
 	{
-		public int step_;
-		public int pos_;               //位置
+		public string step_;
+		public string pos_;               //位置
 		public string cards_;    //0-12，方块A-K,13-25, 梅花A-K, 26-38,红桃A-K, 39-51,黑桃A-K, 52 小王,53大王
 	}
 

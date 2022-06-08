@@ -72,6 +72,7 @@ namespace Hotfix.Common
 		public override void Start()
 		{
 			UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
+			MyDebug.Log("GameControllerBase AddMsgHandler(OnNetMsg)");
 			AppController.ins.network.AddMsgHandler(OnNetMsg);
 			base.Start();
 		}
@@ -91,7 +92,7 @@ namespace Hotfix.Common
 			foreach (var view in cpl) {
 				view.Close();
 			}
-
+			MyDebug.Log("GameControllerBase RemoveMsgHandler(OnNetMsg)");
 			AppController.ins.network.RemoveMsgHandler(OnNetMsg);
 		}
 		

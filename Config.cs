@@ -78,7 +78,7 @@ namespace Hotfix.Common
 		public Module module = Module.FLLU3d;
 		public int tag;
 		public bool enabled = false, show = true;
-		public string contentCatalog = "", dllName = "", pdbName = "", suffix = "";
+		public string contentCatalog = "{0}/Games/{1}/{2}/catalog_{1}.json";
 		public GameID gameID = GameID.Lobby;
 		public string GetCatalogAddress(string host, string platform)
 		{
@@ -107,10 +107,6 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.YuanSan;
 				game.tag = (int)GameConfig.Tag.Fishing;
-				game.contentCatalog = "{0}/Games/{1}/{2}/catalog_{1}.json";
-				game.dllName = "Assets/Res/Games/HuanleBY/HotFixDll.json";
-				game.pdbName = "Assets/Res/Games/HuanleBY/HotFixDll_pdb.json";
-				game.suffix = GameConfig.HuanleBY;
 				game.gameID = GameConfig.GameID.HuanleBY;
 				game.enabled = true;
 				games.Add(game.name, game);
@@ -124,8 +120,6 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.contentCatalog = "{0}/{1}/{2}/catalog_{1}.json";
-				game.dllName = "Assets/Res/HotFixDll.json";
-				game.pdbName = "Assets/Res/HotFixDll_pdb.json";
 				games.Add(game.name, game);
 				game.gameID = GameConfig.GameID.Lobby;
 			}
@@ -213,6 +207,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
+
 				game.enabled = true;
 				games.Add(game.name, game);
 			}
