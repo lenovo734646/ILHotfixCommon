@@ -31,6 +31,8 @@ namespace Hotfix.Common
 		public const string ConnectionCloseByRemote = "网络连接被远端关闭.";
 		public const string Closed = "网络重置.";
 		public const string GameStartFailed = "因为网络问题,启动游戏失败.请更换网络环境再试.";
+		public const string DownloadCatalog = "正在下载版本...";
+		public const string DownloadGame = "正在下载游戏...";
 	}
 
 	public static class LangUITip
@@ -53,6 +55,7 @@ namespace Hotfix.Common
 		public const string LoadingResource = "正在加载资源.";
 		public const string ConfirmLeave = "确定要离开游戏吗?";
 		public const string DownloadSucc = "下载成功.";
+		public const string ConfirmDelete = "是否需要删除游戏 {0}?";
 	}
 
 	public static class LangMultiplayer

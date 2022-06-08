@@ -31,21 +31,19 @@ namespace Hotfix.Common
 			bool succ = false;
 			if (conf.contentCatalog.Length > 0) {
 				var address = conf.GetCatalogAddress(AddressablesLoader.usingUpdateUrl, Globals.resLoader.GetPlatformString());
-				MyDebug.LogFormat("Get CatalogAddress:{0}, AddressablesLoader.usingUpdateUrl:{1}", address, AddressablesLoader.usingUpdateUrl);
-
 				//下载过的catalog不用再下了
-				if (!cachedCatalog.Contains(address)) {
-					var handleCatalog = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
-					yield return handleCatalog;
-					if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
-					cachedCatalog.Add(address);
 
-					var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
-					yield return handleDep;
+				var handleCatalog = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
+				yield return handleCatalog;
+				if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
 
-					if (handleDep.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
-					MyDebug.LogFormat("DownloadDependency:{0}", address);
-				}
+				var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
+				yield return handleDep;
+
+				if (handleDep.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
+				MyDebug.LogFormat("DownloadDependency:{0}", address);
+
+
 				succ = true;
 			}
 			else {
@@ -132,7 +130,11 @@ namespace Hotfix.Common
 
 		public IEnumerator CheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
-			yield return DoCheckUpdateAndRun(conf, ip, showLogin);
+			if (!runningGame_) {
+				runningGame_ = true;
+				yield return DoCheckUpdateAndRun(conf, ip, showLogin);
+				runningGame_ = false;
+			}
 		}
 
 		public override void Start()
@@ -182,8 +184,14 @@ namespace Hotfix.Common
 			if (conf.defaultGame == null) {
 				throw new Exception($"default game is not exist.{conf.defaultGameName}");
 			}
+			progressFromHost.Desc(".");
+			progressOfLoading = progressFromHost;
+			progressOfLoading.Reset();
+
 			yield return CachedResources_();
+			progressFromHost.Desc("..");
 			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
+			progressFromHost.Desc("...");
 		}
 
 		public override  void Update()
@@ -217,5 +225,6 @@ namespace Hotfix.Common
 		public Dictionary<int, Texture2D> headFrames = new Dictionary<int, Texture2D>();
 		List<string> cachedCatalog = new List<string>();
 		GameRunQueue runQueue = new GameRunQueue();
+		bool runningGame_ = false;
 	}
 }

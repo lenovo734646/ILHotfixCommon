@@ -19,7 +19,7 @@ namespace Hotfix.Common
 			BTN_OK_ONLY = 2,
 		}
 
-		public static ViewPopup Create(	string content, int flag, Action okCallback,
+		public static ViewPopup Create(	string content, Flag flag, Action okCallback,
 										float autoCloseTime = 0.0f, Action cancelCallback = null, string title = "")
 		{
 			ViewPopup popup = new ViewPopup(null);
@@ -41,10 +41,10 @@ namespace Hotfix.Common
 		}
 
 		//Content, flag, okCallback, cancelCallback, title
-		public void SetParams(string content, int flag, Action ok, Action cancel)
+		public void SetParams(string content, Flag flag, Action ok, Action cancel)
 		{
 			content_ = content;
-			flag_ = (Flag)flag;
+			flag_ = flag;
 			okCallback_ = ok;
 			cancelCallback_ = cancel;
 		}

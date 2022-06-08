@@ -80,6 +80,7 @@ namespace Hotfix.Common
 		public bool enabled = false, show = true;
 		public string contentCatalog = "{0}/Games/{1}/{2}/catalog_{1}.json";
 		public GameID gameID = GameID.Lobby;
+		public bool isRunning = false;
 		public string GetCatalogAddress(string host, string platform)
 		{
 			return string.Format(contentCatalog, host, folder, platform);

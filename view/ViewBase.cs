@@ -22,10 +22,8 @@ namespace Hotfix.Common
 		{
 			Action<AddressablesLoader.LoadTask<T>> callbackWrapper = (AddressablesLoader.LoadTask<T> loader) => {
 				callback(loader);
-				resourceLoader_.Add(loader);
 			};
-
-			Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading);
+			resourceLoader_.Add(Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading)); 
 		}
 
 		public override void Stop()
@@ -170,29 +168,36 @@ namespace Hotfix.Common
 
 		public IEnumerator LoadResources()
 		{
-			int willLoad = (resScenes_ == null? 0: 1) + resNames_.Count;
-			int loaded = 0;
-			progressOfLoading?.Desc(LangUITip.LoadingResource + $"(0/{willLoad})");
-
 			foreach (var it in resNames_) {
 				var tsk = it;
-				Globals.resLoader.LoadAsync<GameObject>(it.assetPath, t => {
+				resourceLoader_.Add(Globals.resLoader.LoadAsync<GameObject>(it.assetPath, t => {
 					tsk.loader = t;
-					resourceLoader_.Add(tsk.loader);
-					loaded++;
-				}, progressOfLoading);
+				}, progressOfLoading));
 			}
 
-			while (loaded < resNames_.Count) {
-				progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{willLoad})");
-				progressOfLoading?.Progress(loaded, willLoad);
-				yield return 0;
+			Func<List<AddressablesLoader.LoadTaskBase>, int> counterFinished = (lst) => {
+				int ret = 0;
+				foreach(var tsk in lst) {
+					if(tsk.status != UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.None) {
+						ret++;
+					}
+				}
+				return ret;
+			};
+
+			progressOfLoading?.Desc(LangUITip.LoadingResource + $"(0/{resourceLoader_.Count})");
+			int loaded = 0;
+			while (loaded < resourceLoader_.Count) {
+				progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{resourceLoader_.Count})");
+				progressOfLoading?.Progress(loaded, resourceLoader_.Count);
+				yield return new WaitForSeconds(0.05f);
+				loaded = counterFinished(resourceLoader_);
 			}
 
-			progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{willLoad})");
-			progressOfLoading?.Progress(loaded, willLoad);
+			progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{resourceLoader_.Count})");
+			progressOfLoading?.Progress(loaded, resourceLoader_.Count);
 
-			yield return 0;
+			yield return new WaitForSeconds(0.1f);
 
 			if(resScenes_ != null) {
 				resScenes_.loader = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(resScenes_.assetPath, t => {
@@ -201,7 +206,7 @@ namespace Hotfix.Common
 
 
 				while (!resScenes_.loader.SceneHandle.IsDone) {
-					progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{willLoad})");
+					progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{resourceLoader_.Count})");
 					progressOfLoading?.Progress((int)resScenes_.loader.SceneHandle.PercentComplete * 100, 100);
 					yield return 0;
 				}
