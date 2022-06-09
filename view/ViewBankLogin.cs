@@ -24,7 +24,7 @@ namespace Hotfix.Common
 		protected override IEnumerator OnResourceReady()
 		{
 			yield return base.OnResourceReady();
-			var layer = GetPopupLayer();
+			var layer = GameObject.Find("Popup_BankLoginPanel");
 			var animNode = layer.FindChildDeeply("animNode");
 			animNode.StartDoTweenAnim();
 
@@ -47,7 +47,7 @@ namespace Hotfix.Common
 
 		protected void OnBtnOK()
 		{
-			var layer = GetPopupLayer();
+			var layer = GameObject.Find("Popup_BankLoginPanel");
 			var psw = layer.FindChildDeeply("InputField").GetComponent<InputField>();
 			if(psw.text == "") {
 				ViewToast.Create(LangUITip.PleaseEnterPassword);

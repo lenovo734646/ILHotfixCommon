@@ -12,7 +12,7 @@ namespace Hotfix.Common
 		msg_apply_banker_req = 4,
 		msg_set_bets_req = 5,
 		msg_get_player_count = 6,
-		msg_get_lottery_record =  7,
+		msg_get_lottery_record = 7,
 		msg_get_banker_ranking = 8,
 		msg_clear_my_bets = 9,
 	}
@@ -27,7 +27,7 @@ namespace Hotfix.Common
 
 	public class msg_clear_my_bets : msg_from_client
 	{
-		
+
 	}
 
 	public class msg_apply_banker_req : msg_from_client
@@ -87,7 +87,6 @@ namespace Hotfix.Common
 		public string actual_win_;        //实际赢多少	8字节
 		public string should_win_;        //理论上赢多少，由于庄家爆庄，可能会少赔 8字节
 		public string banker_win;         //庄家赢了多少
-
 	}
 
 	public class msg_banker_deposit_change : msg_currency_change
@@ -97,7 +96,20 @@ namespace Hotfix.Common
 		public string this_win_;
 	}
 
-	//状态机变化
+	//新增主公列表玩家
+	public class msg_new_banker_applyed : msg_player_seat
+	{
+
+	};
+
+	//删除主公列表玩家
+	public class msg_apply_banker_canceled : msg_room_msg
+	{
+		public string uid_;
+	}
+
+
+//状态机变化
 	public class msg_state_change : msg_room_msg
 	{
 		public string change_to_;         //0开始下注, 1,开始转转,2,休息时间
@@ -132,7 +144,7 @@ namespace Hotfix.Common
 
 	public class msg_random_result_base : msg_room_msg
 	{
-
+		public string turn_;
 	}
 
 	public class msg_last_random_base : msg_room_msg
@@ -142,7 +154,6 @@ namespace Hotfix.Common
 
 	public class msg_random_result_slwh : msg_random_result_base
 	{
-		public string turn_;
 		public string animal_pid_;
 		public string bigsmall_;
 		public string color_;

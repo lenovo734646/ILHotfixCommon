@@ -682,6 +682,15 @@ namespace Hotfix.Common
 			lastPing_ = Time.time;
 		}
 
+		private void DispatchThisMsg_(MySocket sock, MsgJsonForm msg, msg_base msgRsp)
+		{
+			NetEventArgs evt = new NetEventArgs();
+			evt.fromServer = msg.toserver;
+			evt.cmd = msg.subCmd;
+			evt.msg = msgRsp;
+			DispatchNetMsgEvent_(sock, evt);
+		}
+
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
@@ -693,9 +702,7 @@ namespace Hotfix.Common
 					case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
 						MsgJsonForm msg = new MsgJsonForm();
 						msg.Read(stm);
-						if (msg.subCmd != -1 && msg.toserver == 2) {
-							MyDebug.LogFormat("Json message Recieved:{0},fromserver:{2},{1}", order, msg.content, msg.toserver);
-						}
+
 						var msgRsp = CreateMsgFromJson_(msg.subCmd, msg.content);
 						if (msgRsp != null) {
 							if (rpcHandler2.ContainsKey(msg.subCmd)) {
@@ -719,16 +726,15 @@ namespace Hotfix.Common
 										//如果是通用回复
 										rpcHandler2[int.Parse(commRpl.rp_cmd_)].callback(rsp);
 									}
+									else {
+										DispatchThisMsg_(sock, msg, msgRsp);
+									}
 								}
 								else if(msg.subCmd == unchecked((short)(INT_MSGID.INTERNAL_MSGID_PING))) {
 									HandlePing_();
 								}
 								else {
-									NetEventArgs evt = new NetEventArgs();
-									evt.fromServer = msg.toserver;
-									evt.cmd = msg.subCmd;
-									evt.msg = msgRsp;
-									DispatchNetMsgEvent_(sock, evt);
+									DispatchThisMsg_(sock, msg, msgRsp);
 								}
 							}
 						}
@@ -769,34 +775,6 @@ namespace Hotfix.Common
 
 					}
 					break;
-				}
-			}
-			else if (sock.useProtocolParser == ProtocolParser.FLLU3dProtocol) {
-				//跳过这个无效包
-				if (stm.DataLeft() == 5 && stm.buffer()[4] == 0x40) return;
-
-				//回复一个垃圾数据
-				byte[] data = new byte[5];
-				BinaryStream stmAck = new BinaryStream(data, data.Length);
-				stmAck.WriteInt(5);
-				stmAck.WriteByte(1 << 6);
-				Globals.net.SendMessage(stmAck, true);
-
-				MsgPbFormStringHeader msg = new MsgPbFormStringHeader();
-				msg.Read(stm);
-
-				NetEventArgs evt = new NetEventArgs();
-				evt.strCmd = msg.protoName;
-				evt.payload = msg.content;
-				var proto = ProtoMessageCreator.CreateMessage(evt.strCmd, evt.payload);
-				if (proto != null) {
-					if (rpcHandler.ContainsKey(proto.GetType())) {
-						var handler = rpcHandler[proto.GetType()].callback;
-						handler(proto);
-					}
-					else {
-						DispatchNetMsgEvent_(sock, evt);
-					}
 				}
 			}
 			else {

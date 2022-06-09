@@ -62,6 +62,7 @@ namespace Hotfix.Common
 		{
 			yield return 0;
 		}
+
 		public virtual IEnumerator OnGameRoomSucc()
 		{
 			isEntering = false;
@@ -99,7 +100,42 @@ namespace Hotfix.Common
 			return new GamePlayer();
 		}
 
+		public void AddPlayer(GamePlayer p)
+		{
+			if (players.ContainsKey(p.serverPos)) {
+				players.Remove(p.serverPos);
+			}
+			players.Add(p.serverPos, p);
+			p.DispatchDataChanged();
+		}
+
+		public GamePlayer GetPlayer(int serverPos)
+		{
+			foreach(var pp in players) {
+				if(pp.Value.serverPos == serverPos) {
+					return pp.Value;
+				}
+			}
+			return null;
+		}
+
+		public GamePlayer GetPlayer(string uid)
+		{
+			foreach (var pp in players) {
+				if (pp.Value.uid == uid) {
+					return pp.Value;
+				}
+			}
+			return null;
+		}
+
+		public void RemovePlayer(int serverPos)
+		{
+			players.Remove(serverPos);
+		}
+
 		List<ViewBase> views_ = new List<ViewBase>();
+		Dictionary<int, GamePlayer> players = new Dictionary<int,GamePlayer>();
 		bool prepared_ = true;
 	}
 
@@ -117,6 +153,12 @@ namespace Hotfix.Common
 			if (mainView == null) return;
 
 			switch (evt.cmd) {
+				case (int)CommID.msg_common_reply: {
+					msg_common_reply msg = (msg_common_reply)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_common_reply>(json);
+					mainView.OnCommonReply(msg);
+				}
+				break;
 				case (int)GameRspID.msg_player_seat: {
 					msg_player_seat msg = (msg_player_seat)evt.msg;
 					if(msg == null) msg = JsonMapper.ToObject<msg_player_seat>(json);
@@ -205,6 +247,18 @@ namespace Hotfix.Common
 					msg_currency_change msg = (msg_currency_change)evt.msg;
 					if (msg == null) msg = JsonMapper.ToObject<msg_currency_change>(json);
 					mainView.OnGoldChange(msg);
+				}
+				break;
+				case (int)GameMultiRspID.msg_new_banker_applyed: {
+					msg_new_banker_applyed msg = (msg_new_banker_applyed)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_new_banker_applyed>(json);
+					mainView.OnApplyBanker(msg);
+				}
+				break;
+				case (int)GameMultiRspID.msg_apply_banker_canceled: {
+					msg_apply_banker_canceled msg = (msg_apply_banker_canceled)evt.msg;
+					if (msg == null) msg = JsonMapper.ToObject<msg_apply_banker_canceled>(json);
+					mainView.OnCancelBanker(msg);
 				}
 				break;
 				default: {

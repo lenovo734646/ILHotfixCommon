@@ -27,6 +27,7 @@ namespace Hotfix.Common
 			toast.Start();
 			return toast;
 		}
+
 		public ViewToast(IShowDownloadProgress ip) : base(ip)
 		{
 			if (opening != null) {
@@ -57,13 +58,15 @@ namespace Hotfix.Common
 			yield return base.OnResourceReady();
 
 			var canv = GameObject.Find("Canvas");
-			var txt = canv.FindChildDeeply("Text_tips").GetComponent<Text>();
-			txt.text = text_;
+			if(canv != null) {
+				var txt = canv.FindChildDeeply("Text_tips").GetComponent<Text>();
+				txt.text = text_;
 
-			if (autoCloseTime_ > 0.01f) {
-				Globals.cor.RunAction(this, autoCloseTime_, () => {
-					Close();
-				});
+				if (autoCloseTime_ > 0.01f) {
+					Globals.cor.RunAction(this, autoCloseTime_, () => {
+						Close();
+					});
+				}
 			}
 		}
 
