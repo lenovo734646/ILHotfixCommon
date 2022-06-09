@@ -11,6 +11,7 @@ namespace Hotfix.Common
 		msg_user_login_ret = 1000,
 		msg_player_info = 1002,
 		msg_channel_server = 1009,
+		msg_same_account_login = 1005,
 	}
 
 	public enum CorRspID
@@ -184,5 +185,10 @@ namespace Hotfix.Common
 		public string why_;
 		public string pos_;
 		public string display_type_;      //0，不需要飘字 1,要飘字, 2 保证金变化
+	}
+
+	public class msg_same_account_login : msg_base
+	{
+
 	}
 }

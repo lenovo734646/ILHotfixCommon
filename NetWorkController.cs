@@ -101,7 +101,6 @@ namespace Hotfix.Common
 			msg.content = json;
 			msg.toserver = toserver;
 			msg.Write(sendStream_);
-			MyDebug.LogWarningFormat("Json Message Send:{0},{1}", subCmd, json);
 			if (!Globals.net.SendMessage(sendStream_)) {
 				MyDebug.LogWarningFormat("Json Message Send failed:{0},{1}", subCmd, json);
 			}
@@ -286,6 +285,8 @@ namespace Hotfix.Common
 			if (session == null || !session.IsWorking()) {
 				lastPingSend_ = 0;
 				if (session != null) session.Stop();
+				
+				isReconnecting_ = false;
 
 				session = new KoKoSession();
 				session.progressOfLoading = progressOfLoading;
@@ -545,7 +546,7 @@ namespace Hotfix.Common
 				}
 			}
 
-			if (checkSeesionTc_.Elapse() > 5.0f && AppController.ins.network.session != null) {
+			if (checkSeesionTc_.Elapse() > 5.0f && AppController.ins.network.session != null ) {
 				checkSeesionTc_.Restart();
 				if (!AppController.ins.disableNetwork &&
 					!AppController.ins.network.session.IsWorking() && 
@@ -635,6 +636,9 @@ namespace Hotfix.Common
 				}
 				case (short)AccRspID.msg_user_login_ret: {
 					return JsonMapper.ToObject<msg_user_login_ret>(content);
+				}
+				case (short)AccRspID.msg_same_account_login: {
+					return JsonMapper.ToObject<msg_same_account_login>(content);
 				}
 				case (short)AccRspID.msg_channel_server: {
 					return JsonMapper.ToObject<msg_channel_server>(content);

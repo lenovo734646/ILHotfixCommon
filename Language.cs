@@ -56,6 +56,7 @@ namespace Hotfix.Common
 		public const string ConfirmLeave = "确定要离开游戏吗?";
 		public const string DownloadSucc = "下载成功.";
 		public const string ConfirmDelete = "是否需要删除游戏 {0}?";
+		public const string SameAccountLogin = "账号已在其它地方登录.";
 	}
 
 	public static class LangMultiplayer
