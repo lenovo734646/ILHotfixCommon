@@ -19,7 +19,7 @@ namespace Hotfix.Common
 			BTN_OK_ONLY = 2,
 		}
 
-		public static ViewPopup Create(	string content, int flag, Action okCallback,
+		public static ViewPopup Create(	string content, Flag flag, Action okCallback,
 										float autoCloseTime = 0.0f, Action cancelCallback = null, string title = "")
 		{
 			ViewPopup popup = new ViewPopup(null);
@@ -41,10 +41,10 @@ namespace Hotfix.Common
 		}
 
 		//Content, flag, okCallback, cancelCallback, title
-		public void SetParams(string content, int flag, Action ok, Action cancel)
+		public void SetParams(string content, Flag flag, Action ok, Action cancel)
 		{
 			content_ = content;
-			flag_ = (Flag)flag;
+			flag_ = flag;
 			okCallback_ = ok;
 			cancelCallback_ = cancel;
 		}
@@ -87,7 +87,7 @@ namespace Hotfix.Common
 		{
 			yield return base.OnResourceReady();
 
-			canvas_ = GameObject.Find("Canvas");
+			canvas_ = GameObject.Find("MessageBoxUI_CN");
 			var btnOK = canvas_.FindChildDeeply("btnOK");
 			var btnOnlyOK = canvas_.FindChildDeeply("btnOnlyOK");
 			var btnRelease = canvas_.FindChildDeeply("btnRelease");
@@ -131,13 +131,13 @@ namespace Hotfix.Common
 				this.StartCor(DoAutoClose(), false);
 			}
 
-			var animNode = canvas_.FindChildDeeply("MessageBoxUI_CN").FindChildDeeply("animNode");
+			var animNode = canvas_.FindChildDeeply("animNode");
 			animNode.StartDoTweenAnim();
 		}
 
 		IEnumerator DoClose()
 		{
-			var animNode = canvas_.FindChildDeeply("MessageBoxUI_CN").FindChildDeeply("animNode");
+			var animNode = canvas_.FindChildDeeply("animNode");
 			animNode.StartDoTweenAnim(true);
 			yield return new WaitForSeconds(0.2f);
 

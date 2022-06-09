@@ -46,7 +46,6 @@ namespace Hotfix.Common
 
 		public static Dictionary<EnState, string> desc = new Dictionary<EnState, string>();
 		public int closeByManual = 0;
-		public bool isReconnect = false;
 		public SessionBase()
 		{
 			if(desc.Count == 0) {
@@ -77,7 +76,7 @@ namespace Hotfix.Common
 
 		public bool IsWorking()
 		{
-			return closeByManual == 2;
+			return closeByManual != 4;
 		}
 
 		public override void Stop()

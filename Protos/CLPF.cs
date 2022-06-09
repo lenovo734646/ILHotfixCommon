@@ -414,7 +414,7 @@ namespace CLPF
         public ItemInfo item { get; set; }
 
         [global::ProtoBuf.ProtoMember(2)]
-        public string server_name { get; set; } = "";
+        public int game_id { get; set; }
 
         [global::ProtoBuf.ProtoMember(3)]
         public bool auto_buy { get; set; }
@@ -431,10 +431,10 @@ namespace CLPF
                     }
                 });
             }
-            if(server_name != "")
+            if(game_id != 0)
             {
-                writer.WriteTag(18);
-                writer.WriteString(server_name);
+                writer.WriteTag(16);
+                writer.WriteInt32(game_id);
             }
             if(auto_buy != false)
             {
@@ -446,7 +446,7 @@ namespace CLPF
         {
             item = null;
 
-            server_name = "";
+            game_id = 0;
 
             auto_buy = false;
 
@@ -463,9 +463,9 @@ namespace CLPF
                             });
                         }
                         break;
-                    case 18:
+                    case 16:
                         {
-                            server_name = reader.ReadString();
+                            game_id = reader.ReadInt32();
                         }
                         break;
                     case 24:
@@ -2754,6 +2754,112 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
+    public partial class TotalHanselBroadcastNtf : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int game_type { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public long total_hansel { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(game_type != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(game_type);
+            }
+            if(total_hansel != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt64(total_hansel);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            game_type = 0;
+
+            total_hansel = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            game_type = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            total_hansel = reader.ReadInt64();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class GameHanselBroadcastNtf : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int game_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public long game_hansel { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(game_id != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(game_id);
+            }
+            if(game_hansel != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt64(game_hansel);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            game_id = 0;
+
+            game_hansel = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            game_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            game_hansel = reader.ReadInt64();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
     public partial class MonthCardFetchRewardReq : AssemblyCommon.IProtoMessage
     {
         public void Encode(Google.Protobuf.CodedOutputStream writer)
@@ -3020,32 +3126,57 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class SubGamesOnlineCountInfo : AssemblyCommon.IProtoMessage
+    public partial class GameConfigItem : AssemblyCommon.IProtoMessage
     {
         [global::ProtoBuf.ProtoMember(1)]
-        public string service_name { get; set; } = "";
+        public string server_name { get; set; } = "";
 
         [global::ProtoBuf.ProtoMember(2)]
-        public int online_count { get; set; }
+        public int game_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public bool repeated_room { get; set; }
+
+        [global::ProtoBuf.ProtoMember(4, TypeName = "CLPF.RoomConfigItem")]
+        public global::System.Collections.Generic.List<RoomConfigItem> items { get; private set; } = new global::System.Collections.Generic.List<RoomConfigItem>();
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
-            if(service_name != "")
+            if(server_name != "")
             {
                 writer.WriteTag(10);
-                writer.WriteString(service_name);
+                writer.WriteString(server_name);
             }
-            if(online_count != 0)
+            if(game_id != 0)
             {
                 writer.WriteTag(16);
-                writer.WriteInt32(online_count);
+                writer.WriteInt32(game_id);
+            }
+            if(repeated_room != false)
+            {
+                writer.WriteTag(24);
+                writer.WriteBool(repeated_room);
+            }
+            foreach(var itor in items)
+            {
+                writer.WriteTag(34);
+                writer.WriteMessage((msrw) => {
+                    if(itor != null)
+                    {
+                        itor.Encode(msrw);
+                    }
+                });
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
-            service_name = "";
+            server_name = "";
 
-            online_count = 0;
+            game_id = 0;
+
+            repeated_room = false;
+
+            items.Clear();
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -3054,12 +3185,27 @@ namespace CLPF
                 {
                     case 10:
                         {
-                            service_name = reader.ReadString();
+                            server_name = reader.ReadString();
                         }
                         break;
                     case 16:
                         {
-                            online_count = reader.ReadInt32();
+                            game_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 24:
+                        {
+                            repeated_room = reader.ReadBool();
+                        }
+                        break;
+                    case 34:
+                        {
+                            CLPF.RoomConfigItem o = null;
+                            reader.ReadMessage((msgr) => {
+                                o = new CLPF.RoomConfigItem();
+                                o.Decode(msgr);
+                            });
+                            items.Add(o);
                         }
                         break;
                     default:
@@ -3073,18 +3219,168 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class SubGamesOnlineCountReq : AssemblyCommon.IProtoMessage
+    public partial class RoomConfigItem : AssemblyCommon.IProtoMessage
     {
+        [global::ProtoBuf.ProtoMember(1)]
+        public string server_name { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public int game_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3)]
+        public int room_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(4)]
+        public string room_name { get; set; } = "";
+
+        [global::ProtoBuf.ProtoMember(5)]
+        public long min_enter_score { get; set; }
+
+        [global::ProtoBuf.ProtoMember(6)]
+        public long room_bet { get; set; }
+
+        [global::ProtoBuf.ProtoMember(7)]
+        public long fee { get; set; }
+
+        [global::ProtoBuf.ProtoMember(8)]
+        public bool show_desks { get; set; }
+
+        [global::ProtoBuf.ProtoMember(9)]
+        public int room_type { get; set; }
+
+        [global::ProtoBuf.ProtoMember(10)]
+        public string extra_config { get; set; } = "";
+
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
+            if(server_name != "")
+            {
+                writer.WriteTag(10);
+                writer.WriteString(server_name);
+            }
+            if(game_id != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt32(game_id);
+            }
+            if(room_id != 0)
+            {
+                writer.WriteTag(24);
+                writer.WriteInt32(room_id);
+            }
+            if(room_name != "")
+            {
+                writer.WriteTag(34);
+                writer.WriteString(room_name);
+            }
+            if(min_enter_score != 0)
+            {
+                writer.WriteTag(40);
+                writer.WriteInt64(min_enter_score);
+            }
+            if(room_bet != 0)
+            {
+                writer.WriteTag(48);
+                writer.WriteInt64(room_bet);
+            }
+            if(fee != 0)
+            {
+                writer.WriteTag(56);
+                writer.WriteInt64(fee);
+            }
+            if(show_desks != false)
+            {
+                writer.WriteTag(64);
+                writer.WriteBool(show_desks);
+            }
+            if(room_type != 0)
+            {
+                writer.WriteTag(72);
+                writer.WriteInt32(room_type);
+            }
+            if(extra_config != "")
+            {
+                writer.WriteTag(82);
+                writer.WriteString(extra_config);
+            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
+            server_name = "";
+
+            game_id = 0;
+
+            room_id = 0;
+
+            room_name = "";
+
+            min_enter_score = 0;
+
+            room_bet = 0;
+
+            fee = 0;
+
+            show_desks = false;
+
+            room_type = 0;
+
+            extra_config = "";
+
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
             {
                 switch (tag)
                 {
+                    case 10:
+                        {
+                            server_name = reader.ReadString();
+                        }
+                        break;
+                    case 16:
+                        {
+                            game_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 24:
+                        {
+                            room_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 34:
+                        {
+                            room_name = reader.ReadString();
+                        }
+                        break;
+                    case 40:
+                        {
+                            min_enter_score = reader.ReadInt64();
+                        }
+                        break;
+                    case 48:
+                        {
+                            room_bet = reader.ReadInt64();
+                        }
+                        break;
+                    case 56:
+                        {
+                            fee = reader.ReadInt64();
+                        }
+                        break;
+                    case 64:
+                        {
+                            show_desks = reader.ReadBool();
+                        }
+                        break;
+                    case 72:
+                        {
+                            room_type = reader.ReadInt32();
+                        }
+                        break;
+                    case 82:
+                        {
+                            extra_config = reader.ReadString();
+                        }
+                        break;
                     default:
                         {
                             reader.SkipLastField();
@@ -3096,14 +3392,14 @@ namespace CLPF
     }
 
     [global::ProtoBuf.ProtoContract()]
-    public partial class SubGamesOnlineCountAck : AssemblyCommon.IProtoMessage
+    public partial class ClientGameConfigListNtf : AssemblyCommon.IProtoMessage
     {
-        [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.SubGamesOnlineCountInfo")]
-        public global::System.Collections.Generic.List<SubGamesOnlineCountInfo> array { get; private set; } = new global::System.Collections.Generic.List<SubGamesOnlineCountInfo>();
+        [global::ProtoBuf.ProtoMember(1, TypeName = "CLPF.GameConfigItem")]
+        public global::System.Collections.Generic.List<GameConfigItem> items { get; private set; } = new global::System.Collections.Generic.List<GameConfigItem>();
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
-            foreach(var itor in array)
+            foreach(var itor in items)
             {
                 writer.WriteTag(10);
                 writer.WriteMessage((msrw) => {
@@ -3116,7 +3412,7 @@ namespace CLPF
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
-            array.Clear();
+            items.Clear();
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -3125,12 +3421,280 @@ namespace CLPF
                 {
                     case 10:
                         {
-                            CLPF.SubGamesOnlineCountInfo o = null;
+                            CLPF.GameConfigItem o = null;
                             reader.ReadMessage((msgr) => {
-                                o = new CLPF.SubGamesOnlineCountInfo();
+                                o = new CLPF.GameConfigItem();
                                 o.Decode(msgr);
                             });
-                            array.Add(o);
+                            items.Add(o);
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class QueryGameConfigReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int game_id { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(game_id != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(game_id);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            game_id = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            game_id = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class QueryGameConfigAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, TypeName = "CLPF.GameConfigItem")]
+        public global::System.Collections.Generic.List<GameConfigItem> items { get; private set; } = new global::System.Collections.Generic.List<GameConfigItem>();
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            foreach(var itor in items)
+            {
+                writer.WriteTag(18);
+                writer.WriteMessage((msrw) => {
+                    if(itor != null)
+                    {
+                        itor.Encode(msrw);
+                    }
+                });
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            items.Clear();
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
+                        {
+                            CLPF.GameConfigItem o = null;
+                            reader.ReadMessage((msgr) => {
+                                o = new CLPF.GameConfigItem();
+                                o.Decode(msgr);
+                            });
+                            items.Add(o);
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class EnterRoomReq : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int game_id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public int room_id { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(game_id != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(game_id);
+            }
+            if(room_id != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt32(room_id);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            game_id = 0;
+
+            room_id = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            game_id = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            room_id = reader.ReadInt32();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class EnterRoomAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2)]
+        public string errmessage { get; set; } = "";
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+            if(errmessage != "")
+            {
+                writer.WriteTag(18);
+                writer.WriteString(errmessage);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            errmessage = "";
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 18:
+                        {
+                            errmessage = reader.ReadString();
+                        }
+                        break;
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class ExitRoomReq : AssemblyCommon.IProtoMessage
+    {
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    default:
+                        {
+                            reader.SkipLastField();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class ExitRoomAck : AssemblyCommon.IProtoMessage
+    {
+        [global::ProtoBuf.ProtoMember(1)]
+        public int errcode { get; set; }
+
+        public void Encode(Google.Protobuf.CodedOutputStream writer)
+        {
+            if(errcode != 0)
+            {
+                writer.WriteTag(8);
+                writer.WriteInt32(errcode);
+            }
+        }
+        public void Decode(Google.Protobuf.CodedInputStream reader)
+        {
+            errcode = 0;
+
+            uint tag;
+            while ((tag = reader.ReadTag()) != 0)
+            {
+                switch (tag)
+                {
+                    case 8:
+                        {
+                            errcode = reader.ReadInt32();
                         }
                         break;
                     default:
@@ -3932,6 +4496,9 @@ namespace CLPF
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
 
+        [global::ProtoBuf.ProtoMember(2)]
+        public long latest_amount { get; set; }
+
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
             if(errcode != 0)
@@ -3939,10 +4506,17 @@ namespace CLPF
                 writer.WriteTag(8);
                 writer.WriteInt32(errcode);
             }
+            if(latest_amount != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt64(latest_amount);
+            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
             errcode = 0;
+
+            latest_amount = 0;
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -3952,6 +4526,11 @@ namespace CLPF
                     case 8:
                         {
                             errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            latest_amount = reader.ReadInt64();
                         }
                         break;
                     default:
@@ -4016,6 +4595,9 @@ namespace CLPF
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
 
+        [global::ProtoBuf.ProtoMember(2)]
+        public long latest_amount { get; set; }
+
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
             if(errcode != 0)
@@ -4023,10 +4605,17 @@ namespace CLPF
                 writer.WriteTag(8);
                 writer.WriteInt32(errcode);
             }
+            if(latest_amount != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt64(latest_amount);
+            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
             errcode = 0;
+
+            latest_amount = 0;
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -4036,6 +4625,11 @@ namespace CLPF
                     case 8:
                         {
                             errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            latest_amount = reader.ReadInt64();
                         }
                         break;
                     default:
@@ -4115,6 +4709,9 @@ namespace CLPF
         [global::ProtoBuf.ProtoMember(1)]
         public int errcode { get; set; }
 
+        [global::ProtoBuf.ProtoMember(2)]
+        public long latest_amount { get; set; }
+
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
             if(errcode != 0)
@@ -4122,10 +4719,17 @@ namespace CLPF
                 writer.WriteTag(8);
                 writer.WriteInt32(errcode);
             }
+            if(latest_amount != 0)
+            {
+                writer.WriteTag(16);
+                writer.WriteInt64(latest_amount);
+            }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
             errcode = 0;
+
+            latest_amount = 0;
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -4135,6 +4739,11 @@ namespace CLPF
                     case 8:
                         {
                             errcode = reader.ReadInt32();
+                        }
+                        break;
+                    case 16:
+                        {
+                            latest_amount = reader.ReadInt64();
                         }
                         break;
                     default:
@@ -4789,10 +5398,10 @@ namespace CLPF
         public int errcode { get; set; }
 
         [global::ProtoBuf.ProtoMember(2)]
-        public string server_name { get; set; } = "";
+        public int game_id { get; set; }
 
         [global::ProtoBuf.ProtoMember(3)]
-        public string app_id { get; set; } = "";
+        public int room_id { get; set; }
 
         public void Encode(Google.Protobuf.CodedOutputStream writer)
         {
@@ -4801,24 +5410,24 @@ namespace CLPF
                 writer.WriteTag(8);
                 writer.WriteInt32(errcode);
             }
-            if(server_name != "")
+            if(game_id != 0)
             {
-                writer.WriteTag(18);
-                writer.WriteString(server_name);
+                writer.WriteTag(16);
+                writer.WriteInt32(game_id);
             }
-            if(app_id != "")
+            if(room_id != 0)
             {
-                writer.WriteTag(26);
-                writer.WriteString(app_id);
+                writer.WriteTag(24);
+                writer.WriteInt32(room_id);
             }
         }
         public void Decode(Google.Protobuf.CodedInputStream reader)
         {
             errcode = 0;
 
-            server_name = "";
+            game_id = 0;
 
-            app_id = "";
+            room_id = 0;
 
             uint tag;
             while ((tag = reader.ReadTag()) != 0)
@@ -4830,14 +5439,14 @@ namespace CLPF
                             errcode = reader.ReadInt32();
                         }
                         break;
-                    case 18:
+                    case 16:
                         {
-                            server_name = reader.ReadString();
+                            game_id = reader.ReadInt32();
                         }
                         break;
-                    case 26:
+                    case 24:
                         {
-                            app_id = reader.ReadString();
+                            room_id = reader.ReadInt32();
                         }
                         break;
                     default:
@@ -5870,10 +6479,20 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLGT.HandAck", typeof(CLGT.HandAck));
         ProtoBuf.PType.RegisterType("CLGT.DisconnectNtf", typeof(CLGT.DisconnectNtf));
         ProtoBuf.PType.RegisterType("CLGT.ItemInfo", typeof(CLGT.ItemInfo));
+        ProtoBuf.PType.RegisterType("CLGT.ShellCheckUpdateReq", typeof(CLGT.ShellCheckUpdateReq));
+        ProtoBuf.PType.RegisterType("CLGT.ShellCheckUpdateAck", typeof(CLGT.ShellCheckUpdateAck));
         ProtoBuf.PType.RegisterType("CLGT.LoginReq", typeof(CLGT.LoginReq));
         ProtoBuf.PType.RegisterType("CLGT.LoginAck", typeof(CLGT.LoginAck));
-        ProtoBuf.PType.RegisterType("CLGT.AccessServiceReq", typeof(CLGT.AccessServiceReq));
-        ProtoBuf.PType.RegisterType("CLGT.AccessServiceAck", typeof(CLGT.AccessServiceAck));
+        ProtoBuf.PType.RegisterType("CLGT.EmailSendCodeReq", typeof(CLGT.EmailSendCodeReq));
+        ProtoBuf.PType.RegisterType("CLGT.EmailSendCodeAck", typeof(CLGT.EmailSendCodeAck));
+        ProtoBuf.PType.RegisterType("CLGT.PhoneSendCodeReq", typeof(CLGT.PhoneSendCodeReq));
+        ProtoBuf.PType.RegisterType("CLGT.PhoneSendCodeAck", typeof(CLGT.PhoneSendCodeAck));
+        ProtoBuf.PType.RegisterType("CLGT.CheckAccountExistReq", typeof(CLGT.CheckAccountExistReq));
+        ProtoBuf.PType.RegisterType("CLGT.CheckAccountExistAck", typeof(CLGT.CheckAccountExistAck));
+        ProtoBuf.PType.RegisterType("CLGT.AccountRegisterReq", typeof(CLGT.AccountRegisterReq));
+        ProtoBuf.PType.RegisterType("CLGT.AccountRegisterAck", typeof(CLGT.AccountRegisterAck));
+        ProtoBuf.PType.RegisterType("CLGT.AccountResetPasswordReq", typeof(CLGT.AccountResetPasswordReq));
+        ProtoBuf.PType.RegisterType("CLGT.AccountResetPasswordAck", typeof(CLGT.AccountResetPasswordAck));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveReq", typeof(CLGT.KeepAliveReq));
         ProtoBuf.PType.RegisterType("CLGT.KeepAliveAck", typeof(CLGT.KeepAliveAck));
         ProtoBuf.PType.RegisterType("CLGT.TestNetInterruptRpt", typeof(CLGT.TestNetInterruptRpt));
@@ -5922,6 +6541,8 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLPF.MailRemoveAck", typeof(CLPF.MailRemoveAck));
         ProtoBuf.PType.RegisterType("CLPF.MailArriveNtf", typeof(CLPF.MailArriveNtf));
         ProtoBuf.PType.RegisterType("CLPF.MessageBroadcastNtf", typeof(CLPF.MessageBroadcastNtf));
+        ProtoBuf.PType.RegisterType("CLPF.TotalHanselBroadcastNtf", typeof(CLPF.TotalHanselBroadcastNtf));
+        ProtoBuf.PType.RegisterType("CLPF.GameHanselBroadcastNtf", typeof(CLPF.GameHanselBroadcastNtf));
         ProtoBuf.PType.RegisterType("CLPF.MonthCardFetchRewardReq", typeof(CLPF.MonthCardFetchRewardReq));
         ProtoBuf.PType.RegisterType("CLPF.MonthCardFetchRewardAck", typeof(CLPF.MonthCardFetchRewardAck));
         ProtoBuf.PType.RegisterType("CLPF.AnnouncementChangedNtf", typeof(CLPF.AnnouncementChangedNtf));
@@ -5929,9 +6550,15 @@ public class ILRuntime_CLPF
         ProtoBuf.PType.RegisterType("CLPF.GuideDataQueryAck", typeof(CLPF.GuideDataQueryAck));
         ProtoBuf.PType.RegisterType("CLPF.GuideDataActRpt", typeof(CLPF.GuideDataActRpt));
         ProtoBuf.PType.RegisterType("CLPF.ClientConfigPublishNtf", typeof(CLPF.ClientConfigPublishNtf));
-        ProtoBuf.PType.RegisterType("CLPF.SubGamesOnlineCountInfo", typeof(CLPF.SubGamesOnlineCountInfo));
-        ProtoBuf.PType.RegisterType("CLPF.SubGamesOnlineCountReq", typeof(CLPF.SubGamesOnlineCountReq));
-        ProtoBuf.PType.RegisterType("CLPF.SubGamesOnlineCountAck", typeof(CLPF.SubGamesOnlineCountAck));
+        ProtoBuf.PType.RegisterType("CLPF.GameConfigItem", typeof(CLPF.GameConfigItem));
+        ProtoBuf.PType.RegisterType("CLPF.RoomConfigItem", typeof(CLPF.RoomConfigItem));
+        ProtoBuf.PType.RegisterType("CLPF.ClientGameConfigListNtf", typeof(CLPF.ClientGameConfigListNtf));
+        ProtoBuf.PType.RegisterType("CLPF.QueryGameConfigReq", typeof(CLPF.QueryGameConfigReq));
+        ProtoBuf.PType.RegisterType("CLPF.QueryGameConfigAck", typeof(CLPF.QueryGameConfigAck));
+        ProtoBuf.PType.RegisterType("CLPF.EnterRoomReq", typeof(CLPF.EnterRoomReq));
+        ProtoBuf.PType.RegisterType("CLPF.EnterRoomAck", typeof(CLPF.EnterRoomAck));
+        ProtoBuf.PType.RegisterType("CLPF.ExitRoomReq", typeof(CLPF.ExitRoomReq));
+        ProtoBuf.PType.RegisterType("CLPF.ExitRoomAck", typeof(CLPF.ExitRoomAck));
         ProtoBuf.PType.RegisterType("CLPF.AccountPhoneBindReq", typeof(CLPF.AccountPhoneBindReq));
         ProtoBuf.PType.RegisterType("CLPF.AccountPhoneBindAck", typeof(CLPF.AccountPhoneBindAck));
         ProtoBuf.PType.RegisterType("CLPF.PlayerNicknameQueryReq", typeof(CLPF.PlayerNicknameQueryReq));

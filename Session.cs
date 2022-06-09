@@ -19,8 +19,9 @@ namespace Hotfix.Lobby
 				pingCostCounter_.Restart();
 				AppController.ins.network.SendPing();
 			}
-			float tmElapse = AppController.ins.network.TimeElapseSinceLastPing();
-			if (tmElapse > 6.0f) {
+			int tmElapse = AppController.ins.network.TimeElapseSinceLastPing();
+			if (tmElapse > 3) {
+				MyDebug.LogFormat("Ping Failed, call Globals.net.Stop().");
 				Globals.net.Stop();
 			}
 		}

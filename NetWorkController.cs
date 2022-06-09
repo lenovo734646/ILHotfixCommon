@@ -109,6 +109,7 @@ namespace Hotfix.Common
 
 		public void SendPing()
 		{
+			lastPingSend_++;
 			sendStream_.ClearUsedData();
 			//先写个头长度占位
 			sendStream_.SetCurentWrite(4);
@@ -283,8 +284,7 @@ namespace Hotfix.Common
 		public IEnumerator ValidSession()
 		{
 			if (session == null || !session.IsWorking()) {
-				lastPing_ = float.MaxValue;
-				
+				lastPingSend_ = 0;
 				if (session != null) session.Stop();
 
 				session = new KoKoSession();
@@ -608,9 +608,9 @@ namespace Hotfix.Common
 			}
 		}
 
-		public float TimeElapseSinceLastPing()
+		public int TimeElapseSinceLastPing()
 		{
-			return Time.time - lastPing_;
+			return lastPingSend_;
 		}
 
 		public override void Start()
@@ -679,7 +679,8 @@ namespace Hotfix.Common
 				rpcd.err_ = 0;
 				rpcHandler2[(int)INT_MSGID.INTERNAL_MSGID_PING].callback(rpcd);
 			}
-			lastPing_ = Time.time;
+			lastPingSend_--;
+			if (lastPingSend_ < 0) lastPingSend_ = 0;
 		}
 
 		private void DispatchThisMsg_(MySocket sock, MsgJsonForm msg, msg_base msgRsp)
@@ -789,7 +790,7 @@ namespace Hotfix.Common
 		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
 		DictionaryCached<Type, RpcTask> rpcHandler = new DictionaryCached<Type, RpcTask>();
 		DictionaryCached<int, RpcTask2> rpcHandler2 = new DictionaryCached<int, RpcTask2>();
-		float lastPing_ = float.MaxValue;
+		int lastPingSend_ = 0;
 		bool isReconnecting_ = false;
 		int lastConfigid, lastRoomid;
 

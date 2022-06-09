@@ -9,8 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Hotfix.Common
 {
@@ -22,102 +25,116 @@ namespace Hotfix.Common
 		{
 			ins = this;
 		}
-		
+
+		public IEnumerator DoCheckUpdate(GameConfig conf, IShowDownloadProgress ip)
+		{
+			bool succ = false;
+			if (conf.contentCatalog.Length > 0) {
+				var address = conf.GetCatalogAddress(AddressablesLoader.usingUpdateUrl, Globals.resLoader.GetPlatformString());
+				//下载过的catalog不用再下了
+
+				var handleCatalog = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
+				yield return handleCatalog;
+				if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
+
+				var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
+				yield return handleDep;
+
+				if (handleDep.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
+				MyDebug.LogFormat("DownloadDependency:{0}", address);
+
+
+				succ = true;
+			}
+			else {
+				throw new Exception($"Game {conf.name} Config Error, contentCatalog not set.");
+			}
+
+		Clean:
+			if (!succ) {
+				MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
+				yield return -1;
+			}
+			else
+				yield return 0;
+			
+		}
+
 		IEnumerator DoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
 			MyDebug.LogFormat("===================>CheckUpdateAndRun showlogin={0}", showLogin);
-			if (conf.scriptType == GameConfig.ScriptType.CSharp) {
-				bool succ = false;
 
-				if (conf.contentCatalog.Length > 0) {
-					var address = conf.GetCatalogAddress(AddressablesLoader.usingUpdateUrl, Globals.resLoader.GetPlatformString());
-					MyDebug.LogFormat("Get CatalogAddress:{0}, AddressablesLoader.usingUpdateUrl:{1}", address, AddressablesLoader.usingUpdateUrl);
+			var chkUpdate = DoCheckUpdate(conf, ip);
+			yield return chkUpdate;
+			if ((int)chkUpdate.Current != 0) {
+				goto Clean;
+			}
 
-					var handleCatalog = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
-					yield return handleCatalog;
-					if (!handleCatalog.Current.succeed) goto Clean;
+			if (currentApp != null) currentApp.Stop();
+			currentApp = null;
 
-					var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
-					yield return handleDep;
+			//确保连接
+			MyDebug.LogFormat("network.ValidSession");
+			network.progressOfLoading = ip;
+			var handleSess = network.ValidSession();
+			yield return handleSess;
 
-					if (!handleDep.Current.succeed) goto Clean;
-					MyDebug.LogFormat("DownloadDependency:{0}", address);
-				}
-
-				if (currentApp != null) currentApp.Stop();
-				currentApp = null;
-
-				//确保连接
-				MyDebug.LogFormat("network.ValidSession");
-				network.progressOfLoading = ip;
-				var handleSess = network.ValidSession();
-				yield return handleSess;
-
-				if ((int)handleSess.Current != 1) {
-					if(ins.conf.defaultGame == conf) {
-						MyDebug.LogFormat("network.ValidSession failed, will show login.");
-						showLogin = true;
-					}
-					else {
-						MyDebug.LogFormat("network.ValidSession failed goto Clean");
-						goto Clean;
-					}
-						
-				}
-				MyDebug.LogFormat("Run CommonEmptyScene->Game:{0}", conf.name);
-
-				//开启新的场景,这里不需要进度指示是因为这个已经下载好了
-				var sceneHandle = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>("Assets/Scenes/CommonEmptyScene.unity", ip);
-				yield return sceneHandle;
-				if (sceneHandle.Current.succeed) {
-					yield return sceneHandle.Current.ActiveScene();
+			if ((int)handleSess.Current != 1) {
+				if (ins.conf.defaultGame == conf) {
+					MyDebug.LogFormat("network.ValidSession failed, will show login.");
+					showLogin = true;
 				}
 				else {
+					MyDebug.LogFormat("network.ValidSession failed goto Clean");
 					goto Clean;
 				}
+			}
 
-				var entryClass = Type.GetType(conf.entryClass);
-				currentApp = (AppBase)Activator.CreateInstance(entryClass);
-				MyDebug.LogFormat("CurrentApp Starting.");
-				currentApp.progressOfLoading = ip;
-				currentApp.Start();
-				MyDebug.LogFormat("CurrentApp Started.");
+			var entryClass = Type.GetType(conf.entryClass);
+			currentApp = (AppBase)Activator.CreateInstance(entryClass);
+			currentApp.progressOfLoading = ip;
+			currentApp.Start();
+			yield return currentApp.WaitingForReady();
 
-				network.lastState = SessionBase.EnState.Initiation;
+			network.lastState = SessionBase.EnState.Initiation;
+			
+			currentGameConfig = conf;
 
-				if (showLogin)
-					yield return currentApp.game.ShowLogin();
-				else {
-					var loginHandle = network.EnterGame(conf);
-					yield return loginHandle;
-					//登录失败
-					if ((int)loginHandle.Current == 0) {
-						//如果是登录大厅失败,返回登录界面
-						if (conf == ins.conf.defaultGame) {
-							yield return currentApp.game.ShowLogin();
-						}
-						//如果登录游戏失败,返回登录大厅
-						else {
-							yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
-						}
+			if (showLogin)
+				yield return currentApp.game.ShowLogin();
+			else {
+				var loginHandle = network.EnterGame(conf);
+				yield return loginHandle;
+				//登录失败
+				if ((int)loginHandle.Current == 0) {
+					//如果是登录大厅失败,返回登录界面
+					if (conf == ins.conf.defaultGame) {
+						yield return currentApp.game.ShowLogin();
+					}
+					//如果登录游戏失败,返回登录大厅
+					else {
+						yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 					}
 				}
-				yield break;
+			}
+			yield break;
 
-			Clean:
-				if (!succ) {
-					MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
-					yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
-				}
+		Clean:
+			if (ins.conf.defaultGame != conf) {
+				yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 			}
 			else {
-
+				ip?.Desc(LangNetWork.GameStartFailed);
 			}
 		}
 
 		public IEnumerator CheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
-			yield return DoCheckUpdateAndRun(conf, ip, showLogin);
+			if (!runningGame_) {
+				runningGame_ = true;
+				yield return DoCheckUpdateAndRun(conf, ip, showLogin);
+				runningGame_ = false;
+			}
 		}
 
 		public override void Start()
@@ -157,7 +174,7 @@ namespace Hotfix.Common
 					headFrames.Add(index, task.Result);
 				});
 			}
-			yield return Globals.resLoader.WaitForAllTaskCompletion();
+			yield return WaitingForReady();
 		}
 
 		IEnumerator DoStart_()
@@ -167,8 +184,14 @@ namespace Hotfix.Common
 			if (conf.defaultGame == null) {
 				throw new Exception($"default game is not exist.{conf.defaultGameName}");
 			}
+			progressFromHost.Desc(".");
+			progressOfLoading = progressFromHost;
+			progressOfLoading.Reset();
+
 			yield return CachedResources_();
+			progressFromHost.Desc("..");
 			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
+			progressFromHost.Desc("...");
 		}
 
 		public override  void Update()
@@ -200,7 +223,8 @@ namespace Hotfix.Common
 		public bool autoLoginFromHost = true, disableNetwork = false;
 		public Dictionary<int, Texture2D> headIcons = new Dictionary<int, Texture2D>();
 		public Dictionary<int, Texture2D> headFrames = new Dictionary<int, Texture2D>();
-
+		List<string> cachedCatalog = new List<string>();
 		GameRunQueue runQueue = new GameRunQueue();
+		bool runningGame_ = false;
 	}
 }

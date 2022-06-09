@@ -12,7 +12,7 @@ namespace Hotfix.Common
 	class AShower : IShowDownloadProgress
 	{
 		public WeakReference<ViewLoading> wview_;
-		public override void Desc(string desc)
+		public override void OnDesc(string desc)
 		{
 // 			ViewLoading loading;
 // 			if(wview_.TryGetTarget(out loading)) {
@@ -20,12 +20,12 @@ namespace Hotfix.Common
 // 			}
 		}
 
-		public override void Progress(long downed, long totalLength)
+		public override void OnProgress(long downed, long totalLength)
 		{
 			
 		}
 
-		public override void SetState(DownloadState st)
+		public override void OnSetState(DownloadState st)
 		{
 			
 		}
@@ -53,6 +53,8 @@ namespace Hotfix.Common
 			var canvas = GameObject.Find("Canvas");
 			var SmartLoadingUI = canvas.FindChildDeeply("SmartLoadingUI");
 			var WaitResponseUI = SmartLoadingUI.FindChildDeeply("WaitResponseUI");
+			shower.SetUIRoot(SmartLoadingUI);
+
 			WaitResponseUI.StartDoTweenAnim();
 
 			var PopupMask = SmartLoadingUI.FindChildDeeply("PopupMask");
