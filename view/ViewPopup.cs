@@ -33,8 +33,8 @@ namespace Hotfix.Common
 		{
 			//不允许同时显示多
 			if (opening != null) {
-				opening.cancelCallback_();
-				opening.Close();
+				if(opening.cancelCallback_ != null) opening.cancelCallback_();
+				opening?.Close();
 			}
 
 			opening = this;
@@ -137,10 +137,12 @@ namespace Hotfix.Common
 
 		IEnumerator DoClose()
 		{
-			var animNode = canvas_.FindChildDeeply("animNode");
-			animNode.StartDoTweenAnim(true);
-			yield return new WaitForSeconds(0.2f);
-
+			if(canvas_ != null) {
+				var animNode = canvas_.FindChildDeeply("animNode");
+				animNode.StartDoTweenAnim(true);
+				yield return new WaitForSeconds(0.2f);
+			}
+		
 			base.Close();
 		}
 
