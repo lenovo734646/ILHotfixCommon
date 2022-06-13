@@ -191,4 +191,11 @@ namespace Hotfix.Common
 	{
 
 	}
+
+	public class msg_user_head_and_headframe : msg_base
+	{
+		public string head_ico_;      //头像ID
+		public int headframe_id_;  //头像框ID
+		public string nickname_;
+	}
 }

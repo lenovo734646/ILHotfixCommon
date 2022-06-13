@@ -45,6 +45,7 @@ namespace Hotfix.Common
 		msg_set_bank_psw = 123,
 		msg_bank_op = 124,
 		msg_alloc_game_server = 1030,
+		msg_set_head_and_headframe = 1042,
 	}
 
 	public enum GameReqID
@@ -127,6 +128,14 @@ namespace Hotfix.Common
 		public string to_;            //密语对象,不是密语则为空
 		public string content_;       //内容
 		public override int to_server() { return 1; }
+	}
+
+	public class msg_set_head_and_headframe : msg_from_client
+	{
+		public string head_ico_;      //头像ID
+		public int headframe_id_;  //头像框ID
+		public string nickname_;      //昵称
+		public string spread_;        //推荐人ID
 	}
 
 	//更改用户数据
