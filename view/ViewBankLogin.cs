@@ -23,7 +23,6 @@ namespace Hotfix.Common
 
 		protected override IEnumerator OnResourceReady()
 		{
-			yield return base.OnResourceReady();
 			var layer = GameObject.Find("Popup_BankLoginPanel");
 			var animNode = layer.FindChildDeeply("animNode");
 			animNode.StartDoTweenAnim();
@@ -42,7 +41,7 @@ namespace Hotfix.Common
 			btn_Forget.onClick.AddListener(() => {
 				OnBtnForget();
 			});
-
+			yield return 0;
 		}
 
 		protected void OnBtnOK()

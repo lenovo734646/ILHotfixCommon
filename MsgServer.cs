@@ -28,7 +28,14 @@ namespace Hotfix.Common
 		msg_player_seat = 1110,
 		msg_player_leave = 1112,
 		msg_deposit_change2 = 1113,
-		
+		msg_server_parameter = 1107,
+		msg_system_showdown = 1221,
+		msg_get_public_data_ret = 1304,
+	}
+
+	public class msg_system_showdown : msg_base
+	{
+		public string desc_;
 	}
 
 	public class msg_common_reply : msg_base
@@ -187,6 +194,11 @@ namespace Hotfix.Common
 		public string why_;
 		public string pos_;
 		public string display_type_;      //0，不需要飘字 1,要飘字, 2 保证金变化
+	}
+
+	public class msg_get_public_data_ret : msg_base
+	{
+		public string ret;
 	}
 
 	public class msg_same_account_login : msg_base

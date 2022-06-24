@@ -36,9 +36,8 @@ namespace Hotfix.Common
 			opening = this;
 		}
 
-		public override void Close()
+		protected override void OnClose()
 		{
-			base.Close();
 			opening = null;
 		}
 
@@ -55,8 +54,6 @@ namespace Hotfix.Common
 
 		protected override IEnumerator OnResourceReady()
 		{
-			yield return base.OnResourceReady();
-
 			var canv = GameObject.Find("Canvas");
 			if(canv != null) {
 				var txt = canv.FindChildDeeply("Text_tips").GetComponent<Text>();
@@ -68,6 +65,7 @@ namespace Hotfix.Common
 					});
 				}
 			}
+			yield return 0;
 		}
 
 		string text_;

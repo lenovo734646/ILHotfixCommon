@@ -38,6 +38,7 @@ namespace Hotfix.Common
 			BenChiBaoMa = 37,
 			FeiQingZhouSou = 64,
 			BaiJiaLe = 35,
+			JiuXianLaWang = 41,
 		}
 
 		public const string HuanleBY = "HuanleBY";
@@ -364,6 +365,8 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots | (int)GameConfig.Tag.Hot;
+				game.gameID = GameConfig.GameID.JiuXianLaWang;
+				game.enabled = true;
 				games.Add(game.name, game);
 			}
 

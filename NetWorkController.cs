@@ -93,23 +93,25 @@ namespace Hotfix.Common
 			return $"Network:Time Since Last Ping:{TimeElapseSinceLastPing()}s";
 		}
 
-		public void SendMessage(short subCmd, string json, int toserver)
+		public bool SendMessage(short subCmd, string json, int toserver)
 		{
-			sendStream_.ClearUsedData();
+			sendStream_.Reset();
 			MsgJsonForm msg = new MsgJsonForm();
 			msg.subCmd = subCmd;
 			msg.content = json;
 			msg.toserver = toserver;
 			msg.Write(sendStream_);
-			if (!Globals.net.SendMessage(sendStream_)) {
+			bool succ = Globals.net.SendMessage(sendStream_);
+			if (!succ) {
 				MyDebug.LogWarningFormat("Json Message Send failed:{0},{1}", subCmd, json);
 			}
+			return succ;
 		}
 
 		public void SendPing()
 		{
 			lastPingSend_++;
-			sendStream_.ClearUsedData();
+			sendStream_.Reset();
 			//先写个头长度占位
 			sendStream_.SetCurentWrite(4);
 			sendStream_.WriteInt((int)INT_MSGID.INTERNAL_MSGID_PING);
@@ -207,34 +209,34 @@ namespace Hotfix.Common
 			return true;
 		}
 
-		public void SendMessage(short subCmd, msg_base content)
+		public bool SendMessage(short subCmd, msg_base content)
 		{
 			string json = JsonMapper.ToJson(content);
-			SendMessage(subCmd, json, content.to_server());
+			return SendMessage(subCmd, json, content.to_server());
 		}
 
-		public void SendMessage(string subCmd, IProtoMessage proto)
+		public bool SendMessage(string subCmd, IProtoMessage proto)
 		{
-			sendStream_.ClearUsedData();
+			sendStream_.Reset();
 
 			MsgPbForm msg = new MsgPbForm();
 			msg.protoName = subCmd;
 			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
-			Globals.net.SendMessage(sendStream_);
+			return Globals.net.SendMessage(sendStream_);
 		}
 
-		public void SendMessage(IProtoMessage proto)
+		public bool SendMessage(IProtoMessage proto)
 		{
-			sendStream_.ClearUsedData();
+			sendStream_.Reset();
 
 			MsgPbFormStringHeader msg = new MsgPbFormStringHeader();
 			msg.protoName = proto.GetType().FullName;
 			msg.SetProtoMessage(proto);
 			msg.Write(sendStream_);
 
-			Globals.net.SendMessage(sendStream_);
+			return Globals.net.SendMessage(sendStream_);
 		}
 
 		public void HandleRawData(object sender, BinaryStream evt)
@@ -425,7 +427,7 @@ namespace Hotfix.Common
 			progressOfLoading?.Desc(LangNetWork.InLobby);
 			if (toGame.gameID == GameConfig.GameID.Lobby) {
 				//如果只是登录到大厅.结束流程
-				yield return app.currentApp.game.OnGameLoginSucc();
+				yield return app.currentApp.game.GameLoginSucc();
 			}
 			else {
 				{
@@ -448,7 +450,7 @@ namespace Hotfix.Common
 					}
 
 				}
-				yield return app.currentApp.game.OnGameLoginSucc();
+				yield return app.currentApp.game.GameLoginSucc();
 			}
 		Clean:
 			if (!succ) {
@@ -473,7 +475,7 @@ namespace Hotfix.Common
 					goto Clean;
 				}
 				MyDebug.LogFormat("PrepareGameRoom");
-				yield return AppController.ins.currentApp.game.OnPrepareGameRoom();
+				yield return AppController.ins.currentApp.game.PrepareGameRoom();
 			}
 
 			{
@@ -488,7 +490,7 @@ namespace Hotfix.Common
 				msg_common_reply r = (msg_common_reply)(rpcd.msg_);
 				if (r.err_ == "0") {
 					MyDebug.LogFormat("OnGameRoomSucc");
-					yield return AppController.ins.currentApp.game.OnGameRoomSucc();
+					yield return AppController.ins.currentApp.game.GameRoomEnterSucc();
 				}
 				else {
 					MyDebug.LogFormat("msg_prepare_enter_complete msg_common_reply failed {0}", r.err_);
@@ -724,6 +726,7 @@ namespace Hotfix.Common
 								}
 								rsp.msg_ = msgRsp;
 								rpcHandler2[msg.subCmd].callback(rsp);
+								//MyDebug.LogFormat("msg recv:{0},{1}", msg.subCmd, msg.content);
 							}
 							else {
 								if (msg.subCmd == (short)CommID.msg_common_reply) {
@@ -743,6 +746,7 @@ namespace Hotfix.Common
 									HandlePing_();
 								}
 								else {
+									//MyDebug.LogFormat("msg recv:{0},{1}", msg.subCmd, msg.content);
 									DispatchThisMsg_(sock, msg, msgRsp);
 								}
 							}
@@ -753,6 +757,7 @@ namespace Hotfix.Common
 							evt.fromServer = msg.toserver;
 							evt.payload = Encoding.UTF8.GetBytes(msg.content);
 							DispatchNetMsgEvent_(sock, evt);
+							MyDebug.LogFormat("msg recv:{0},{1}", msg.subCmd, msg.content);
 						}
 					}
 					break;

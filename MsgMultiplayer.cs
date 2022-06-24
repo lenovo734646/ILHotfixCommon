@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hotfix.Common
+namespace Hotfix.Common.MultiPlayer
 {
 	public enum GameMultiReqID
 	{

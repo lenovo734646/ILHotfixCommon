@@ -27,7 +27,7 @@ namespace Hotfix.Common
 
 		protected override IEnumerator OnResourceReady()
 		{
-			yield return base.OnResourceReady();
+			yield return 0;
 			var layer = GetPopupLayer();
 			var animNode = layer.FindChildDeeply("animNode");
 			animNode.StartDoTweenAnim();
@@ -316,9 +316,8 @@ namespace Hotfix.Common
 			AppController.ins.self.gamePlayer.onDataChanged += OnUserDataChanged;
 		}
 
-		public override void Close()
+		protected override void OnClose()
 		{
-			base.Close();
 			AppController.ins.self.gamePlayer.onDataChanged -= OnUserDataChanged;
 		}
 
