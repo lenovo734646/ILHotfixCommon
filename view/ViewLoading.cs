@@ -48,8 +48,6 @@ namespace Hotfix.Common
 
 		protected override IEnumerator OnResourceReady()
 		{
-			yield return base.OnResourceReady();
-
 			var canvas = GameObject.Find("Canvas");
 			var SmartLoadingUI = canvas.FindChildDeeply("SmartLoadingUI");
 			var WaitResponseUI = SmartLoadingUI.FindChildDeeply("WaitResponseUI");
@@ -62,6 +60,7 @@ namespace Hotfix.Common
 
 			var LoadlingIcon = SmartLoadingUI.FindChildDeeply("LoadlingIcon");
 			LoadlingIcon.StartAnim();
+			yield return 0;
 		}
 	}
 }

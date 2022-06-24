@@ -63,5 +63,6 @@ namespace Hotfix.Common
 		public const string WaitingForBet = "下注中";
 		public const string RandomResult = "开奖中";
 		public const string BalanceResult = "结算中";
+		public const string BetFailed = "现在不能下注.";
 	}
 }

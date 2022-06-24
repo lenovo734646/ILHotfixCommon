@@ -85,8 +85,6 @@ namespace Hotfix.Common
 
 		protected override IEnumerator OnResourceReady()
 		{
-			yield return base.OnResourceReady();
-
 			canvas_ = GameObject.Find("MessageBoxUI_CN");
 			var btnOK = canvas_.FindChildDeeply("btnOK");
 			var btnOnlyOK = canvas_.FindChildDeeply("btnOnlyOK");
@@ -133,6 +131,7 @@ namespace Hotfix.Common
 
 			var animNode = canvas_.FindChildDeeply("animNode");
 			animNode.StartDoTweenAnim();
+			yield return 0;
 		}
 
 		IEnumerator DoClose()
@@ -140,11 +139,9 @@ namespace Hotfix.Common
 			var animNode = canvas_.FindChildDeeply("animNode");
 			animNode.StartDoTweenAnim(true);
 			yield return new WaitForSeconds(0.2f);
-
-			base.Close();
 		}
 
-		public override void Close()
+		protected override void OnClose()
 		{
 			if(opening != null) {
 				this.StartCor(DoClose(), true);

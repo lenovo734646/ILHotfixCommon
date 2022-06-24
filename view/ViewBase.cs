@@ -1,4 +1,6 @@
 ﻿using AssemblyCommon;
+using Hotfix.Common.MultiPlayer;
+using Hotfix.Common.Slot;
 using Hotfix.Model;
 using System;
 using System.Collections;
@@ -28,6 +30,11 @@ namespace Hotfix.Common
 
 		public override void Stop()
 		{
+			ClearResource();
+		}
+
+		public void ClearResource()
+		{
 			string path = "";
 			try {
 				foreach (var tsk in resourceLoader_) {
@@ -35,7 +42,7 @@ namespace Hotfix.Common
 					tsk.Release();
 				}
 			}
-			catch(Exception ex) {
+			catch (Exception ex) {
 				MyDebug.LogErrorFormat("Release Addressable Task Error:{0}", path);
 			}
 
@@ -148,8 +155,10 @@ namespace Hotfix.Common
 		//每个View必须要调用这个Close才能正确的释放资源.
 		//跳过这个直接清理了Canvas会造成资源泄露,
 		//Adressable资源不能正确释放
-		public virtual void Close()
+		public  void Close()
 		{
+			OnClose();
+
 			AppController.ins.currentApp?.game?.OnViewClosed(this);
 			//按加载顺序倒着释放
 			objs.Reverse();
@@ -166,7 +175,12 @@ namespace Hotfix.Common
 			Stop();
 		}
 
-		public IEnumerator LoadResources()
+		protected virtual void OnClose()
+		{
+			
+		}
+
+		IEnumerator LoadResources()
 		{
 			foreach (var it in resNames_) {
 				var tsk = it;
@@ -217,19 +231,19 @@ namespace Hotfix.Common
 
 		protected abstract void SetLoader();
 
-		protected virtual IEnumerator OnResourceReady() 
+		protected IEnumerator ReadyResource()
 		{
-			MyDebug.Log("ViewBase.OnResourceReady()");
-			
 			foreach (var it in resNames_) {
 				var obj = it.loader.Instantiate();
-				if(it.callback != null) it.callback(obj);
+				if (it.callback != null) it.callback(obj);
 				objs.Add(obj);
 			}
 			resNames_.Clear();
 			//这里很重要,要停一下
-			yield return 0;
+			yield return OnResourceReady();
 		}
+
+		protected abstract IEnumerator OnResourceReady();
 
 		protected void LoadPrefab(string path, Action<GameObject> cb)
 		{
@@ -253,7 +267,7 @@ namespace Hotfix.Common
 			SetLoader();
 
 			yield return LoadResources();
-			yield return OnResourceReady();
+			yield return ReadyResource();
 			finished_ = true;
 		}
 
@@ -269,6 +283,9 @@ namespace Hotfix.Common
 		{
 
 		}
+		//网络消息回调,这是原始的网络消息
+		public abstract void OnNetMsg(int cmd, string json);
+
 		public virtual GamePlayer OnPlayerEnter(msg_player_seat msg)
 		{
 			if (AppController.ins.self.gamePlayer.uid == msg.uid_) {
@@ -293,6 +310,54 @@ namespace Hotfix.Common
 			var game = AppController.ins.currentApp.game;
 			
 		}
+		public virtual void OnCommonReply(msg_common_reply msg)
+		{
+
+		}
+
+		//玩家货币变币
+		public virtual void OnGoldChange(msg_deposit_change2 msg)
+		{
+			int pos = AppController.ins.self.gamePlayer.serverPos;
+			if (int.Parse(msg.pos_) == pos) {
+				if (int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_sync_gold) {
+					AppController.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+					AppController.ins.self.gamePlayer.DispatchDataChanged();
+				}
+			}
+		}
+		//玩家货币变币
+		public virtual void OnGoldChange(msg_currency_change msg)
+		{
+			if (msg.why_ == "0") {
+				AppController.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+				AppController.ins.self.gamePlayer.DispatchDataChanged();
+			}
+
+		}
+
+		public void OnServerShutdown(msg_system_showdown msg)
+		{
+			ViewToast.Create(msg.desc_);
+		}
+
+		public abstract void OnServerParameter(msg_server_parameter msg);
+		public abstract void OnJackpotNumber(msg_get_public_data_ret msg);
+	}
+
+	public abstract class ViewSlotScene : ViewGameSceneBase
+	{
+		public ViewSlotScene(IShowDownloadProgress ip) : base(ip)
+		{
+
+		}
+
+		public abstract void OnRandomResult(msg_random_present_ret msg);
+		public abstract void OnLuckResult(msg_get_luck_player_ret msg);
+		public abstract void OnLuckPlayer(msg_luck_player msg);
+		public abstract void OnPlayerSetBet(msg_player_setbet_slot msg);
+		public abstract void OnLuckPlayerPlayData(msg_random_present_ret_record msg);
+
 	}
 
 	public abstract class ViewMultiplayerScene: ViewGameSceneBase
@@ -301,10 +366,7 @@ namespace Hotfix.Common
 		{
 
 		}
-		//网络消息回调,这是原始的网络消息
-		public abstract void OnNetMsg(int cmd, string json);
-		//通用错误回复
-		public abstract void OnCommonReply(msg_common_reply msg);
+		public override void OnServerParameter(msg_server_parameter msg) { }
 		//状态机变化
 		public abstract void OnStateChange(msg_state_change msg);
 		//其它玩家下注通知
@@ -323,10 +385,7 @@ namespace Hotfix.Common
 		public abstract void OnGameReport(msg_game_report msg);
 		//游戏信息
 		public abstract void OnGameInfo(msg_game_info msg);
-		//玩家货币变币
-		public abstract void OnGoldChange(msg_deposit_change2 msg);
-		//玩家货币变币
-		public abstract void OnGoldChange(msg_currency_change msg);
+
 		//玩家申请上庄通知
 		public abstract void OnApplyBanker(msg_new_banker_applyed msg);
 		//玩家取消上庄通知

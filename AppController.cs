@@ -1,4 +1,5 @@
 ﻿using AssemblyCommon;
+using AssemblyCommon.Bridges;
 using Hotfix.Lobby;
 using Hotfix.Model;
 using System;
@@ -70,7 +71,12 @@ namespace Hotfix.Common
 				goto Clean;
 			}
 
-			if (currentApp != null) currentApp.Stop();
+			if (currentApp != null) {
+				currentApp.Stop();
+				//清理本游戏声音资源
+				audio.StopAll();
+			}
+
 			currentApp = null;
 
 			//确保连接
@@ -146,6 +152,7 @@ namespace Hotfix.Common
 			ILRuntime_Global.Initlize();
 
 			network.AddMsgHandler(OnNetMsg);
+			audio.Start();
 
 			runQueue.StartCor(DoStart_(), true);
 		}
@@ -202,6 +209,7 @@ namespace Hotfix.Common
 
 		public override void Stop()
 		{
+			audio.Stop();
 			if (currentApp != null) currentApp.Stop();
 			network.Stop();
 
@@ -221,8 +229,12 @@ namespace Hotfix.Common
 		public GameConfig currentGameConfig = null;
 		public string defaultGameFromHost;
 		public bool autoLoginFromHost = true, disableNetwork = false;
+
 		public Dictionary<int, Texture2D> headIcons = new Dictionary<int, Texture2D>();
 		public Dictionary<int, Texture2D> headFrames = new Dictionary<int, Texture2D>();
+
+		public AudioManager audio = new AudioManager();
+
 		List<string> cachedCatalog = new List<string>();
 		GameRunQueue runQueue = new GameRunQueue();
 		bool runningGame_ = false;
