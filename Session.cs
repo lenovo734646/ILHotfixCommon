@@ -21,7 +21,7 @@ namespace Hotfix.Lobby
 			}
 			int tmElapse = AppController.ins.network.TimeElapseSinceLastPing();
 			if (tmElapse > 3) {
-				MyDebug.LogFormat("Ping Failed, call Globals.net.Stop().");
+				MyDebug.LogFormat("!!!!!Ping Failed, call Globals.net.Stop().!!!!!");
 				Globals.net.Stop();
 			}
 		}

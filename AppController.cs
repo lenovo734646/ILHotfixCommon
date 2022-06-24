@@ -80,20 +80,25 @@ namespace Hotfix.Common
 			currentApp = null;
 
 			//确保连接
-			MyDebug.LogFormat("network.ValidSession");
-			network.progressOfLoading = ip;
-			var handleSess = network.ValidSession();
-			yield return handleSess;
+			if (!disableNetwork) {
+				MyDebug.LogFormat("network.ValidSession");
+				network.progressOfLoading = ip;
+				var handleSess = network.ValidSession();
+				yield return handleSess;
 
-			if ((int)handleSess.Current != 1) {
-				if (ins.conf.defaultGame == conf) {
-					MyDebug.LogFormat("network.ValidSession failed, will show login.");
-					showLogin = true;
+				if ((int)handleSess.Current != 1) {
+					if (ins.conf.defaultGame == conf) {
+						MyDebug.LogFormat("network.ValidSession failed, will show login.");
+						showLogin = true;
+					}
+					else {
+						MyDebug.LogFormat("network.ValidSession failed goto Clean");
+						goto Clean;
+					}
 				}
-				else {
-					MyDebug.LogFormat("network.ValidSession failed goto Clean");
-					goto Clean;
-				}
+			}
+			else {
+				showLogin = true;
 			}
 
 			var entryClass = Type.GetType(conf.entryClass);
@@ -163,6 +168,13 @@ namespace Hotfix.Common
 				var msgi = (msg_sync_item)e.msg;
 				self.gamePlayer.items.SetKeyVal(int.Parse(msgi.item_id_), long.Parse(msgi.count_));
 				self.gamePlayer.DispatchDataChanged();
+				MyDebug.LogWarningFormat("Sync Item:{0},{1}", int.Parse(msgi.item_id_), long.Parse(msgi.count_));
+			}
+			else if(e.cmd == (int)AccRspID.msg_same_account_login) {
+				ins.disableNetwork = true;
+				ViewPopup.Create(LangUITip.SameAccountLogin, ViewPopup.Flag.BTN_OK_ONLY, () => {
+					ins.StartCor(ins.CheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
+				});
 			}
 		}
 
@@ -191,14 +203,11 @@ namespace Hotfix.Common
 			if (conf.defaultGame == null) {
 				throw new Exception($"default game is not exist.{conf.defaultGameName}");
 			}
-			progressFromHost.Desc(".");
 			progressOfLoading = progressFromHost;
 			progressOfLoading.Reset();
 
 			yield return CachedResources_();
-			progressFromHost.Desc("..");
 			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
-			progressFromHost.Desc("...");
 		}
 
 		public override  void Update()

@@ -11,6 +11,7 @@ namespace Hotfix.Common
 		msg_user_login_ret = 1000,
 		msg_player_info = 1002,
 		msg_channel_server = 1009,
+		msg_same_account_login = 1005,
 	}
 
 	public enum CorRspID
@@ -197,5 +198,17 @@ namespace Hotfix.Common
 	public class msg_get_public_data_ret : msg_base
 	{
 		public string ret;
+	}
+
+	public class msg_same_account_login : msg_base
+	{
+
+	}
+
+	public class msg_user_head_and_headframe : msg_base
+	{
+		public string head_ico_;      //头像ID
+		public int headframe_id_;  //头像框ID
+		public string nickname_;
 	}
 }
