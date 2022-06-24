@@ -664,6 +664,10 @@ namespace Hotfix.Common
 				case (short)CorRspID.msg_switch_game_server: {
 					return JsonMapper.ToObject<msg_switch_game_server>(content);
 				}
+				case (short)CorRspID.msg_user_head_and_headframe:
+					{
+						return JsonMapper.ToObject<msg_user_head_and_headframe>(content);
+					}
 			}
 			return null;
 		}
@@ -707,9 +711,9 @@ namespace Hotfix.Common
 					case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
 						MsgJsonForm msg = new MsgJsonForm();
 						msg.Read(stm);
-
 						var msgRsp = CreateMsgFromJson_(msg.subCmd, msg.content);
-						if (msgRsp != null) {
+							MyDebug.LogFormat("测msg recv:{0},{1}", msg.subCmd, msg.content);
+							if (msgRsp != null) {
 							if (rpcHandler2.ContainsKey(msg.subCmd)) {
 								//如果是通用回复
 								msg_rpc_ret rsp = new msg_rpc_ret();
