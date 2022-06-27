@@ -236,12 +236,10 @@ namespace Hotfix.Common
 
 	public abstract class GameControllerMultiplayer : GameControllerBase
 	{
-
 		public abstract msg_random_result_base CreateRandomResult(string json);
 		public abstract msg_last_random_base CreateLastRandom(string json);
 		protected override void OnNetMsg(msg_base evt, int cmd, string json)
 		{
-
 			var mainViewThis = (ViewMultiplayerScene)mainView;
 
 			switch (cmd) {

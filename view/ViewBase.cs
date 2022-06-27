@@ -180,6 +180,9 @@ namespace Hotfix.Common
 			
 		}
 
+		//网络消息回调,这是原始的网络消息
+		public abstract void OnNetMsg(int cmd, string json);
+
 		IEnumerator LoadResources()
 		{
 			foreach (var it in resNames_) {
@@ -283,8 +286,6 @@ namespace Hotfix.Common
 		{
 
 		}
-		//网络消息回调,这是原始的网络消息
-		public abstract void OnNetMsg(int cmd, string json);
 
 		public virtual GamePlayer OnPlayerEnter(msg_player_seat msg)
 		{

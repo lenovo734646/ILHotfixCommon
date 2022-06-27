@@ -16,16 +16,21 @@ namespace Hotfix.Common.Slot
 		public int simPages = 10, rowCount = 3, colCount = 5;
 		public Vector2 cellSize;
 		public float initY = -214;
-		public float colDelay = 0.15f;
+		public float colDelay = 0.3f;
 		public int defaultI = 0;
 		public bool addtionalRow = false;
 	}
 
 	public class SlotGameResult
 	{
+		//主要中奖图标
 		public int mainPid;
-		public int result, resultData;
-		public long win, maxRate;
+		////有额外翻牌的机会次数. 小马丽的机会次数,免费游戏次数
+		public int result;
+		//主要中奖图标对应的数据
+		public int resultData;
+		public long win;
+		public int maxRate;
 		public List<int> icons = new List<int>();
 		public List<KeyValuePair<int, int>> winIcons = new List<KeyValuePair<int, int>>();
 		public List<KeyValuePair<int, int>> iconXY = new List<KeyValuePair<int, int>>();
