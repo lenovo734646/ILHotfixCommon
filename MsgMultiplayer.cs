@@ -197,7 +197,7 @@ namespace Hotfix.Common.MultiPlayer
 		public string card_result_; //庄和闲点数
 	}
 
-	public class msg_game_info_longhu : msg_base
+	public class msg_game_info_longhu : MsgBase
 	{
 		public string dafuhao_;       //大富豪位置
 		public string shensuanz_;     //神算子位置
@@ -216,7 +216,7 @@ namespace Hotfix.Common.MultiPlayer
 		public string data_;
 	}
 
-	public class msg_game_info : msg_base
+	public class msg_game_info : MsgBase
 	{
 		public string turn_;
 		//出奖项ID

@@ -2,6 +2,7 @@
 using AssemblyCommon;
 using Hotfix.Common;
 using Hotfix.Model;
+using LitJson;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,33 +44,31 @@ namespace Hotfix.Lobby
 			msg_handshake_req msg = new msg_handshake_req();
 			msg.machine_id_ = AppController.ins.conf.GetDeviceID();
 			msg.sign_ = Globals.Md5Hash(msg.machine_id_ + "1EBE295C-BE45-45C0-9AA1-496C1CEE4BDB");
-			int result = -1;
-			Action<msg_rpc_ret> cb = (ack) => {
-				if (ack != null) {
-					var msg1 = (msg_handshake_ret)ack.msg_;
-					if (msg1 != null && msg1.ret_ == "0") {
-						result = 1;
-					}
-					else {
-						result = -2;
-						if (msg1 != null) MyDebug.LogFormat("Handshake failed with:{0}", msg1.ret_);
-					}
+
+			Func<int, string, MsgRpcRet> cb = (cmd, json) => {
+				MsgRpcRet ret = new MsgRpcRet();
+				ret.msg = JsonMapper.ToObject<msg_handshake_ret>(json);
+				ret.err_ = 0;
+				return ret;
+			};
+
+			var handle = AppController.ins.network.Rpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb, AppController.ins.conf.networkTimeout);
+			yield return handle;
+
+			int result = -2;
+			var msgRet = (MsgRpcRet)handle.Current;
+			if (msgRet.err_ == 0) {
+				var msg1 = (msg_handshake_ret)msgRet.msg;
+				if (msg1.ret_ == "0") {
+					result = 1;
 				}
 				else {
 					result = -2;
+					if (msg1 != null) MyDebug.LogFormat("Handshake failed with:{0}", msg1.ret_);
 				}
-			};
+			}
 
-			if (!AppController.ins.network.Rpc((short)GateReqID.msg_handshake, msg, (short)GateRspID.msg_handshake_ret, cb, AppController.ins.conf.networkTimeout)) {
-				MyDebug.LogFormat("Handshake failed with rpc failed.");
-				yield return -1;
-			}
-			else {
-				while (result == -1) {
-					yield return new WaitForSeconds(0.1f);
-				}
-				yield return result;
-			}
+			yield return result;
 		}
 
 		void OnSockEvent_(object sender, MySocket.SocketState st)

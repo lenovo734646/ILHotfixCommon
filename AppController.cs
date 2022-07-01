@@ -2,6 +2,7 @@
 using AssemblyCommon.Bridges;
 using Hotfix.Lobby;
 using Hotfix.Model;
+using LitJson;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -156,26 +157,28 @@ namespace Hotfix.Common
 			ILRuntime_CLPF.Initlize();
 			ILRuntime_Global.Initlize();
 
-			network.AddMsgHandler(OnNetMsg);
+			network.Start();
+
+			InstallMsgHandler();
 			audio.Start();
 
 			runQueue.StartCor(DoStart_(), true);
 		}
 
-		public void OnNetMsg(object sender, NetEventArgs e)
+		public void InstallMsgHandler()
 		{
-			if(e.cmd == (int)CommID.msg_sync_item) {
-				var msgi = (msg_sync_item)e.msg;
+			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
+				msg_sync_item msgi = JsonMapper.ToObject<msg_sync_item>(json);
 				self.gamePlayer.items.SetKeyVal(int.Parse(msgi.item_id_), long.Parse(msgi.count_));
 				self.gamePlayer.DispatchDataChanged();
-				MyDebug.LogWarningFormat("Sync Item:{0},{1}", int.Parse(msgi.item_id_), long.Parse(msgi.count_));
-			}
-			else if(e.cmd == (int)AccRspID.msg_same_account_login) {
+			}, this);
+
+			network.RegisterMsgHandler((int)AccRspID.msg_same_account_login, (cmd, json) => {
 				ins.disableNetwork = true;
 				ViewPopup.Create(LangUITip.SameAccountLogin, ViewPopup.Flag.BTN_OK_ONLY, () => {
 					ins.StartCor(ins.CheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
 				});
-			}
+			}, this);
 		}
 
 		IEnumerator CachedResources_()

@@ -1,4 +1,5 @@
 ﻿using AssemblyCommon;
+using LitJson;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -57,20 +58,20 @@ namespace Hotfix.Common
 				msg.psw_ = psw.text;
 				msg.old_psw_ = psw.text;
 
-				AppController.ins.network.Rpc((short)CorReqID.msg_set_bank_psw, msg, (short)CommID.msg_common_reply, (rpl) => {
-					if (rpl == null) return;
-					if (rpl.err_ == 1) {
+				AppController.ins.network.Rpc((ushort)CorReqID.msg_set_bank_psw, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
+					var rpl = JsonMapper.ToObject<msg_common_reply>(json);
+					if (rpl.err_ == "1") {
 						Close();
 						var view = new ViewBankMain(null);
 						AppController.ins.currentApp.game.OpenView(view);
 						AppController.ins.self.bankPsw = msg.psw_;
 					}
 					else {
-						if (rpl.err_ == -999) {
+						if (rpl.err_ == "-999") {
 							ViewToast.Create(LangUITip.PasswordIncorrect);
 						}
 					}
-				}, 3.0f);
+				});
 			}
 		}
 

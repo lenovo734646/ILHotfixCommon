@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AssemblyCommon;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,24 +58,12 @@ namespace Hotfix.Common
 			return dic[key];
 		}
 
-		//lockTime 多久不能重新点击
-		static Dictionary<GameObject, float> lastClicked = new Dictionary<GameObject, float>();
-		public static void OnClick(this GameObject obj, UnityAction act, float lockTime = 0.0f)
+		public static void RemovePhysic(this GameObject obj)
 		{
-			if(lockTime > 0) {
-				if (!lastClicked.ContainsKey(obj)) {
-					lastClicked.Add(obj, Time.time);
-				}
-				else {
-					if (Time.time - lastClicked[obj] < lockTime) {
-						return;
-					}
-					lastClicked[obj] = Time.time;
-				}
-			}
-
-			var btn = obj.GetComponent<Button>();
-			btn.onClick.AddListener(act);
+			var rgd = obj.GetComponent<Rigidbody2D>();
+			GameObject.Destroy(rgd);
+			var collider = obj.GetComponent<Collider2D>();
+			GameObject.Destroy(collider);
 		}
 	}
 

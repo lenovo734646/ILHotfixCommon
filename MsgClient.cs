@@ -55,19 +55,19 @@ namespace Hotfix.Common
 		msg_get_public_data = 1212,
 	}
 
-	public class msg_base
+	public class MsgBase
 	{
 		public virtual int to_server() { return -1; }
 		public string rpc_sequence_;
 	}
 
-	public class msg_rpc_ret
+	public class MsgRpcRet
 	{
-		public int err_ = 0;
-		public msg_base msg_;
+		public int err_ = 0; //-999超时
+		public MsgBase msg;
 	}
 
-	public class msg_from_client : msg_base
+	public class msg_from_client : MsgBase
 	{
 		public string sign_;
 	}

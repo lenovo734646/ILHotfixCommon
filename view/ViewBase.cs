@@ -158,7 +158,7 @@ namespace Hotfix.Common
 		public  void Close()
 		{
 			OnClose();
-
+			ClosedEvent?.Invoke(this, new EventArgs());
 			AppController.ins.currentApp?.game?.OnViewClosed(this);
 			//按加载顺序倒着释放
 			objs.Reverse();
@@ -170,6 +170,8 @@ namespace Hotfix.Common
 			resNames_.Clear();
 			resScenes_ = null;
 
+			AppController.ins.network.RemoveMsgHandler(this);
+
 			//停止本窗口所有协程
 			this.StopCor(-1);
 			Stop();
@@ -179,9 +181,6 @@ namespace Hotfix.Common
 		{
 			
 		}
-
-		//网络消息回调,这是原始的网络消息
-		public abstract void OnNetMsg(int cmd, string json);
 
 		IEnumerator LoadResources()
 		{
@@ -273,6 +272,8 @@ namespace Hotfix.Common
 			yield return ReadyResource();
 			finished_ = true;
 		}
+
+		public event EventHandler ClosedEvent;
 
 		List<ViewLoadTask<GameObject>> resNames_ = new List<ViewLoadTask<GameObject>>();
 		ViewLoadTask<AddressablesLoader.DownloadScene> resScenes_;

@@ -10,9 +10,16 @@ using UnityEngine.UI;
 
 namespace Hotfix.Common.Slot
 {
+	public enum RollState
+	{
+		Stopped,
+		WaitingResult,
+		Rolling,
+	}
+
 	public abstract class RollingConfigBase
 	{
-		public float rollTime = 2.0f, instanceShowPercent = 0.9f;
+		public float rollTime = 2.0f, instanceShowPercent = 0.95f;
 		public int simPages = 10, rowCount = 3, colCount = 5;
 		public Vector2 cellSize;
 		public float initY = -214;
@@ -133,7 +140,7 @@ namespace Hotfix.Common.Slot
 		protected abstract IEnumerator PlayStartEffect();
 		protected abstract void PlayCompleteEffect();
 
-		protected List<RollItemBase> SetRollItems(List<int> items, RollItemBase.State st)
+		public List<RollItemBase> SetRollItems(List<int> items, RollItemBase.State st)
 		{
 			List<RollItemBase> ret = new List<RollItemBase>();
 			for (int i = items.Count - 1; i >= 0; i--) {
@@ -201,9 +208,13 @@ namespace Hotfix.Common.Slot
 			for (int i = 0; i < conf_.colCount; i++) {
 				var it = tweens[i];
 				if (tc.Elapse() < conf_.rollTime * conf_.instanceShowPercent) {
-					float goTime = conf_.rollTime * conf_.instanceShowPercent - i * conf_.colDelay;
-					it.Goto(goTime);
-					it.Play();
+					float goTime = (conf_.rollTime * conf_.instanceShowPercent - i * conf_.colDelay);
+					float playedPercent = it.ElapsedPercentage();
+
+					if((goTime / it.Duration()) >= playedPercent) {
+						it.Goto(goTime);
+						it.Play();
+					}
 				}
 			}
 
@@ -250,7 +261,7 @@ namespace Hotfix.Common.Slot
 			}
 		}
 
-		public virtual void Close()
+		public virtual void Reset()
 		{
 			foreach (var it in rollItems_) {
 				it.Close();
@@ -284,7 +295,7 @@ namespace Hotfix.Common.Slot
 		}
 
 		public abstract int GetResultType(SlotGameResult result);
-		
+		protected abstract void PlayHitLineEffect();
 		public override IEnumerator StartRoll()
 		{
 			yield return base.StartRoll();
@@ -312,6 +323,11 @@ namespace Hotfix.Common.Slot
 					lines_[line].StartAnim();
 				}
 
+				if(gameResult_.winLines.Count > 0) {
+					PlayHitLineEffect();
+					yield return new WaitForSeconds(1.0f);
+				}
+				
 			}
 			else {
 				//未中奖的图标灰掉

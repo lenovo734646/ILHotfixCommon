@@ -33,7 +33,7 @@ namespace Hotfix.Common.Slot
 		msg_random_present_ret_record = 17,
 	};
 
-	public class msg_start_random_req : msg_base
+	public class msg_start_random_req : MsgBase
 	{
 		public enum ReqType
 		{
@@ -51,19 +51,19 @@ namespace Hotfix.Common.Slot
 		public int view_present_; //0 正常开始， 1 押大，2 押小, 3 押和 4 收分, 5,收每日排行榜励,6 收每周排行榜奖励
 	}
 
-	public class msg_get_luck_player : msg_base
+	public class msg_get_luck_player : MsgBase
 	{
 		public int type_; //0新入围,1历史排行,2获取子数据, 3.记录播放次数，4,记录喜欢, 5,获取播放和喜欢次数
 		public string instance_;
 	}
 
-	public class msg_set_bets_req : msg_base
+	public class msg_set_bets_req : MsgBase
 	{
 		public int pid_; // 奖项id,顺时针递增。从1开始，12点方向
 		public int count_;
 	}
 
-	public class msg_get_luck_player_data_req : msg_base
+	public class msg_get_luck_player_data_req : MsgBase
 	{
 		public string instance_;
 	}
@@ -73,6 +73,7 @@ namespace Hotfix.Common.Slot
 	/// </summary>
 	public class msg_random_present_ret : msg_room_msg
 	{
+		public string pid_;
 		public string result_;  //有额外翻牌的机会次数. 小马丽的机会次数,免费游戏次数
 		public string result2nd_;  //特殊数据，九线777随机出来的倍数
 		public string random_item;  //15个图标随机结果
@@ -88,7 +89,7 @@ namespace Hotfix.Common.Slot
 		public string issub_; //是不是子游戏项
 	}
 
-	public class msg_get_luck_player_ret : msg_random_present_ret
+	public class msg_get_luck_player_ret : MsgBase
 	{
 		public string create_time_;
 		public string nickname_;
@@ -103,6 +104,7 @@ namespace Hotfix.Common.Slot
 		public string viewed_;
 		public string my_favor_;
 		public string total_favor_;
+		public string win_;
 	}
 
 	public class msg_bigsmall_result : msg_room_msg
@@ -111,7 +113,7 @@ namespace Hotfix.Common.Slot
 		public string win_;     //赢了多少钱
 	}
 
-	public class msg_luck_player : msg_base
+	public class msg_luck_player : MsgBase
 	{
 		public string nickname_;
 		public string viplv_;

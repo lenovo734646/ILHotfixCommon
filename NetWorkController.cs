@@ -4,49 +4,24 @@ using Hotfix.Model;
 using LitJson;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static AssemblyCommon.MySocket;
 
 namespace Hotfix.Common
 {
-	public class RpcTaskBase
+	public class MsgHandler
 	{
-		public float timeout = 3.0f;
-		public bool callbackOnTimeout = false;
-		public TimeCounter tc = new TimeCounter("");
-		public RpcTaskBase()
-		{
-			tc.Restart();
-		}
-		public bool IsTimeout()
-		{
-			return tc.Elapse() >= timeout;
-		}
+		public int msgID;
+		public Action<int, string> HandleMsg;
+		public object owner;
 	}
 
-	public class RpcTask : RpcTaskBase
+	public class MsgPbHandler
 	{
-		public Type tp;
-		public Action<IProtoMessage> callback;
-	}
-
-	public class RpcTask2 : RpcTaskBase
-	{
-		public int rspID;
-		public Action<msg_rpc_ret> callback;
-	}
-
-	//网络事情消息
-	public class NetEventArgs
-	{
-		public int fromServer;
-		public int cmd;
-		public string strCmd;
-		public byte[] payload;
-
-		public IProtoMessage msgProto;
-		public msg_base msg;
+		public string sMsgID;
+		public Action<string,  byte[]> HandleMsg;
 	}
 
 	public static class ProtoMessageCreator
@@ -87,13 +62,12 @@ namespace Hotfix.Common
 			WebGL = 6,
 		}
 
-		public event EventHandler<NetEventArgs> MsgHandler;
 		public override string GetDebugInfo()
 		{
 			return $"Network:Time Since Last Ping:{TimeElapseSinceLastPing()}s";
 		}
 
-		public bool SendMessage(short subCmd, string json, int toserver)
+		public bool SendMessage(ushort subCmd, string json, int toserver)
 		{
 			sendStream_.Reset();
 			MsgJsonForm msg = new MsgJsonForm();
@@ -119,97 +93,45 @@ namespace Hotfix.Common
 			Globals.net.SendMessage(sendStream_);
 		}
 
-
 		//做RPC调用,方便代码编写
-		public IEnumerator Rpc(short msgid, msg_base proto, int rspID, float timeout = 3.0f)
+		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, MsgRpcRet> callback, float timeout = 3.0f)
 		{
-			msg_rpc_ret Result = null;
 			bool responsed = false;
-			Action<msg_rpc_ret> callback = (msg) => {
+			MsgRpcRet ret = new MsgRpcRet();
+			Action<int, string> wrapCallback = (cmd, json) => {
 				responsed = true;
-				if (msg != null) Result = msg;
+				ret = callback(cmd, json);
 			};
 
-			if (Rpc(msgid, proto, rspID, callback, timeout)) {
-				TimeCounter tc = new TimeCounter("");
-				while (!responsed && tc.Elapse() < timeout) {
-					yield return new WaitForSeconds(0.01f);
-				}
-			}
-			yield return Result;
-		}
-
-		public bool Rpc(short msgid, msg_base proto, int rspID, Action<msg_rpc_ret> callback, float timeout)
-		{
-			if (rpcHandler2.ContainsKey(rspID)) {
-				return false;
-			}
-
-			if (rpcHandler2.ContainsKey(msgid)) {
-				return false;
-			}
-
-			Action<msg_rpc_ret> wrapper = (msg) => {
-				callback(msg);
-				rpcHandler2.Remove(rspID);
-				rpcHandler2.Remove(msgid);
-			};
-
-			RpcTask2 tsk = new RpcTask2();
-			tsk.rspID = rspID;
-			tsk.callback = wrapper;
-			tsk.timeout = timeout;
-			tsk.callbackOnTimeout = true;
-
-			rpcHandler2.Add(tsk.rspID, tsk);
-			rpcHandler2.Add(msgid, tsk);
+			var handler = RegisterMsgHandler(rspID, wrapCallback, this);
 			SendMessage(msgid, proto);
-			return true;
+
+			TimeCounter tc = new TimeCounter("");
+			while (!responsed && tc.Elapse() < timeout) {
+				yield return new WaitForSeconds(0.1f);
+			}
+			//超时回调
+			if (!responsed) {
+				ret.err_ = -9999;
+			}
+			RemoveMsgHandler(handler);
+			yield return ret;
 		}
 
-
-		//做RPC调用,方便代码编写
-		public IEnumerator Rpc<T>(IProtoMessage proto, float timeout = 3.0f) where T : IProtoMessage
+		public bool Rpc(ushort msgid, MsgBase proto, ushort rspID, Action<int, string> callback)
 		{
-			IProtoMessage Result = null;
-			bool responsed = false;
-			Action<IProtoMessage> callback = (msg) => {
-				responsed = true;
-				if (msg != null) Result = (T)msg;
+			MsgHandler handler = null;
+			Action<int, string> wrapCallback = (cmd, json) => {
+				callback(cmd, json);
+				RemoveMsgHandler(handler);
 			};
 
-			if (Rpc<T>(proto, callback, timeout)) {
-				TimeCounter tc = new TimeCounter("");
-				while (!responsed && tc.Elapse() < timeout) {
-					yield return null;
-				}
-			}
-			yield return Result;
+			handler = RegisterMsgHandler(rspID, wrapCallback, this);
+			return SendMessage(msgid, proto);
 		}
 
-		public bool Rpc<T>(IProtoMessage proto, Action<IProtoMessage> callback, float timeout) where T : IProtoMessage
-		{
-			if (rpcHandler.ContainsKey(typeof(T))) {
-				return false;
-			}
 
-			Action<IProtoMessage> wrapper = (msg) => {
-				callback(msg);
-				rpcHandler.Remove(typeof(T));
-			};
-
-			RpcTask tsk = new RpcTask();
-			tsk.tp = typeof(T);
-			tsk.callback = wrapper;
-			tsk.timeout = timeout;
-			tsk.callbackOnTimeout = true;
-			rpcHandler.Add(tsk.tp, tsk);
-
-			SendMessage(proto);
-			return true;
-		}
-
-		public bool SendMessage(short subCmd, msg_base content)
+		public bool SendMessage(ushort subCmd, MsgBase content)
 		{
 			string json = JsonMapper.ToJson(content);
 			return SendMessage(subCmd, json, content.to_server());
@@ -309,6 +231,24 @@ namespace Hotfix.Common
 				yield return 1;
 		}
 
+		public MsgRpcRet RPCCallback<T>(int cmd, string json) where T: MsgBase
+		{
+			MsgRpcRet msgr = new MsgRpcRet();
+			if (cmd ==(int)CommID.msg_common_reply) {
+				var msg = JsonMapper.ToObject<msg_common_reply>(json);
+				if(int.Parse(msg.rp_cmd_) == cmd) {
+					msgr.err_ = int.Parse(msg.err_);
+				}
+				msgr.msg = msg;
+			}
+			else {
+				msgr.err_ = 0;
+				var msg = JsonMapper.ToObject<T>(json);
+				msgr.msg = msg;
+			}
+			return msgr;
+		}
+
 		public IEnumerator EnterGame(GameConfig toGame)
 		{
 			MyDebug.LogFormat("AutoLogin begin.");
@@ -340,22 +280,27 @@ namespace Hotfix.Common
 					msg.pwd_hash_ = Globals.Md5Hash(app.lastUseAccount.psw);
 					msg.machine_mark_ = app.conf.GetDeviceID();
 					msg.sign_ = Globals.Md5Hash(msg.acc_name_ + msg.pwd_hash_ + msg.machine_mark_ + "{51B539D8-0D9A-4E35-940E-22C6EBFA86A8}");
-					var resultOfRpc = app.network.Rpc((short)AccReqID.msg_user_register, msg, (short)CommID.msg_common_reply);
+					var resultOfRpc = app.network.Rpc((ushort)AccReqID.msg_user_register, msg, (ushort)CommID.msg_common_reply,
+						RPCCallback<msg_common_reply>);
 					yield return resultOfRpc;
 
 					if (resultOfRpc.Current == null) {
 						progressOfLoading?.Desc(LangUITip.RegisterFailed);
 						goto Clean;
 					}
-
-					msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
-					msg_common_reply r = (msg_common_reply)(rpcd.msg_);
-
-					if (r.err_ == "-994") {
-						progressOfLoading?.Desc(LangUITip.ServerIsBusy);
-						goto Clean;
+					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
+					if(rpcd.err_ == 0) {
+						msg_common_reply r = (msg_common_reply)(rpcd.msg);
+						if (r.err_ == "-994") {
+							progressOfLoading?.Desc(LangUITip.ServerIsBusy);
+							goto Clean;
+						}
+						else if (r.err_ != "0" && r.err_ != "-995") {
+							progressOfLoading?.Desc(LangUITip.RegisterFailed);
+							goto Clean;
+						}
 					}
-					else if (r.err_ != "0" && r.err_ != "-995") {
+					else {
 						progressOfLoading?.Desc(LangUITip.RegisterFailed);
 						goto Clean;
 					}
@@ -369,7 +314,8 @@ namespace Hotfix.Common
 					msgReq.sign_ = Globals.Md5Hash(msgReq.acc_name_ + msgReq.pwd_hash_ + msgReq.machine_mark_ + "{51B539D8-0D9A-4E35-940E-22C6EBFA86A8}");
 					MyDebug.LogFormat($"Login Use:{msgReq.acc_name_},{msgReq.machine_mark_}");
 
-					var resultOfRpc = app.network.Rpc((short)AccReqID.msg_user_login, msgReq, (short)AccRspID.msg_user_login_ret);
+					var resultOfRpc = app.network.Rpc((ushort)AccReqID.msg_user_login, msgReq,
+						(ushort)AccRspID.msg_user_login_ret, RPCCallback<msg_user_login_ret>);
 					yield return resultOfRpc;
 
 					if (resultOfRpc.Current == null) {
@@ -377,15 +323,14 @@ namespace Hotfix.Common
 						goto Clean;
 					}
 
-					msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
-
-					msg_user_login_ret r = (msg_user_login_ret)(rpcd.msg_);
+					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
 					if (rpcd.err_ != 0) {
 						MyDebug.LogFormat("登录失败.{0}", rpcd.err_);
 						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 						goto Clean;
 					}
 
+					msg_user_login_ret r = (msg_user_login_ret)(rpcd.msg);
 					var player = app.self.gamePlayer;
 					player.iid = int.Parse(r.iid_);
 					player.nickName = r.nickname_;
@@ -401,7 +346,8 @@ namespace Hotfix.Common
 				msg.gameid_ = ((int)toGame.gameID);
 				msg.uid_ = app.self.gamePlayer.uid;
 
-				var resultOfRpc = app.network.Rpc((short)AccReqID.msg_get_game_coordinate, msg, (short)AccRspID.msg_channel_server);
+				var resultOfRpc = app.network.Rpc((ushort)AccReqID.msg_get_game_coordinate, msg, (ushort)AccRspID.msg_channel_server,
+					RPCCallback<msg_channel_server>);
 				yield return resultOfRpc;
 
 				if (resultOfRpc.Current == null) {
@@ -412,8 +358,8 @@ namespace Hotfix.Common
 				else {
 					MyDebug.LogFormat("Get Coordinate succ.");
 				}
-				msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
-				msg_channel_server r = (msg_channel_server)(rpcd.msg_);
+				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
+				msg_channel_server r = (msg_channel_server)(rpcd.msg);
 				if (rpcd.err_ != 0) {
 					progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 					MyDebug.LogFormat("Get Coordinate failed,error:{0},game:{1}", rpcd.err_, toGame.gameID);
@@ -436,7 +382,8 @@ namespace Hotfix.Common
 					msg_alloc_game_server msg = new msg_alloc_game_server();
 					msg.game_id_ = (int)toGame.gameID;
 
-					var resultOfRpc = app.network.Rpc((short)CorReqID.msg_alloc_game_server, msg, (short)CorRspID.msg_switch_game_server);
+					var resultOfRpc = app.network.Rpc((ushort)CorReqID.msg_alloc_game_server, msg, (ushort)CorRspID.msg_switch_game_server, 
+						RPCCallback<msg_switch_game_server>);
 					yield return resultOfRpc;
 					if (resultOfRpc.Current == null) {
 						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
@@ -445,8 +392,8 @@ namespace Hotfix.Common
 					}
 					else {
 						MyDebug.LogFormat("alloc game server succ.");
-						msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
-						msg_switch_game_server r = (msg_switch_game_server)(rpcd.msg_);
+						MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
+						msg_switch_game_server r = (msg_switch_game_server)(rpcd.msg);
 					}
 
 				}
@@ -468,7 +415,7 @@ namespace Hotfix.Common
 			{
 				msg_enter_game_req msg = new msg_enter_game_req();
 				msg.room_id_ = configid << 24 | roomid;
-				var resultOfRpc = AppController.ins.network.Rpc((short)GameReqID.msg_enter_game_req, msg, (short)GameRspID.msg_prepare_enter);
+				var resultOfRpc = AppController.ins.network.Rpc((ushort)GameReqID.msg_enter_game_req, msg, (ushort)GameRspID.msg_prepare_enter, RPCCallback<msg_prepare_enter>);
 				yield return resultOfRpc;
 				if (resultOfRpc.Current == null) {
 					MyDebug.LogFormat("enter game room msg_enter_game_req failed");
@@ -480,14 +427,14 @@ namespace Hotfix.Common
 
 			{
 				msg_prepare_enter_complete msg = new msg_prepare_enter_complete();
-				var resultOfRpc = AppController.ins.network.Rpc((short)GameReqID.msg_prepare_enter_complete, msg, (short)CommID.msg_common_reply);
+				var resultOfRpc = AppController.ins.network.Rpc((ushort)GameReqID.msg_prepare_enter_complete, msg, (ushort)CommID.msg_common_reply, RPCCallback<msg_common_reply>);
 				yield return resultOfRpc;
 				if (resultOfRpc.Current == null) {
 					MyDebug.LogFormat("msg_prepare_enter_complete failed");
 					goto Clean;
 				}
-				msg_rpc_ret rpcd = (msg_rpc_ret)(resultOfRpc.Current);
-				msg_common_reply r = (msg_common_reply)(rpcd.msg_);
+				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
+				msg_common_reply r = (msg_common_reply)(rpcd.msg);
 				if (r.err_ == "0") {
 					MyDebug.LogFormat("OnGameRoomSucc");
 					yield return AppController.ins.currentApp.game.GameRoomEnterSucc();
@@ -511,42 +458,9 @@ namespace Hotfix.Common
 
 		}
 
-		public void AddMsgHandler(EventHandler<NetEventArgs> handler)
-		{
-			MsgHandler += handler;
-		}
-
-		public void RemoveMsgHandler(EventHandler<NetEventArgs> handler)
-		{
-			MsgHandler -= handler;
-		}
-
 		public override void Update()
 		{
 			Globals.net?.Update();
-			{
-				var arr = rpcHandler.ToArray();
-
-				for (int i = 0; i < arr.Count; i++) {
-					var tsk = arr[i].Value;
-					if (tsk.IsTimeout()) {
-						if (tsk.callbackOnTimeout) tsk.callback(null);
-						rpcHandler.Remove(tsk.tp);
-					}
-				}
-			}
-
-			{
-				var arr = rpcHandler2.ToArray();
-
-				for (int i = 0; i < arr.Count; i++) {
-					var tsk = arr[i].Value;
-					if (tsk.IsTimeout()) {
-						if (tsk.callbackOnTimeout) tsk.callback(null);
-						rpcHandler2.Remove(tsk.rspID);
-					}
-				}
-			}
 
 			if (checkSeesionTc_.Elapse() > 5.0f && AppController.ins.network.session != null ) {
 				checkSeesionTc_.Restart();
@@ -618,83 +532,58 @@ namespace Hotfix.Common
 
 		public override void Start()
 		{
-
+			RegisterMsgHandler((int)INT_MSGID.INTERNAL_MSGID_PING, (cmd, json) => {
+				HandlePing_();
+			}, this);
 		}
 
 		public override void Stop()
 		{
 			session.Stop();
 		}
-		void DispatchNetMsgEvent_(MySocket s, NetEventArgs evt)
+
+		public MsgHandler RegisterMsgHandler(int msgID, Action<int, string> handler, object owner)
 		{
-			MsgHandler?.Invoke(s, evt);
+			var msgH = new MsgHandler();
+			msgH.msgID = msgID;
+			msgH.HandleMsg = handler;
+			msgH.owner = owner;
+			List<MsgHandler> lst;
+			if (msgHandlers.TryGetValue(msgID, out lst)) {
+				lst.Add(msgH);
+			}
+			else {
+				lst = new List<MsgHandler>();
+				lst.Add(msgH);
+				msgHandlers.Add(msgID, lst);
+			}
+			return msgH;
 		}
 
-		msg_base CreateMsgFromJson_(short subMsg, string content)
+		public void RemoveMsgHandler(MsgHandler handler)
 		{
-			switch(subMsg) {
-				case (short)GateRspID.msg_handshake_ret: {
-					return JsonMapper.ToObject<msg_handshake_ret>(content);
-				}
-				case (short)AccRspID.msg_user_login_ret: {
-					return JsonMapper.ToObject<msg_user_login_ret>(content);
-				}
-				case (short)AccRspID.msg_same_account_login: {
-					return JsonMapper.ToObject<msg_same_account_login>(content);
-				}
-				case (short)AccRspID.msg_channel_server: {
-					return JsonMapper.ToObject<msg_channel_server>(content);
-				}
-				case (short)CommID.msg_sync_item: {
-					return JsonMapper.ToObject<msg_sync_item>(content); 
-				}
-				case (short)GameRspID.msg_currency_change: {
-					return JsonMapper.ToObject<msg_currency_change>(content);
-				}
-				case (short)CommID.msg_common_reply: {
-					return JsonMapper.ToObject<msg_common_reply>(content);
-				}
-				case (short)CorRspID.msg_get_bank_info_ret: {
-					return JsonMapper.ToObject<msg_get_bank_info_ret>(content);
-				}
-				case unchecked((short)INT_MSGID.INTERNAL_MSGID_PING): {
-					return new msg_ping();
-				}
-				case (int)GameRspID.msg_prepare_enter: {
-					return JsonMapper.ToObject<msg_prepare_enter>(content);
-				}
-				case (short)CorRspID.msg_switch_game_server: {
-					return JsonMapper.ToObject<msg_switch_game_server>(content);
-				}
+			List<MsgHandler> lst;
+			if (msgHandlers.TryGetValue(handler.msgID, out lst)) {
+				lst.Remove(handler);
 			}
-			return null;
 		}
 
-		IProtoMessage CreateMsgFromPb_(string subMsg, byte[] content)
+		public void RemoveMsgHandler(object owner)
 		{
-			switch (subMsg) {
-				
+			foreach(var lst in msgHandlers) {
+				var cpl = new List<MsgHandler>(lst.Value);
+				foreach(var h in cpl) {
+					if(h.owner == owner) {
+						lst.Value.Remove(h);
+					}
+				}
 			}
-			return null;
 		}
+
 		private void HandlePing_()
 		{
-			if (rpcHandler2.ContainsKey((int)INT_MSGID.INTERNAL_MSGID_PING)) {
-				msg_rpc_ret rpcd = new msg_rpc_ret();
-				rpcd.err_ = 0;
-				rpcHandler2[(int)INT_MSGID.INTERNAL_MSGID_PING].callback(rpcd);
-			}
 			lastPingSend_--;
 			if (lastPingSend_ < 0) lastPingSend_ = 0;
-		}
-
-		private void DispatchThisMsg_(MySocket sock, MsgJsonForm msg, msg_base msgRsp)
-		{
-			NetEventArgs evt = new NetEventArgs();
-			evt.fromServer = msg.toserver;
-			evt.cmd = msg.subCmd;
-			evt.msg = msgRsp;
-			DispatchNetMsgEvent_(sock, evt);
 		}
 
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
@@ -703,61 +592,25 @@ namespace Hotfix.Common
 				stm.SetCurentRead(4);
 				int cmd = stm.ReadInt();
 				int order = stm.ReadInt();
+
 				switch (cmd) {
 					//Json消息
 					case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
 						MsgJsonForm msg = new MsgJsonForm();
 						msg.Read(stm);
-						var msgRsp = CreateMsgFromJson_(msg.subCmd, msg.content);
-						if (msgRsp != null) {
-							if (rpcHandler2.ContainsKey(msg.subCmd)) {
-								//如果是通用回复
-								msg_rpc_ret rsp = new msg_rpc_ret();
-								rsp.err_ = 0;
-								if(msgRsp.GetType() == typeof(msg_common_reply)) {
-									var commRpl = (msg_common_reply)(msgRsp);
-									rsp.err_ = int.Parse(commRpl.err_);
-								}
-								rsp.msg_ = msgRsp;
-								rpcHandler2[msg.subCmd].callback(rsp);
-								//MyDebug.LogFormat("msg recv:{0},{1}", msg.subCmd, msg.content);
-							}
-							else {
-								if (msg.subCmd == (short)CommID.msg_common_reply) {
-									var commRpl = (msg_common_reply)(msgRsp);
-									if (rpcHandler2.ContainsKey(int.Parse(commRpl.rp_cmd_))) {
 
-										msg_rpc_ret rsp = new msg_rpc_ret();
-										rsp.err_ = int.Parse(commRpl.err_);
-										//如果是通用回复
-										rpcHandler2[int.Parse(commRpl.rp_cmd_)].callback(rsp);
-									}
-									else {
-										DispatchThisMsg_(sock, msg, msgRsp);
-									}
-								}
-								else if(msg.subCmd == unchecked((short)(INT_MSGID.INTERNAL_MSGID_PING))) {
-									HandlePing_();
-								}
-								else {
-									//MyDebug.LogFormat("msg recv:{0},{1}", msg.subCmd, msg.content);
-									DispatchThisMsg_(sock, msg, msgRsp);
-								}
+						MyDebug.LogWarningFormat("json Msg :{0}, {1}", msg.subCmd, msg.content);
+
+						List<MsgHandler> handlers;
+						var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
+						if (succ) {
+							foreach(var handler in handlers) {
+								handler.HandleMsg(msg.subCmd, msg.content);
 							}
 						}
 						else {
-							NetEventArgs evt = new NetEventArgs();
-							evt.cmd = msg.subCmd;
-							evt.fromServer = msg.toserver;
-							evt.payload = Encoding.UTF8.GetBytes(msg.content);
-							DispatchNetMsgEvent_(sock, evt);
-							MyDebug.LogFormat("msg recv:{0},{1}", msg.subCmd, msg.content);
+							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.subCmd, msg.content);
 						}
-					}
-					break;
-					//系统PING
-					case (int)INT_MSGID.INTERNAL_MSGID_PING: {
-						HandlePing_();
 					}
 					break;
 					//Protobuffer消息
@@ -765,22 +618,30 @@ namespace Hotfix.Common
 						MsgPbForm msg = new MsgPbForm();
 						msg.Read(stm);
 
-						var msgRsp = CreateMsgFromPb_(msg.protoName, msg.content);
-
-						NetEventArgs evt = new NetEventArgs();
-						evt.strCmd = msg.protoName;
-						if (msgRsp != null) {
-							evt.msgProto = msgRsp;
+						List<MsgPbHandler> handlers;
+						var succ = msgPbHandlers.TryGetValue(msg.protoName, out handlers);
+						if (succ) {
+							foreach (var handler in handlers) {
+								handler.HandleMsg(msg.protoName, msg.content);
+							}
 						}
 						else {
-							evt.payload = msg.content;
+							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.protoName, msg.content);
 						}
-						DispatchNetMsgEvent_(sock, evt);
 					}
 					break;
 					//二进制消息
 					case (int)INT_MSGID.INTERNAL_MSGID_BINFORM: {
 
+					}
+					break;
+					default: {
+						if(cmd == (int)INT_MSGID.INTERNAL_MSGID_PING) {
+							HandlePing_();
+						}
+						else {
+							MyDebug.LogWarningFormat("Msg is ignored:{0}", cmd);
+						}
 					}
 					break;
 				}
@@ -795,11 +656,10 @@ namespace Hotfix.Common
 
 		TimeCounter checkSeesionTc_ = new TimeCounter("");
 		BinaryStream sendStream_ = new BinaryStream(0xFFFF);
-		DictionaryCached<Type, RpcTask> rpcHandler = new DictionaryCached<Type, RpcTask>();
-		DictionaryCached<int, RpcTask2> rpcHandler2 = new DictionaryCached<int, RpcTask2>();
 		int lastPingSend_ = 0;
 		bool isReconnecting_ = false;
 		int lastConfigid, lastRoomid;
-
+		Dictionary<int, List<MsgHandler>> msgHandlers = new Dictionary<int, List<MsgHandler>>();
+		Dictionary<string, List<MsgPbHandler>> msgPbHandlers = new Dictionary<string, List<MsgPbHandler>>();
 	}
 }
