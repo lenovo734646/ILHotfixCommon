@@ -172,34 +172,34 @@ namespace Hotfix.Common
 		{
 			//设置要登录的账号
 			if (tp == AccountInfo.LoginType.Guest) {
-				var token = AppController.ins.conf.GetDeviceID();
-				var findit = AppController.ins.accounts.Find((acc) => { return acc.accountName == token; });
+				var token = App.ins.conf.GetDeviceID();
+				var findit = App.ins.accounts.Find((acc) => { return acc.accountName == token; });
 				if (findit != null) {
-					AppController.ins.lastUseAccount = findit;
-					AppController.ins.lastUseAccount.psw = psw;
+					App.ins.lastUseAccount = findit;
+					App.ins.lastUseAccount.psw = psw;
 				}
 				else {
 					AccountInfo inf = new AccountInfo();
 					inf.accountName = token;
 					inf.loginType = tp;
 					inf.psw = psw;
-					AppController.ins.accounts.Add(inf);
-					AppController.ins.lastUseAccount = inf;
+					App.ins.accounts.Add(inf);
+					App.ins.lastUseAccount = inf;
 				}
 			}
 			else {
-				var findit = AppController.ins.accounts.Find((acc) => { return acc.accountName == account; });
+				var findit = App.ins.accounts.Find((acc) => { return acc.accountName == account; });
 				if (findit != null) {
-					AppController.ins.lastUseAccount = findit;
-					AppController.ins.lastUseAccount.psw = psw;
+					App.ins.lastUseAccount = findit;
+					App.ins.lastUseAccount.psw = psw;
 				}
 				else {
 					AccountInfo inf = new AccountInfo();
 					inf.accountName = account;
 					inf.psw = psw;
 					inf.loginType = tp;
-					AppController.ins.accounts.Add(inf);
-					AppController.ins.lastUseAccount = inf;
+					App.ins.accounts.Add(inf);
+					App.ins.lastUseAccount = inf;
 				}
 			}
 		}
@@ -252,12 +252,12 @@ namespace Hotfix.Common
 		public IEnumerator EnterGame(GameConfig toGame)
 		{
 			MyDebug.LogFormat("AutoLogin begin.");
-			if (toGame == null) toGame = AppController.ins.conf.defaultGame;
+			if (toGame == null) toGame = App.ins.conf.defaultGame;
 			bool succ = false;
-			var app = AppController.ins;
+			var app = App.ins;
 			//没有设置登录账号,使用游客登录
 			if (app.lastUseAccount == null) {
-				AppController.ins.network.SetAutoLogin(AccountInfo.LoginType.Guest, AppController.ins.conf.GetDeviceID(), "893NvalEW9od");
+				App.ins.network.SetAutoLogin(AccountInfo.LoginType.Guest, App.ins.conf.GetDeviceID(), "893NvalEW9od");
 			}
 
 			var handleSession = ValidSession();
@@ -335,7 +335,6 @@ namespace Hotfix.Common
 					player.iid = int.Parse(r.iid_);
 					player.nickName = r.nickname_;
 					player.uid = r.uid_;
-					player.items[(int)ITEMID.GOLD] = long.Parse(r.gold_);
 					player.headIco = r.headico_;
 					app.self.phone = r.phone;
 				}
@@ -415,19 +414,19 @@ namespace Hotfix.Common
 			{
 				msg_enter_game_req msg = new msg_enter_game_req();
 				msg.room_id_ = configid << 24 | roomid;
-				var resultOfRpc = AppController.ins.network.Rpc((ushort)GameReqID.msg_enter_game_req, msg, (ushort)GameRspID.msg_prepare_enter, RPCCallback<msg_prepare_enter>);
+				var resultOfRpc = App.ins.network.Rpc((ushort)GameReqID.msg_enter_game_req, msg, (ushort)GameRspID.msg_prepare_enter, RPCCallback<msg_prepare_enter>);
 				yield return resultOfRpc;
 				if (resultOfRpc.Current == null) {
 					MyDebug.LogFormat("enter game room msg_enter_game_req failed");
 					goto Clean;
 				}
 				MyDebug.LogFormat("PrepareGameRoom");
-				yield return AppController.ins.currentApp.game.PrepareGameRoom();
+				yield return App.ins.currentApp.game.PrepareGameRoom();
 			}
 
 			{
 				msg_prepare_enter_complete msg = new msg_prepare_enter_complete();
-				var resultOfRpc = AppController.ins.network.Rpc((ushort)GameReqID.msg_prepare_enter_complete, msg, (ushort)CommID.msg_common_reply, RPCCallback<msg_common_reply>);
+				var resultOfRpc = App.ins.network.Rpc((ushort)GameReqID.msg_prepare_enter_complete, msg, (ushort)CommID.msg_common_reply, RPCCallback<msg_common_reply>);
 				yield return resultOfRpc;
 				if (resultOfRpc.Current == null) {
 					MyDebug.LogFormat("msg_prepare_enter_complete failed");
@@ -437,7 +436,7 @@ namespace Hotfix.Common
 				msg_common_reply r = (msg_common_reply)(rpcd.msg);
 				if (r.err_ == "0") {
 					MyDebug.LogFormat("OnGameRoomSucc");
-					yield return AppController.ins.currentApp.game.GameRoomEnterSucc();
+					yield return App.ins.currentApp.game.GameRoomEnterSucc();
 				}
 				else {
 					MyDebug.LogFormat("msg_prepare_enter_complete msg_common_reply failed {0}", r.err_);
@@ -462,12 +461,12 @@ namespace Hotfix.Common
 		{
 			Globals.net?.Update();
 
-			if (checkSeesionTc_.Elapse() > 5.0f && AppController.ins.network.session != null ) {
+			if (checkSeesionTc_.Elapse() > 5.0f && App.ins.network.session != null ) {
 				checkSeesionTc_.Restart();
-				if (!AppController.ins.disableNetwork &&
-					!AppController.ins.network.session.IsWorking() && 
-					!AppController.ins.network.IsReconnecting()) {
-					this.StartCor(AppController.ins.network.Recounnect(), true);
+				if (!App.ins.disableNetwork &&
+					!App.ins.network.session.IsWorking() && 
+					!App.ins.network.IsReconnecting()) {
+					this.StartCor(App.ins.network.Recounnect(), true);
 				}
 			}
 		}
@@ -492,7 +491,7 @@ namespace Hotfix.Common
 			}
 
 			//登录游戏服务器
-			var handle2 = EnterGame(AppController.ins.currentGameConfig);
+			var handle2 = EnterGame(App.ins.currentGameConfig);
 			yield return handle2;
 
 			if ((int)handle2.Current == 0) {

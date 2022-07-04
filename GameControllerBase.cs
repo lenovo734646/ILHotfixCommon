@@ -73,48 +73,53 @@ namespace Hotfix.Common
 		public IEnumerator GameLoginSucc()
 		{
 			prepared_ = true;
-			CloseAllView();
 			yield return OnGameLoginSucc();
 		}
 
 		protected virtual void InstallMsgHandler()
 		{
-			AppController.ins.network.RegisterMsgHandler((int)CommID.msg_common_reply, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)CommID.msg_common_reply, (cmd, json) => {
 				msg_common_reply msg = JsonMapper.ToObject<msg_common_reply>(json);
 				mainView?.OnCommonReply(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameRspID.msg_player_seat, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_player_seat, (cmd, json) => {
 				msg_player_seat msg = JsonMapper.ToObject<msg_player_seat>(json);
 				mainView?.OnPlayerEnter(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameRspID.msg_player_leave, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_player_leave, (cmd, json) => {
 				msg_player_leave msg = JsonMapper.ToObject<msg_player_leave>(json);
 				mainView?.OnPlayerLeave(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameRspID.msg_deposit_change2, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_deposit_change2, (cmd, json) => {
 				msg_deposit_change2 msg = JsonMapper.ToObject<msg_deposit_change2>(json);
+				MyDebug.LogFormat("msg_deposit_change2:{0}", long.Parse(msg.credits_));
 				mainView?.OnGoldChange(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameRspID.msg_system_showdown, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_system_showdown, (cmd, json) => {
 				msg_system_showdown msg = JsonMapper.ToObject<msg_system_showdown>(json);
 				mainView?.OnServerShutdown(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameRspID.msg_currency_change, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_currency_change, (cmd, json) => {
 				msg_currency_change msg = JsonMapper.ToObject<msg_currency_change>(json);
+				if (msg.why_ == "0" || msg.why_ == "5") {
+					MyDebug.LogFormat("OnGoldChange:{0}", long.Parse(msg.credits_));
+					App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+					App.ins.self.gamePlayer.DispatchDataChanged();
+				}
 				mainView?.OnGoldChange(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameRspID.msg_server_parameter, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_server_parameter, (cmd, json) => {
 				msg_server_parameter msg = JsonMapper.ToObject<msg_server_parameter>(json);
 				mainView?.OnServerParameter(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameRspID.msg_get_public_data_ret, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_get_public_data_ret, (cmd, json) => {
 				msg_get_public_data_ret msg = JsonMapper.ToObject<msg_get_public_data_ret>(json);
 				mainView?.OnJackpotNumber(msg);
 			}, this);
@@ -161,7 +166,7 @@ namespace Hotfix.Common
 		public override void Stop()
 		{
 			CloseAllView();
-			AppController.ins.network.RemoveMsgHandler(this);
+			App.ins.network.RemoveMsgHandler(this);
 		}
 		
 		public virtual GamePlayer CreateGamePlayer()
@@ -218,91 +223,91 @@ namespace Hotfix.Common
 		{
 			base.InstallMsgHandler();
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_state_change, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_state_change, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_state_change msg = JsonMapper.ToObject<msg_state_change>(json);
 				mainViewThis?.OnStateChange(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_rand_result, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_rand_result, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_random_result_base msg = CreateRandomResult(json);
 				mainViewThis?.OnRandomResult(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_random_result_slwh, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_random_result_slwh, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_random_result_base msg = CreateRandomResult(json);
 				mainViewThis?.OnRandomResult(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_brnn_result, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_brnn_result, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_random_result_base msg = CreateRandomResult(json);
 				mainViewThis?.OnRandomResult(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_bjl_result, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_bjl_result, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_random_result_base msg = CreateRandomResult(json);
 				mainViewThis?.OnRandomResult(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_last_random, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_last_random, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_last_random_base msg = CreateLastRandom(json);
 				mainViewThis?.OnLastRandomResult(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_player_setbet, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_player_setbet, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_player_setbet msg = JsonMapper.ToObject<msg_player_setbet>(json);
 				mainViewThis?.OnPlayerSetBet(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_my_setbet, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_my_setbet, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_my_setbet msg = JsonMapper.ToObject<msg_my_setbet>(json);
 				mainViewThis?.OnMyBet(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_banker_deposit_change, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_banker_deposit_change, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_banker_deposit_change msg = JsonMapper.ToObject<msg_banker_deposit_change>(json);
 				mainViewThis?.OnBankDepositChanged(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_banker_promote, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_banker_promote, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_banker_promote msg = JsonMapper.ToObject<msg_banker_promote>(json);
 				mainViewThis?.OnBankPromote(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_game_report, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_game_report, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_game_report msg = JsonMapper.ToObject<msg_game_report>(json);
 				mainViewThis?.OnGameReport(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_game_info, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_game_info, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_game_info msg = JsonMapper.ToObject<msg_game_info>(json);
 				mainViewThis?.OnGameInfo(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_new_banker_applyed, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_new_banker_applyed, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_new_banker_applyed msg = JsonMapper.ToObject<msg_new_banker_applyed>(json);
 				mainViewThis?.OnApplyBanker(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_apply_banker_canceled, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_apply_banker_canceled, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_apply_banker_canceled msg = JsonMapper.ToObject<msg_apply_banker_canceled>(json);
 				mainViewThis?.OnCancelBanker(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_apply_banker_canceled, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_apply_banker_canceled, (cmd, json) => {
 				var mainViewThis = (ViewMultiplayerScene)mainView;
 				msg_apply_banker_canceled msg = JsonMapper.ToObject<msg_apply_banker_canceled>(json);
 				mainViewThis?.OnCancelBanker(msg);
@@ -315,31 +320,31 @@ namespace Hotfix.Common
 		protected override void InstallMsgHandler()
 		{
 			base.InstallMsgHandler();
-			AppController.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_random_present_ret, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_random_present_ret, (cmd, json) => {
 				var mainViewThis = (ViewSlotScene)mainView;
 				msg_random_present_ret msg = JsonMapper.ToObject<msg_random_present_ret>(json);
 				mainViewThis?.OnRandomResult(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_get_luck_player_ret, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_get_luck_player_ret, (cmd, json) => {
 				var mainViewThis = (ViewSlotScene)mainView;
 				msg_get_luck_player_ret msg = JsonMapper.ToObject<msg_get_luck_player_ret>(json);
 				mainViewThis?.OnLuckResult(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_luck_player, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_luck_player, (cmd, json) => {
 				var mainViewThis = (ViewSlotScene)mainView;
 				msg_luck_player msg = JsonMapper.ToObject<msg_luck_player>(json);
 				mainViewThis?.OnLuckPlayer(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_player_setbet_slot, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_player_setbet_slot, (cmd, json) => {
 				var mainViewThis = (ViewSlotScene)mainView;
 				msg_player_setbet_slot msg = JsonMapper.ToObject<msg_player_setbet_slot>(json);
 				mainViewThis?.OnPlayerSetBet(msg);
 			}, this);
 
-			AppController.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_random_present_ret_record, (cmd, json) => {
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_random_present_ret_record, (cmd, json) => {
 				var mainViewThis = (ViewSlotScene)mainView;
 				msg_random_present_ret_record msg = JsonMapper.ToObject<msg_random_present_ret_record>(json);
 				mainViewThis?.OnLuckPlayerPlayData(msg);

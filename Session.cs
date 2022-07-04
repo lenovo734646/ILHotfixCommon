@@ -18,9 +18,9 @@ namespace Hotfix.Lobby
 			if (pingTimer_.Elapse() > 2.0f) {
 				pingTimer_.Restart();
 				pingCostCounter_.Restart();
-				AppController.ins.network.SendPing();
+				App.ins.network.SendPing();
 			}
-			int tmElapse = AppController.ins.network.TimeElapseSinceLastPing();
+			int tmElapse = App.ins.network.TimeElapseSinceLastPing();
 			if (tmElapse > 3) {
 				MyDebug.LogFormat("!!!!!Ping Failed, call Globals.net.Stop().!!!!!");
 				Globals.net.Stop();
@@ -42,7 +42,7 @@ namespace Hotfix.Lobby
 		IEnumerator Handshake_()
 		{
 			msg_handshake_req msg = new msg_handshake_req();
-			msg.machine_id_ = AppController.ins.conf.GetDeviceID();
+			msg.machine_id_ = App.ins.conf.GetDeviceID();
 			msg.sign_ = Globals.Md5Hash(msg.machine_id_ + "1EBE295C-BE45-45C0-9AA1-496C1CEE4BDB");
 
 			Func<int, string, MsgRpcRet> cb = (cmd, json) => {
@@ -52,7 +52,7 @@ namespace Hotfix.Lobby
 				return ret;
 			};
 
-			var handle = AppController.ins.network.Rpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb, AppController.ins.conf.networkTimeout);
+			var handle = App.ins.network.Rpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb, App.ins.conf.networkTimeout);
 			yield return handle;
 
 			int result = -2;
@@ -108,20 +108,20 @@ namespace Hotfix.Lobby
 
 			progressOfLoading?.Desc(LangNetWork.Connecting);
 
-			var app = AppController.ins;
+			var app = App.ins;
 			TimeCounter tc = new TimeCounter("");
 
 			bool netReseted = false;
 			//如果网络模块不正常,则开始初始化网络============
 			if (Globals.net == null || !Globals.net.IsWorking()) {
-				StartKoKoNetwork(app.conf.hosts, AppController.ins.conf.networkTimeout);
+				StartKoKoNetwork(app.conf.hosts, App.ins.conf.networkTimeout);
 				netReseted = true;
 			}
 
 			Globals.net.RegisterSockEventHandler(OnSockEvent_);
-			Globals.net.RegisterRawDataHandler(AppController.ins.network.HandleRawData);
+			Globals.net.RegisterRawDataHandler(App.ins.network.HandleRawData);
 
-			while (!Globals.net.IsWorking() && tc.Elapse() < AppController.ins.conf.networkTimeout) {
+			while (!Globals.net.IsWorking() && tc.Elapse() < App.ins.conf.networkTimeout) {
 				yield return new WaitForSeconds(0.1f);
 			}
 			//网络没连接上,跳出
@@ -156,7 +156,7 @@ namespace Hotfix.Lobby
 		Clean:
 			closeByManual = 4;
 			st = EnState.HandShakeFailed;
-			Globals.net.RemoveRawDataHandler(AppController.ins.network.HandleRawData);
+			Globals.net.RemoveRawDataHandler(App.ins.network.HandleRawData);
 			Globals.net.RemoveSockEventHandler(OnSockEvent_);
 			ViewToast.Clear();
 		}
@@ -165,7 +165,7 @@ namespace Hotfix.Lobby
 		{
 			MyDebug.LogFormat("New FLLSession Start {0}", GetHashCode());
 			//这个协程进行排队.避免多个一起进行
-			AppController.ins.StartCor(DoStart(), true);
+			App.ins.StartCor(DoStart(), true);
 		}
 
 		//session手动关闭,不重连

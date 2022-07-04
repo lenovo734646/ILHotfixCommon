@@ -20,10 +20,10 @@ using UnityEngine.UI;
 namespace Hotfix.Common
 {
 	//热更入口类
-	public class AppController : ResourceMonitor
+	public class App : ResourceMonitor
 	{
 		public class GameRunQueue { };
-		public AppController()
+		public App()
 		{
 			ins = this;
 		}
@@ -163,14 +163,15 @@ namespace Hotfix.Common
 			audio.Start();
 
 			runQueue.StartCor(DoStart_(), true);
+			this.StartCor(LazyUpdate(), false);
 		}
 
 		public void InstallMsgHandler()
 		{
 			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
-				msg_sync_item msgi = JsonMapper.ToObject<msg_sync_item>(json);
-				self.gamePlayer.items.SetKeyVal(int.Parse(msgi.item_id_), long.Parse(msgi.count_));
-				self.gamePlayer.DispatchDataChanged();
+// 				msg_sync_item msgi = JsonMapper.ToObject<msg_sync_item>(json);
+// 				self.gamePlayer.items.SetKeyVal(int.Parse(msgi.item_id_), long.Parse(msgi.count_));
+// 				self.gamePlayer.DispatchDataChanged();
 			}, this);
 
 			network.RegisterMsgHandler((int)AccRspID.msg_same_account_login, (cmd, json) => {
@@ -213,6 +214,18 @@ namespace Hotfix.Common
 			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
+		IEnumerator LazyUpdate()
+		{
+			while (true) {
+				foreach(var longp in longPress) {
+					if (longp.Value.triggered) continue;
+					if (!longp.Value.IsTimeout()) continue;
+					longp.Value.Trigger();
+				}
+				yield return new WaitForSeconds(0.1f);
+			}
+		}
+
 		public override  void Update()
 		{
 			network.Update();
@@ -229,7 +242,7 @@ namespace Hotfix.Common
 			base.Stop();
 		}
 
-		public static AppController ins = null;
+		public static App ins = null;
 		public Config conf = new Config();
 		public AppBase currentApp = null;
 		//进度指示器,由宿主工程设置
@@ -237,6 +250,7 @@ namespace Hotfix.Common
 		public NetWorkController network = new NetWorkController();
 		public SelfPlayer self = new SelfPlayer();
 		public List<AccountInfo> accounts = new List<AccountInfo>();
+		public Dictionary<GameObject, LongPressData> longPress = new Dictionary<GameObject, LongPressData>();
 		public AccountInfo lastUseAccount = null;
 		public GameConfig currentGameConfig = null;
 		public string defaultGameFromHost;

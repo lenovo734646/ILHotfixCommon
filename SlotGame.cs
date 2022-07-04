@@ -158,7 +158,7 @@ namespace Hotfix.Common.Slot
 		public virtual IEnumerator StartRoll()
 		{
 			TimeCounter tc1 = new TimeCounter("");
-			instanceShowResult_ = false;
+			skipType_ = eSkipTo.None;
 			float offset = 0;
 			List<RollItemBase> sims = new List<RollItemBase>(rollItems_);
 			//先随机N页,显示模糊图标
@@ -194,30 +194,30 @@ namespace Hotfix.Common.Slot
 					PlayCompleteEffect();
 				};
 
-				yield return new WaitForSeconds(conf_.colDelay);
+				if(skipType_ == eSkipTo.None)
+					yield return new WaitForSeconds(conf_.colDelay);
 			}
 
-			MyDebug.LogFormat("roll init time cost:{0}", tc1.Elapse());
 			TimeCounter tc = new TimeCounter("");
-			while ((tc.Elapse() < (conf_.rollTime)) && !instanceShowResult_) {
+			while ((tc.Elapse() < (conf_.rollTime)) && skipType_ == eSkipTo.None) {
 				yield return new WaitForSeconds(0.1f);
-
 			}
 
-			//强制动画完成
-			for (int i = 0; i < conf_.colCount; i++) {
-				var it = tweens[i];
-				if (tc.Elapse() < conf_.rollTime * conf_.instanceShowPercent) {
-					float goTime = (conf_.rollTime * conf_.instanceShowPercent - i * conf_.colDelay);
-					float playedPercent = it.ElapsedPercentage();
+			if (skipType_ != eSkipTo.SkipAll) {
+				//强制动画完成
+				for (int i = 0; i < conf_.colCount; i++) {
+					var it = tweens[i];
+					if (tc.Elapse() < conf_.rollTime * conf_.instanceShowPercent) {
+						float goTime = (conf_.rollTime * conf_.instanceShowPercent - i * conf_.colDelay);
+						float playedPercent = it.ElapsedPercentage();
 
-					if((goTime / it.Duration()) >= playedPercent) {
-						it.Goto(goTime);
-						it.Play();
+						if ((goTime / it.Duration()) >= playedPercent) {
+							it.Goto(goTime);
+							it.Play();
+						}
 					}
 				}
 			}
-
 			AudioSource aus = (AudioSource)(eff.Current);
 			if (aus != null) {
 				if (eff.Current != null) {
@@ -225,19 +225,21 @@ namespace Hotfix.Common.Slot
 				}
 			}
 
-			//等DoTween完成, 为什么不直接WaitForCompletion?因为这个会导致协程Stop失败.
-			bool allComplete = true;
-			do {
-				allComplete = true;
-				for (int i = 0; i < conf_.colCount; i++) {
-					var it = tweens[i];
-					bool completed = it.IsComplete();
-					allComplete &= completed;
-				}
-				if (!allComplete) {
-					yield return 0;
-				}
-			} while (!allComplete);
+			if (skipType_ != eSkipTo.SkipAll) {
+				//等DoTween完成, 为什么不直接WaitForCompletion?因为这个会导致协程Stop失败.
+				bool allComplete = true;
+				do {
+					allComplete = true;
+					for (int i = 0; i < conf_.colCount; i++) {
+						var it = tweens[i];
+						bool completed = it.IsComplete();
+						allComplete &= completed;
+					}
+					if (!allComplete) {
+						yield return 0;
+					}
+				} while (!allComplete);
+			}
 
 			for (int i = 0; i < conf_.colCount; i++) {
 				var it = tweens[i];
@@ -259,6 +261,7 @@ namespace Hotfix.Common.Slot
 				trans.offsetMin = new Vector2(trans.offsetMin.x, conf_.initY);
 				trans.offsetMax = new Vector2(trans.offsetMax.x, conf_.initY + trans.sizeDelta.y);
 			}
+			
 		}
 
 		public virtual void Reset()
@@ -269,9 +272,14 @@ namespace Hotfix.Common.Slot
 			rollItems_.Clear();
 		}
 
-		public void ShowResult()
+		public void SkipToResult(eSkipTo show)
 		{
-			instanceShowResult_ = true;
+			skipType_ = show;
+		}
+
+		public eSkipTo SkipTo
+		{
+			get { return skipType_; }
 		}
 
 		public List<RollItemBase> ResultItems
@@ -279,10 +287,17 @@ namespace Hotfix.Common.Slot
 			get { return rollItems_; }
 		}
 
+		public enum eSkipTo
+		{
+			None,
+			SkipRolling,
+			SkipAll,
+		}
+
 		protected RollingConfigBase conf_;
 		protected List<int> result_ = new List<int>();
 
-		bool instanceShowResult_ = false;
+		eSkipTo skipType_ = eSkipTo.None;
 		List<GameObject> cols_;
 		List<RollItemBase> rollItems_ = new List<RollItemBase>();
 		
@@ -302,37 +317,39 @@ namespace Hotfix.Common.Slot
 
 			var ret = ResultItems;
 
-			if (gameResult_.iconXY.Count > 0) {
-				//中奖图标播放动画
-				ret.Reverse();
-				foreach (var it in gameResult_.iconXY) {
-					int x = it.Key, y = it.Value;
-					ret[y * conf_.colCount + x].SetState(RollItemBase.State.Win);
+			if(SkipTo != eSkipTo.SkipAll) {
+				if (gameResult_.iconXY.Count > 0) {
+					//中奖图标播放动画
+					ret.Reverse();
+					foreach (var it in gameResult_.iconXY) {
+						int x = it.Key, y = it.Value;
+						ret[y * conf_.colCount + x].SetState(RollItemBase.State.Win);
+					}
+					//未中奖的图标灰掉
+					foreach (var it in ret) {
+						if (it.state != RollItemBase.State.Win) {
+							it.SetState(RollItemBase.State.Gray);
+						}
+					}
+
+					//显示中奖线条
+					foreach (var it in gameResult_.winLines) {
+						int line = it;
+						lines_[line].SetActive(true);
+						lines_[line].StartAnim();
+					}
+
+					if (gameResult_.winLines.Count > 0) {
+						PlayHitLineEffect();
+						yield return new WaitForSeconds(1.0f);
+					}
+
 				}
-				//未中奖的图标灰掉
-				foreach (var it in ret) {
-					if (it.state != RollItemBase.State.Win) {
+				else {
+					//未中奖的图标灰掉
+					foreach (var it in ret) {
 						it.SetState(RollItemBase.State.Gray);
 					}
-				}
-
-				//显示中奖线条
-				foreach (var it in gameResult_.winLines) {
-					int line = it;
-					lines_[line].SetActive(true);
-					lines_[line].StartAnim();
-				}
-
-				if(gameResult_.winLines.Count > 0) {
-					PlayHitLineEffect();
-					yield return new WaitForSeconds(1.0f);
-				}
-				
-			}
-			else {
-				//未中奖的图标灰掉
-				foreach (var it in ret) {
-					it.SetState(RollItemBase.State.Gray);
 				}
 			}
 		}
