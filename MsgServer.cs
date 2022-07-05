@@ -18,6 +18,7 @@ namespace Hotfix.Common
 	{
 		msg_switch_game_server = 1028,
 		msg_get_bank_info_ret = 1024,
+		msg_user_head_and_headframe= 1040,
 	}
 
 	public enum GameRspID
@@ -208,7 +209,7 @@ namespace Hotfix.Common
 	public class msg_user_head_and_headframe : MsgBase
 	{
 		public string head_ico_;      //头像ID
-		public int headframe_id_;  //头像框ID
+		public string headframe_id_;  //头像框ID
 		public string nickname_;
 	}
 }
