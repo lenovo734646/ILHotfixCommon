@@ -46,7 +46,7 @@ namespace Hotfix.Model
 			if (ico < 1) ico = 1;
 			if (ico > 10) ico = 10;
 
-			var texture = AppController.ins.headIcons[ico];
+			var texture = App.ins.headIcons[ico];
 			img.ChangeSprite(texture);
 		}
 
@@ -57,7 +57,7 @@ namespace Hotfix.Model
 			if (ico < 1) ico = 1;
 			if (ico > 8) ico = 8;
 
-			var texture = AppController.ins.headFrames[ico];
+			var texture = App.ins.headFrames[ico];
 			img.ChangeSprite(texture);
 		}
 	}

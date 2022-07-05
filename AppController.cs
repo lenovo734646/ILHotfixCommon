@@ -2,6 +2,7 @@
 using AssemblyCommon.Bridges;
 using Hotfix.Lobby;
 using Hotfix.Model;
+using LitJson;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,10 +20,10 @@ using UnityEngine.UI;
 namespace Hotfix.Common
 {
 	//热更入口类
-	public class AppController : ResourceMonitor
+	public class App : ResourceMonitor
 	{
 		public class GameRunQueue { };
-		public AppController()
+		public App()
 		{
 			ins = this;
 		}
@@ -156,26 +157,29 @@ namespace Hotfix.Common
 			ILRuntime_CLPF.Initlize();
 			ILRuntime_Global.Initlize();
 
-			network.AddMsgHandler(OnNetMsg);
+			network.Start();
+
+			InstallMsgHandler();
 			audio.Start();
 
 			runQueue.StartCor(DoStart_(), true);
+			this.StartCor(LazyUpdate(), false);
 		}
 
-		public void OnNetMsg(object sender, NetEventArgs e)
+		public void InstallMsgHandler()
 		{
-			if(e.cmd == (int)CommID.msg_sync_item) {
-				var msgi = (msg_sync_item)e.msg;
-				self.gamePlayer.items.SetKeyVal(int.Parse(msgi.item_id_), long.Parse(msgi.count_));
-				self.gamePlayer.DispatchDataChanged();
-				MyDebug.LogWarningFormat("Sync Item:{0},{1}", int.Parse(msgi.item_id_), long.Parse(msgi.count_));
-			}
-			else if(e.cmd == (int)AccRspID.msg_same_account_login) {
+			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
+// 				msg_sync_item msgi = JsonMapper.ToObject<msg_sync_item>(json);
+// 				self.gamePlayer.items.SetKeyVal(int.Parse(msgi.item_id_), long.Parse(msgi.count_));
+// 				self.gamePlayer.DispatchDataChanged();
+			}, this);
+
+			network.RegisterMsgHandler((int)AccRspID.msg_same_account_login, (cmd, json) => {
 				ins.disableNetwork = true;
 				ViewPopup.Create(LangUITip.SameAccountLogin, ViewPopup.Flag.BTN_OK_ONLY, () => {
 					ins.StartCor(ins.CheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
 				});
-			}
+			}, this);
 		}
 
 		IEnumerator CachedResources_()
@@ -210,6 +214,18 @@ namespace Hotfix.Common
 			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
+		IEnumerator LazyUpdate()
+		{
+			while (true) {
+				foreach(var longp in longPress) {
+					if (longp.Value.triggered) continue;
+					if (!longp.Value.IsTimeout()) continue;
+					longp.Value.Trigger();
+				}
+				yield return new WaitForSeconds(0.1f);
+			}
+		}
+
 		public override  void Update()
 		{
 			network.Update();
@@ -226,7 +242,7 @@ namespace Hotfix.Common
 			base.Stop();
 		}
 
-		public static AppController ins = null;
+		public static App ins = null;
 		public Config conf = new Config();
 		public AppBase currentApp = null;
 		//进度指示器,由宿主工程设置
@@ -234,6 +250,7 @@ namespace Hotfix.Common
 		public NetWorkController network = new NetWorkController();
 		public SelfPlayer self = new SelfPlayer();
 		public List<AccountInfo> accounts = new List<AccountInfo>();
+		public Dictionary<GameObject, LongPressData> longPress = new Dictionary<GameObject, LongPressData>();
 		public AccountInfo lastUseAccount = null;
 		public GameConfig currentGameConfig = null;
 		public string defaultGameFromHost;

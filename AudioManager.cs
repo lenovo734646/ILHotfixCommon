@@ -19,6 +19,7 @@ namespace Hotfix.Common
 			audioMusic = BridgeToHotfix.ins.gameObject.AddComponent<AudioSource>();
 		}
 
+		//停止所有声音
 		public void StopAll()
 		{
 			audioMusic.Stop();
@@ -30,6 +31,7 @@ namespace Hotfix.Common
 			ClearResource();
 		}
 
+		//停止这个模块
 		public override void Stop()
 		{
 			StopAll();
@@ -98,7 +100,7 @@ namespace Hotfix.Common
 				LoadAssets<AudioClip>(path, (t) => {
 					if (t != null) {
 						if (isEffect) {
-							used = GetEffectSource();
+							used = GetEffectSource_();
 							used.clip = t.Result;
 							used.Play();
 						}
@@ -113,7 +115,7 @@ namespace Hotfix.Common
 			}
 			else {
 				if (isEffect) {
-					used = GetEffectSource();
+					used = GetEffectSource_();
 					used.clip = clip.Result;
 					used.Play();
 				}
@@ -126,7 +128,7 @@ namespace Hotfix.Common
 			yield return used;
 		}
 
-		AudioSource GetEffectSource()
+		AudioSource GetEffectSource_()
 		{
 			foreach (var eff in audioEffectPool) {
 				if (!eff.isPlaying) {

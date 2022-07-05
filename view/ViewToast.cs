@@ -43,7 +43,7 @@ namespace Hotfix.Common
 
 		protected override void SetLoader()
 		{
-			LoadPrefab("Assets/Res/prefabs/common/FX_UI_DlgTips.prefab", AddToPopup);
+			LoadPrefab("Assets/Res/prefabs/common/FX_UI_DlgTips.prefab", AddToPopup, true);
 		}
 
 		public void SetParams(string text, float autoCloseTime)
@@ -65,6 +65,7 @@ namespace Hotfix.Common
 					});
 				}
 			}
+			mainObject_?.DoPopup();
 			yield return 0;
 		}
 

@@ -1,5 +1,6 @@
 ﻿using AssemblyCommon;
 using Hotfix.Model;
+using LitJson;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -113,23 +114,23 @@ namespace Hotfix.Common
 
 						msg_bank_op msg = new msg_bank_op();
 						msg.op_ = 0;
-						msg.psw_ = AppController.ins.self.bankPsw;
+						msg.psw_ = App.ins.self.bankPsw;
 						msg.type_ = 1;
 						msg.count_ = long.Parse(txt.text);
 
-						bool succ = AppController.ins.network.Rpc((short)CorReqID.msg_bank_op, msg, (short)CommID.msg_common_reply, (rpl) => {
-							if (rpl == null) return;
-							if (rpl.err_ == 1) {
+						bool succ = App.ins.network.Rpc((ushort)CorReqID.msg_bank_op, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
+							var rpl = JsonMapper.ToObject<msg_common_reply>(json);
+							if (rpl.err_ == "1") {
 								ViewToast.Create(LangUITip.OperationSucc);
 								GetBankInfo();
 							}
-							else if (rpl.err_ == -999) {
+							else if (rpl.err_ == "-999") {
 								ViewToast.Create(LangUITip.PasswordIncorrect);
 							}
-							else if (rpl.err_ == 3) {
+							else if (rpl.err_ == "3") {
 								ViewToast.Create(LangUITip.NotEnoughBankMoney);
 							}
-						}, 3.0f);
+						});
 
 						if (!succ) {
 							ViewToast.Create(LangUITip.PleaseWait);
@@ -139,7 +140,7 @@ namespace Hotfix.Common
 
 				var slider = GetView.FindChildDeeply("Slider").GetComponent<Slider>();
 				slider.onValueChanged.AddListener((val) => {
-					txt.text = Utils.FormatGoldShow((long)(AppController.ins.self.gamePlayer.Item((int)ITEMID.BANK_GOLD) * val / 100.0f));
+					txt.text = ((long)(App.ins.self.gamePlayer.Item((int)ITEMID.BANK_GOLD) * val / 100.0f)).ShowAsGold();
 				});
 
 				var btn_Reset = GetView.FindChildDeeply("btn_Reset").GetComponent<Button>();
@@ -166,23 +167,23 @@ namespace Hotfix.Common
 					else {
 						msg_bank_op msg = new msg_bank_op();
 						msg.op_ = 1;
-						msg.psw_ = AppController.ins.self.bankPsw;
+						msg.psw_ = App.ins.self.bankPsw;
 						msg.type_ = 1;
 						msg.count_ = long.Parse(txt.text);
 
-						bool succ = AppController.ins.network.Rpc((short)CorReqID.msg_bank_op, msg, (short)CommID.msg_common_reply, (rpl) => {
-							if (rpl == null) return;
-							if (rpl.err_ == 1) {
+						bool succ = App.ins.network.Rpc((ushort)CorReqID.msg_bank_op, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
+							var rpl = JsonMapper.ToObject<msg_common_reply>(json);
+							if (rpl.err_ == "1") {
 								ViewToast.Create(LangUITip.OperationSucc);
 								GetBankInfo();
 							}
-							else if (rpl.err_ == -999) {
+							else if (rpl.err_ == "-999") {
 								ViewToast.Create(LangUITip.PasswordIncorrect);
 							}
-							else if (rpl.err_ == 3) {
+							else if (rpl.err_ == "3") {
 								ViewToast.Create(LangUITip.NotEnoughMoney);
 							}
-						}, 3.0f);
+						});
 
 						if (!succ) {
 							ViewToast.Create(LangUITip.PleaseWait);
@@ -192,7 +193,7 @@ namespace Hotfix.Common
 
 				var slider = PutView.FindChildDeeply("Slider").GetComponent<Slider>();
 				slider.onValueChanged.AddListener((val) => {
-					txt.text = Utils.FormatGoldShow((long)(AppController.ins.self.gamePlayer.Item((int)ITEMID.GOLD) * val / 100.0f));
+					txt.text = ((long)(App.ins.self.gamePlayer.Item((int)ITEMID.GOLD) * val / 100.0f)).ShowAsGold();
 				});
 
 				var btn_Reset = PutView.FindChildDeeply("btn_Reset").GetComponent<Button>();
@@ -226,19 +227,19 @@ namespace Hotfix.Common
 						msg.present_id_ = (int)ITEMID.BANK_GOLD;
 						msg.count_ = long.Parse(txt.text);
 						msg.to_ = recverTag.text;
-						bool succ = AppController.ins.network.Rpc((short)CorReqID.msg_send_present, msg, (short)CommID.msg_common_reply, (rpl) => {
-							if (rpl == null) return;
-							if (rpl.err_ == 1) {
+						bool succ = App.ins.network.Rpc((ushort)CorReqID.msg_send_present, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
+							var rpl = JsonMapper.ToObject<msg_common_reply>(json);
+							if (rpl.err_ == "1") {
 								ViewToast.Create(LangUITip.OperationSucc);
 								GetBankInfo();
 							}
-							else if(rpl.err_ == -995) {
+							else if(rpl.err_ == "-995") {
 								ViewToast.Create(LangUITip.CantFindPlayer);
 							}
-							else if(rpl.err_ == 3) {
+							else if(rpl.err_ == "3") {
 								ViewToast.Create(LangUITip.NotEnoughBankMoney);
 							}
-						}, 3.0f);
+						});
 
 						if (!succ) {
 							ViewToast.Create(LangUITip.PleaseWait);
@@ -294,18 +295,18 @@ namespace Hotfix.Common
 					msg.old_psw_ = oldTag.text;
 					msg.psw_ = newTag.text;
 					msg.func_ = 1;
-					AppController.ins.network.Rpc((short)CorReqID.msg_set_bank_psw, msg, (short)CommID.msg_common_reply, (rpl) => {
-						if (rpl == null) return;
-						if (rpl.err_ == 1) {
+					App.ins.network.Rpc((ushort)CorReqID.msg_set_bank_psw, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
+						var rpl = JsonMapper.ToObject<msg_common_reply>(json);
+						if (rpl.err_ == "1") {
 							ViewToast.Create(LangUITip.OperationSucc);
 						}
-						else if (rpl.err_ == -999) {
+						else if (rpl.err_ == "-999") {
 							ViewToast.Create(LangUITip.PasswordIncorrect);
 						}
 						else {
 							ViewToast.Create(LangUITip.OperationFailed);
 						}
-					}, 3.0f);
+					});
 
 				});
 			}
@@ -313,18 +314,18 @@ namespace Hotfix.Common
 			GetBankInfo();
 
 			ShowFirstTab_();
-			AppController.ins.self.gamePlayer.onDataChanged += OnUserDataChanged;
+			App.ins.self.gamePlayer.onDataChanged += OnUserDataChanged;
 		}
 
 		protected override void OnClose()
 		{
-			AppController.ins.self.gamePlayer.onDataChanged -= OnUserDataChanged;
+			App.ins.self.gamePlayer.onDataChanged -= OnUserDataChanged;
 		}
 
 		void OnUserDataChanged(object sender, System.EventArgs evt)
 		{
-			goldText.text = Utils.FormatGoldShow(AppController.ins.self.gamePlayer.items.GetVal((int)ITEMID.GOLD));
-			bankGoldText.text = Utils.FormatGoldShow(AppController.ins.self.gamePlayer.items.GetVal((int)ITEMID.BANK_GOLD));
+			goldText.text = App.ins.self.gamePlayer.items.GetVal((int)ITEMID.GOLD).ShowAsGold();
+			bankGoldText.text = App.ins.self.gamePlayer.items.GetVal((int)ITEMID.BANK_GOLD).ShowAsGold();
 		}
 
 		void ShowFirstTab_()
@@ -340,13 +341,11 @@ namespace Hotfix.Common
 		void GetBankInfo()
 		{
 			msg_get_bank_info msg = new msg_get_bank_info();
-			AppController.ins.network.Rpc((short)CorReqID.msg_get_bank_info, msg, (short)CorRspID.msg_get_bank_info_ret, (rpl)=> {
-				if(rpl != null && rpl.err_ == 0) {
-					var info = (msg_get_bank_info_ret)rpl.msg_;
-					AppController.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.BANK_GOLD,long.Parse(info.bank_gold_game_));
-					AppController.ins.self.gamePlayer.DispatchDataChanged();
-				}
-			}, 3.0f);
+			App.ins.network.Rpc((ushort)CorReqID.msg_get_bank_info, msg, (ushort)CorRspID.msg_get_bank_info_ret, (cmd, json) => {
+				var info = JsonMapper.ToObject<msg_get_bank_info_ret>(json);
+				App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.BANK_GOLD, long.Parse(info.bank_gold_game_));
+				App.ins.self.gamePlayer.DispatchDataChanged();
+			});
 		}
 
 		void HideAll()

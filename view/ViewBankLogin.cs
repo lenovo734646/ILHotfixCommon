@@ -1,4 +1,5 @@
 ﻿using AssemblyCommon;
+using LitJson;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -41,6 +42,15 @@ namespace Hotfix.Common
 			btn_Forget.onClick.AddListener(() => {
 				OnBtnForget();
 			});
+
+			//适配
+			var canvas = ViewBase.GetCanvas();
+			var scaler = canvas.GetComponent<CanvasScaler>();
+			var rect = layer.GetComponent<RectTransform>();
+			float ratio = scaler.referenceResolution.y / 1080;
+			var scale = rect.localScale;
+			scale *= ratio;
+			rect.localScale = scale;
 			yield return 0;
 		}
 
@@ -57,20 +67,20 @@ namespace Hotfix.Common
 				msg.psw_ = psw.text;
 				msg.old_psw_ = psw.text;
 
-				AppController.ins.network.Rpc((short)CorReqID.msg_set_bank_psw, msg, (short)CommID.msg_common_reply, (rpl) => {
-					if (rpl == null) return;
-					if (rpl.err_ == 1) {
+				App.ins.network.Rpc((ushort)CorReqID.msg_set_bank_psw, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
+					var rpl = JsonMapper.ToObject<msg_common_reply>(json);
+					if (rpl.err_ == "1") {
 						Close();
 						var view = new ViewBankMain(null);
-						AppController.ins.currentApp.game.OpenView(view);
-						AppController.ins.self.bankPsw = msg.psw_;
+						App.ins.currentApp.game.OpenView(view);
+						App.ins.self.bankPsw = msg.psw_;
 					}
 					else {
-						if (rpl.err_ == -999) {
+						if (rpl.err_ == "-999") {
 							ViewToast.Create(LangUITip.PasswordIncorrect);
 						}
 					}
-				}, 3.0f);
+				});
 			}
 		}
 

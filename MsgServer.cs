@@ -33,28 +33,28 @@ namespace Hotfix.Common
 		msg_get_public_data_ret = 1304,
 	}
 
-	public class msg_system_showdown : msg_base
+	public class msg_system_showdown : MsgBase
 	{
 		public string desc_;
 	}
 
-	public class msg_common_reply : msg_base
+	public class msg_common_reply : MsgBase
 	{
 		public string rp_cmd_;    //回复的消息ID
 		public string err_;       //错误码
 		public string des_;           //描述
 	}
 
-	public class msg_handshake_ret : msg_base
+	public class msg_handshake_ret : MsgBase
 	{
 		public string ret_;
 	}
-	public class msg_ping : msg_base
+	public class msg_ping : MsgBase
 	{
 
 	}
 
-	public class msg_player_info : msg_base
+	public class msg_player_info : MsgBase
 	{
 		public string uid_;
 		public string nickname_;
@@ -88,14 +88,14 @@ namespace Hotfix.Common
 		public string headico_;
 	}
 
-	public class msg_get_bank_info_ret : msg_base
+	public class msg_get_bank_info_ret : MsgBase
 	{
 		public string bank_gold_;
 		public string bank_gold_game_;
 		public string psw_set_;
 	}
 
-	public class msg_channel_server : msg_base
+	public class msg_channel_server : MsgBase
 	{
 		public string ip_;  //这个现在没用了,应该使用客户端检测出来的高防IP
 		public string port_;    //服务器端口号
@@ -103,29 +103,29 @@ namespace Hotfix.Common
 		public string server_region_; //0点券服， 1正式服
 	}
 
-	public class msg_switch_game_server : msg_base
+	public class msg_switch_game_server : MsgBase
 	{
 		public string ip_;
 		public string port_;
 	}
 
-	public class msg_sync_item : msg_base
+	public class msg_sync_item : MsgBase
 	{
 		public string item_id_;
 		public string count_;
 	}
-	public class msg_prepare_enter : msg_base
+	public class msg_prepare_enter : MsgBase
 	{
 
 	}
 
-	public class msg_currency_change : msg_base
+	public class msg_currency_change : MsgBase
 	{
 		public string credits_;           //玩家资金数 8字节
 		public string why_;               //0,同步(总量)，1,每日登录奖励(变化量)，2，等级装奖励(变化量), 3,财神奖金, 5金币兑换完毕
 	}
 
-	public class msg_room_msg : msg_base
+	public class msg_room_msg : MsgBase
 	{
 		int roomid_asdf_ = 0;
 	}
@@ -149,7 +149,7 @@ namespace Hotfix.Common
 		public string why_;       //why = 0,玩家主动退出游戏, 1 换桌退出游戏 2 游戏结束清场退出游戏， 3，T出游戏, 1000变为观战者
 	}
 
-	public class msg_server_parameter : msg_base
+	public class msg_server_parameter : MsgBase
 	{
 		public string id_;
 		public string balance_with_;      //结算货币的ID
@@ -164,14 +164,14 @@ namespace Hotfix.Common
 	}
 
 	//掉线重连时,如果玩家还在游戏中,会发这个消息来通知玩家
-	public class msg_is_ingame : msg_base
+	public class msg_is_ingame : MsgBase
 	{
 		public string roomid_;    //0-普通房间 1-比赛房间 2-好友房
 		public string data_;      //如果是普通或好友房,这里是房间ID,如果是比赛房,这里是比赛ID
 	}
 
 	//在排队中
-	public class msg_is_inqueue : msg_base
+	public class msg_is_inqueue : MsgBase
 	{
 		public string phase_;
 		public string pos_;
@@ -196,17 +196,17 @@ namespace Hotfix.Common
 		public string display_type_;      //0，不需要飘字 1,要飘字, 2 保证金变化
 	}
 
-	public class msg_get_public_data_ret : msg_base
+	public class msg_get_public_data_ret : MsgBase
 	{
 		public string ret;
 	}
 
-	public class msg_same_account_login : msg_base
+	public class msg_same_account_login : MsgBase
 	{
 
 	}
 
-	public class msg_user_head_and_headframe : msg_base
+	public class msg_user_head_and_headframe : MsgBase
 	{
 		public string head_ico_;      //头像ID
 		public string headframe_id_;  //头像框ID

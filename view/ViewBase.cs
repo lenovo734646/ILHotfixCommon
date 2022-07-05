@@ -72,6 +72,7 @@ namespace Hotfix.Common
 			public string assetPath;
 			public AddressablesLoader.LoadTask<T> loader;
 			public Action<T> callback;
+			public bool isMain = false;
 		}
 		public ViewBase(IShowDownloadProgress loadingProgress)
 		{
@@ -158,8 +159,8 @@ namespace Hotfix.Common
 		public  void Close()
 		{
 			OnClose();
-
-			AppController.ins.currentApp?.game?.OnViewClosed(this);
+			ClosedEvent?.Invoke(this, new EventArgs());
+			App.ins.currentApp?.game?.OnViewClosed(this);
 			//按加载顺序倒着释放
 			objs.Reverse();
 			foreach(var obj in objs) {
@@ -169,6 +170,8 @@ namespace Hotfix.Common
 
 			resNames_.Clear();
 			resScenes_ = null;
+
+			App.ins.network.RemoveMsgHandler(this);
 
 			//停止本窗口所有协程
 			this.StopCor(-1);
@@ -235,6 +238,7 @@ namespace Hotfix.Common
 		{
 			foreach (var it in resNames_) {
 				var obj = it.loader.Instantiate();
+				if (it.isMain) mainObject_ = obj;
 				if (it.callback != null) it.callback(obj);
 				objs.Add(obj);
 			}
@@ -245,11 +249,12 @@ namespace Hotfix.Common
 
 		protected abstract IEnumerator OnResourceReady();
 
-		protected void LoadPrefab(string path, Action<GameObject> cb)
+		protected void LoadPrefab(string path, Action<GameObject> cb, bool mainObj = false)
 		{
 			ViewLoadTask<GameObject> task = new ViewLoadTask<GameObject>();
 			task.assetPath = path;
 			task.callback = cb;
+			task.isMain = mainObj;
 			resNames_.Add(task);
 		}
 
@@ -271,6 +276,10 @@ namespace Hotfix.Common
 			finished_ = true;
 		}
 
+		public event EventHandler ClosedEvent;
+
+		protected GameObject mainObject_;
+
 		List<ViewLoadTask<GameObject>> resNames_ = new List<ViewLoadTask<GameObject>>();
 		ViewLoadTask<AddressablesLoader.DownloadScene> resScenes_;
 		List<GameObject> objs = new List<GameObject>();
@@ -283,18 +292,16 @@ namespace Hotfix.Common
 		{
 
 		}
-		//网络消息回调,这是原始的网络消息
-		public abstract void OnNetMsg(int cmd, string json);
 
 		public virtual GamePlayer OnPlayerEnter(msg_player_seat msg)
 		{
-			if (AppController.ins.self.gamePlayer.uid == msg.uid_) {
-				AppController.ins.self.gamePlayer.serverPos = int.Parse(msg.pos_);
-				AppController.ins.self.gamePlayer.lv = int.Parse(msg.lv_);
-				return AppController.ins.self.gamePlayer;
+			if (App.ins.self.gamePlayer.uid == msg.uid_) {
+				App.ins.self.gamePlayer.serverPos = int.Parse(msg.pos_);
+				App.ins.self.gamePlayer.lv = int.Parse(msg.lv_);
+				return App.ins.self.gamePlayer;
 			}
 			else {
-				var game = AppController.ins.currentApp.game;
+				var game = App.ins.currentApp.game;
 				var pp = game.CreateGamePlayer();
 				pp.serverPos = int.Parse(msg.pos_);
 				pp.nickName = msg.uname_;
@@ -307,7 +314,7 @@ namespace Hotfix.Common
 		}
 		public virtual void OnPlayerLeave(msg_player_leave msg)
 		{
-			var game = AppController.ins.currentApp.game;
+			var game = App.ins.currentApp.game;
 			
 		}
 		public virtual void OnCommonReply(msg_common_reply msg)
@@ -318,21 +325,18 @@ namespace Hotfix.Common
 		//玩家货币变币
 		public virtual void OnGoldChange(msg_deposit_change2 msg)
 		{
-			int pos = AppController.ins.self.gamePlayer.serverPos;
+			int pos = App.ins.self.gamePlayer.serverPos;
 			if (int.Parse(msg.pos_) == pos) {
 				if (int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_sync_gold) {
-					AppController.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-					AppController.ins.self.gamePlayer.DispatchDataChanged();
+					App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+					App.ins.self.gamePlayer.DispatchDataChanged();
 				}
 			}
 		}
 		//玩家货币变币
 		public virtual void OnGoldChange(msg_currency_change msg)
 		{
-			if (msg.why_ == "0") {
-				AppController.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-				AppController.ins.self.gamePlayer.DispatchDataChanged();
-			}
+			
 
 		}
 
@@ -391,5 +395,29 @@ namespace Hotfix.Common
 		//玩家取消上庄通知
 		public abstract void OnCancelBanker(msg_apply_banker_canceled msg);
 		protected GameControllerBase.GameState st;
+	}
+
+	public class ViewCommon : ViewBase
+	{
+		public ViewCommon(string path):base(null)
+		{
+			path_ = path;
+		}
+
+		protected override IEnumerator OnResourceReady()
+		{
+			mainObject_.DoPopup();
+			var btn_close = mainObject_.FindChildDeeply("btn_close");
+			btn_close.OnClick(() => {
+				Close();
+			});
+			yield return 0;
+		}
+
+		protected override void SetLoader()
+		{
+			LoadPrefab(path_, AddToCanvas, true);
+		}
+		string path_;
 	}
 }

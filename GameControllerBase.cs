@@ -51,8 +51,9 @@ namespace Hotfix.Common
 
 		public void CloseAllView()
 		{
-			List<ViewBase> cpl = new List<ViewBase>(views_);
-			foreach (var view in cpl) {
+			viewsCopy.Clear();
+			viewsCopy.AddRange(views_);
+			foreach (var view in viewsCopy) {
 				view.Close();
 			}
 			views_.Clear();
@@ -72,80 +73,58 @@ namespace Hotfix.Common
 		public IEnumerator GameLoginSucc()
 		{
 			prepared_ = true;
-			CloseAllView();
 			yield return OnGameLoginSucc();
 		}
 
-		public void HandleNetMsg(object sender, NetEventArgs evt)
+		protected virtual void InstallMsgHandler()
 		{
-			if (evt.payload == null && evt.msg == null && evt.msgProto == null) return;
+			App.ins.network.RegisterMsgHandler((int)CommID.msg_common_reply, (cmd, json) => {
+				msg_common_reply msg = JsonMapper.ToObject<msg_common_reply>(json);
+				mainView?.OnCommonReply(msg);
+			}, this);
 
-			string json = "";
-			if (evt.payload != null) json = Encoding.UTF8.GetString(evt.payload);
-			if (mainView == null) return;
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_player_seat, (cmd, json) => {
+				msg_player_seat msg = JsonMapper.ToObject<msg_player_seat>(json);
+				mainView?.OnPlayerEnter(msg);
+			}, this);
 
-			switch (evt.cmd) {
-				case (int)CommID.msg_common_reply: {
-					msg_common_reply msg = (msg_common_reply)evt.msg;
-					if (msg == null) msg = JsonMapper.ToObject<msg_common_reply>(json);
-					mainView.OnCommonReply(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_player_leave, (cmd, json) => {
+				msg_player_leave msg = JsonMapper.ToObject<msg_player_leave>(json);
+				mainView?.OnPlayerLeave(msg);
+			}, this);
 
-				case (int)GameRspID.msg_player_seat: {
-					msg_player_seat msg = (msg_player_seat)evt.msg;
-					if (msg == null) msg = JsonMapper.ToObject<msg_player_seat>(json);
-					mainView.OnPlayerEnter(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_deposit_change2, (cmd, json) => {
+				msg_deposit_change2 msg = JsonMapper.ToObject<msg_deposit_change2>(json);
+				MyDebug.LogFormat("msg_deposit_change2:{0}", long.Parse(msg.credits_));
+				mainView?.OnGoldChange(msg);
+			}, this);
 
-				case (int)GameRspID.msg_player_leave: {
-					msg_player_leave msg = (msg_player_leave)evt.msg;
-					if (msg == null) msg = JsonMapper.ToObject<msg_player_leave>(json);
-					mainView.OnPlayerLeave(msg);
-				}
-				break;
-				
-				case (int)GameRspID.msg_deposit_change2: {
-					msg_deposit_change2 msg = (msg_deposit_change2)evt.msg;
-					if (msg == null) msg = JsonMapper.ToObject<msg_deposit_change2>(json);
-					mainView.OnGoldChange(msg);
-				}
-				break;
-				case (int)GameRspID.msg_system_showdown: {
-					msg_system_showdown msg = (msg_system_showdown)evt.msg;
-					if (msg == null) msg = JsonMapper.ToObject<msg_system_showdown>(json);
-					mainView.OnServerShutdown(msg);
-				}
-				break;
-				
-				case (int)GameRspID.msg_currency_change: {
-					msg_currency_change msg = (msg_currency_change)evt.msg;
-					if (msg == null) msg = JsonMapper.ToObject<msg_currency_change>(json);
-					mainView.OnGoldChange(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_system_showdown, (cmd, json) => {
+				msg_system_showdown msg = JsonMapper.ToObject<msg_system_showdown>(json);
+				mainView?.OnServerShutdown(msg);
+			}, this);
 
-				case (int)GameRspID.msg_server_parameter: {
-					msg_server_parameter msg = (msg_server_parameter)evt.msg;
-					if (msg == null) msg = JsonMapper.ToObject<msg_server_parameter>(json);
-					mainView.OnServerParameter(msg);
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_currency_change, (cmd, json) => {
+				msg_currency_change msg = JsonMapper.ToObject<msg_currency_change>(json);
+				if (msg.why_ == "0" || msg.why_ == "5") {
+					MyDebug.LogFormat("OnGoldChange:{0}", long.Parse(msg.credits_));
+					App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+					App.ins.self.gamePlayer.DispatchDataChanged();
 				}
-				break;
-				case (int)GameRspID.msg_get_public_data_ret: {
-					msg_get_public_data_ret msg = (msg_get_public_data_ret)evt.msg;
-					if (msg == null) msg = JsonMapper.ToObject<msg_get_public_data_ret>(json);
-					mainView.OnJackpotNumber(msg);
-				}
-				break;
-				
-				default:
-				OnNetMsg(evt.msg, evt.cmd, json);
-				break;
-			}
+				mainView?.OnGoldChange(msg);
+			}, this);
 
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_server_parameter, (cmd, json) => {
+				msg_server_parameter msg = JsonMapper.ToObject<msg_server_parameter>(json);
+				mainView?.OnServerParameter(msg);
+			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_get_public_data_ret, (cmd, json) => {
+				msg_get_public_data_ret msg = JsonMapper.ToObject<msg_get_public_data_ret>(json);
+				mainView?.OnJackpotNumber(msg);
+			}, this);
 		}
-		protected abstract void OnNetMsg(msg_base evt, int cmd, string json);
+
 		public IEnumerator PrepareGameRoom()
 		{
 			yield return OnPrepareGameRoom();
@@ -169,15 +148,16 @@ namespace Hotfix.Common
 		public override void Start()
 		{
 			UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
-			MyDebug.Log("GameControllerBase AddMsgHandler(HandleNetMsg)");
-			AppController.ins.network.AddMsgHandler(HandleNetMsg);
+			InstallMsgHandler();
 			base.Start();
 		}
 
 		public override void Update()
 		{
 			if (prepared_) {
-				foreach (var view in views_) {
+				viewsCopy.Clear();
+				viewsCopy.AddRange(views_);
+				foreach (var view in viewsCopy) {
 					view.Update();
 				}
 			}
@@ -186,8 +166,7 @@ namespace Hotfix.Common
 		public override void Stop()
 		{
 			CloseAllView();
-			MyDebug.Log("GameControllerBase RemoveMsgHandler(HandleNetMsg)");
-			AppController.ins.network.RemoveMsgHandler(HandleNetMsg);
+			App.ins.network.RemoveMsgHandler(this);
 		}
 		
 		public virtual GamePlayer CreateGamePlayer()
@@ -229,6 +208,7 @@ namespace Hotfix.Common
 			players.Remove(serverPos);
 		}
 
+		List<ViewBase> viewsCopy = new List<ViewBase>();
 		List<ViewBase> views_ = new List<ViewBase>();
 		Dictionary<int, GamePlayer> players = new Dictionary<int,GamePlayer>();
 		bool prepared_ = true;
@@ -236,156 +216,139 @@ namespace Hotfix.Common
 
 	public abstract class GameControllerMultiplayer : GameControllerBase
 	{
-
 		public abstract msg_random_result_base CreateRandomResult(string json);
 		public abstract msg_last_random_base CreateLastRandom(string json);
-		protected override void OnNetMsg(msg_base evt, int cmd, string json)
+
+		protected override void InstallMsgHandler()
 		{
+			base.InstallMsgHandler();
 
-			var mainViewThis = (ViewMultiplayerScene)mainView;
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_state_change, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_state_change msg = JsonMapper.ToObject<msg_state_change>(json);
+				mainViewThis?.OnStateChange(msg);
+			}, this);
 
-			switch (cmd) {
-				case (int)GameMultiRspID.msg_state_change: {
-					msg_state_change msg = (msg_state_change)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_state_change>(json);
-					mainViewThis.OnStateChange(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_rand_result, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_random_result_base msg = CreateRandomResult(json);
+				mainViewThis?.OnRandomResult(msg);
+			}, this);
 
-				case (int)GameMultiRspID.msg_rand_result:
-				case (int)GameMultiRspID.msg_random_result_slwh:
-				case (int)GameMultiRspID.msg_brnn_result:
-				case (int)GameMultiRspID.msg_bjl_result: {
-					msg_random_result_base msg = (msg_random_result_base)evt;
-					if (msg == null) msg = CreateRandomResult(json);
-					mainViewThis.OnRandomResult(msg);
-				}
-				break;
-	
-				case (int)GameMultiRspID.msg_last_random: {
-					msg_last_random_base msg = (msg_last_random_base)evt;
-					if (msg == null) msg = CreateLastRandom(json);
-					mainViewThis.OnLastRandomResult(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_random_result_slwh, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_random_result_base msg = CreateRandomResult(json);
+				mainViewThis?.OnRandomResult(msg);
+			}, this);
 
-				case (int)GameMultiRspID.msg_player_setbet: {
-					msg_player_setbet msg = (msg_player_setbet)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_player_setbet>(json);
-					mainViewThis.OnPlayerSetBet(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_brnn_result, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_random_result_base msg = CreateRandomResult(json);
+				mainViewThis?.OnRandomResult(msg);
+			}, this);
 
-				case (int)GameMultiRspID.msg_my_setbet: {
-					msg_my_setbet msg = (msg_my_setbet)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_my_setbet>(json);
-					mainViewThis.OnMyBet(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_bjl_result, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_random_result_base msg = CreateRandomResult(json);
+				mainViewThis?.OnRandomResult(msg);
+			}, this);
 
-				case (int)GameMultiRspID.msg_banker_deposit_change: {
-					msg_banker_deposit_change msg = (msg_banker_deposit_change)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_banker_deposit_change>(json);
-					mainViewThis.OnBankDepositChanged(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_last_random, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_last_random_base msg = CreateLastRandom(json);
+				mainViewThis?.OnLastRandomResult(msg);
+			}, this);
 
-				case (int)GameMultiRspID.msg_banker_promote: {
-					msg_banker_promote msg = (msg_banker_promote)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_banker_promote>(json);
-					mainViewThis.OnBankPromote(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_player_setbet, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_player_setbet msg = JsonMapper.ToObject<msg_player_setbet>(json);
+				mainViewThis?.OnPlayerSetBet(msg);
+			}, this);
 
-				case (int)GameMultiRspID.msg_game_report: {
-					msg_game_report msg = (msg_game_report)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_game_report>(json);
-					mainViewThis.OnGameReport(msg);
-				}
-				break;
-				case (int)GameMultiRspID.msg_game_info: {
-					msg_game_info msg = (msg_game_info)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_game_info>(json);
-					mainViewThis.OnGameInfo(msg);
-				}
-				break;
-				case (int)GameMultiRspID.msg_new_banker_applyed: {
-					msg_new_banker_applyed msg = (msg_new_banker_applyed)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_new_banker_applyed>(json);
-					mainViewThis.OnApplyBanker(msg);
-				}
-				break;
-				case (int)GameMultiRspID.msg_apply_banker_canceled: {
-					msg_apply_banker_canceled msg = (msg_apply_banker_canceled)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_apply_banker_canceled>(json);
-					mainViewThis.OnCancelBanker(msg);
-				}
-				break;
-				default: {
-					if(mainView == null) {
-						MyDebug.LogFormat("msg is ignored:{0},{1}", evt, json);
-					}
-					else {
-						mainViewThis.OnNetMsg(cmd, json);
-					}
-				}
-				
-				break;
-			}
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_my_setbet, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_my_setbet msg = JsonMapper.ToObject<msg_my_setbet>(json);
+				mainViewThis?.OnMyBet(msg);
+			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_banker_deposit_change, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_banker_deposit_change msg = JsonMapper.ToObject<msg_banker_deposit_change>(json);
+				mainViewThis?.OnBankDepositChanged(msg);
+			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_banker_promote, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_banker_promote msg = JsonMapper.ToObject<msg_banker_promote>(json);
+				mainViewThis?.OnBankPromote(msg);
+			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_game_report, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_game_report msg = JsonMapper.ToObject<msg_game_report>(json);
+				mainViewThis?.OnGameReport(msg);
+			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_game_info, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_game_info msg = JsonMapper.ToObject<msg_game_info>(json);
+				mainViewThis?.OnGameInfo(msg);
+			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_new_banker_applyed, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_new_banker_applyed msg = JsonMapper.ToObject<msg_new_banker_applyed>(json);
+				mainViewThis?.OnApplyBanker(msg);
+			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_apply_banker_canceled, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_apply_banker_canceled msg = JsonMapper.ToObject<msg_apply_banker_canceled>(json);
+				mainViewThis?.OnCancelBanker(msg);
+			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameMultiRspID.msg_apply_banker_canceled, (cmd, json) => {
+				var mainViewThis = (ViewMultiplayerScene)mainView;
+				msg_apply_banker_canceled msg = JsonMapper.ToObject<msg_apply_banker_canceled>(json);
+				mainViewThis?.OnCancelBanker(msg);
+			}, this);
 		}
 	}
 
 	public abstract class GameControllerSlot : GameControllerBase
 	{
-		protected override void OnNetMsg(msg_base evt, int cmd, string json)
+		protected override void InstallMsgHandler()
 		{
-			var mainViewThis = (ViewSlotScene)mainView;
-			switch (cmd) {
-				case (int)GameSlotRspID.msg_random_present_ret: {
-					msg_random_present_ret msg = (msg_random_present_ret)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_random_present_ret>(json);
-					mainViewThis.OnRandomResult(msg);
-				}
-				break;
+			base.InstallMsgHandler();
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_random_present_ret, (cmd, json) => {
+				var mainViewThis = (ViewSlotScene)mainView;
+				msg_random_present_ret msg = JsonMapper.ToObject<msg_random_present_ret>(json);
+				mainViewThis?.OnRandomResult(msg);
+			}, this);
 
-				case (int)GameSlotRspID.msg_get_luck_player_ret: {
-					msg_get_luck_player_ret msg = (msg_get_luck_player_ret)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_get_luck_player_ret>(json);
-					mainViewThis.OnLuckResult(msg);
-				}
-				break;
-				
-				case (int)GameSlotRspID.msg_luck_player: {
-					msg_luck_player msg = (msg_luck_player)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_luck_player>(json);
-					mainViewThis.OnLuckPlayer(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_get_luck_player_ret, (cmd, json) => {
+				var mainViewThis = (ViewSlotScene)mainView;
+				msg_get_luck_player_ret msg = JsonMapper.ToObject<msg_get_luck_player_ret>(json);
+				mainViewThis?.OnLuckResult(msg);
+			}, this);
 
-				case (int)GameSlotRspID.msg_player_setbet_slot: {
-					msg_player_setbet_slot msg = (msg_player_setbet_slot)evt;
-					if (msg == null) msg = JsonMapper.ToObject<Slot.msg_player_setbet_slot>(json);
-					mainViewThis.OnPlayerSetBet(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_luck_player, (cmd, json) => {
+				var mainViewThis = (ViewSlotScene)mainView;
+				msg_luck_player msg = JsonMapper.ToObject<msg_luck_player>(json);
+				mainViewThis?.OnLuckPlayer(msg);
+			}, this);
 
-				case (int)GameSlotRspID.msg_random_present_ret_record: {
-					msg_random_present_ret_record msg = (msg_random_present_ret_record)evt;
-					if (msg == null) msg = JsonMapper.ToObject<msg_random_present_ret_record>(json);
-					mainViewThis.OnLuckPlayerPlayData(msg);
-				}
-				break;
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_player_setbet_slot, (cmd, json) => {
+				var mainViewThis = (ViewSlotScene)mainView;
+				msg_player_setbet_slot msg = JsonMapper.ToObject<msg_player_setbet_slot>(json);
+				mainViewThis?.OnPlayerSetBet(msg);
+			}, this);
 
-				default: {
-					if (mainView == null) {
-						MyDebug.LogFormat("msg is ignored:{0},{1}", cmd, json);
-					}
-					else {
-						mainView.OnNetMsg(cmd, json);
-					}
-				}
-				break;
-			}
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_random_present_ret_record, (cmd, json) => {
+				var mainViewThis = (ViewSlotScene)mainView;
+				msg_random_present_ret_record msg = JsonMapper.ToObject<msg_random_present_ret_record>(json);
+				mainViewThis?.OnLuckPlayerPlayData(msg);
+			}, this);
 		}
 	}
 }
