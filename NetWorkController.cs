@@ -598,12 +598,15 @@ namespace Hotfix.Common
 						MsgJsonForm msg = new MsgJsonForm();
 						msg.Read(stm);
 
-						MyDebug.LogWarningFormat("json Msg :{0}, {1}", msg.subCmd, msg.content);
+						if(msg.subCmd != 0xFFFF) {
+							MyDebug.LogWarningFormat("json Msg :{0}, {1}", msg.subCmd, msg.content);
+						}
 
 						List<MsgHandler> handlers;
 						var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
 						if (succ) {
-							foreach(var handler in handlers) {
+							tmpUse.Clear(); tmpUse.AddRange(handlers);
+							foreach (var handler in tmpUse) {
 								handler.HandleMsg(msg.subCmd, msg.content);
 							}
 						}
@@ -617,16 +620,17 @@ namespace Hotfix.Common
 						MsgPbForm msg = new MsgPbForm();
 						msg.Read(stm);
 
-						List<MsgPbHandler> handlers;
-						var succ = msgPbHandlers.TryGetValue(msg.protoName, out handlers);
-						if (succ) {
-							foreach (var handler in handlers) {
-								handler.HandleMsg(msg.protoName, msg.content);
-							}
-						}
-						else {
-							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.protoName, msg.content);
-						}
+// 						List<MsgPbHandler> handlers;
+// 						var succ = msgPbHandlers.TryGetValue(msg.protoName, out handlers);
+// 						if (succ) {
+// 							tmpUse.Clear(); tmpUse.AddRange(handlers);
+// 							foreach (var handler in tmpUse) {
+// 								handler.HandleMsg(msg.protoName, msg.content);
+// 							}
+// 						}
+// 						else {
+// 							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.protoName, msg.content);
+// 						}
 					}
 					break;
 					//二进制消息
@@ -660,5 +664,6 @@ namespace Hotfix.Common
 		int lastConfigid, lastRoomid;
 		Dictionary<int, List<MsgHandler>> msgHandlers = new Dictionary<int, List<MsgHandler>>();
 		Dictionary<string, List<MsgPbHandler>> msgPbHandlers = new Dictionary<string, List<MsgPbHandler>>();
+		List<MsgHandler> tmpUse = new List<MsgHandler>();
 	}
 }

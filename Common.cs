@@ -87,6 +87,12 @@ namespace Hotfix.Common
 			obj.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 1.0f), 0.2f);
 		}
 
+		public static long ToGold(this string sNum)
+		{
+			string ret = sNum.Replace(",", "");
+			return long.Parse(ret);
+		}
+
 		public static string ShowAsGold(this long num)
 		{
 			string s = num.ToString();
