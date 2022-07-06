@@ -349,6 +349,12 @@ namespace Hotfix.Common
 				msg_random_present_ret_record msg = JsonMapper.ToObject<msg_random_present_ret_record>(json);
 				mainViewThis?.OnLuckPlayerPlayData(msg);
 			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameSlotRspID.msg_hylj_gameinfo, (cmd, json) => {
+				var mainViewThis = (ViewSlotScene)mainView;
+				msg_hylj_gameinfo msg = JsonMapper.ToObject<msg_hylj_gameinfo>(json);
+				mainViewThis?.OnLastFreeGame(msg);
+			}, this);
 		}
 	}
 }

@@ -361,6 +361,7 @@ namespace Hotfix.Common
 		public abstract void OnLuckPlayer(msg_luck_player msg);
 		public abstract void OnPlayerSetBet(msg_player_setbet_slot msg);
 		public abstract void OnLuckPlayerPlayData(msg_random_present_ret_record msg);
+		public abstract void OnLastFreeGame(msg_hylj_gameinfo msg);
 
 	}
 

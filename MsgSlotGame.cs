@@ -131,4 +131,9 @@ namespace Hotfix.Common.Slot
 	{
 		public string lines_;
 	}
+
+	public class msg_hylj_gameinfo:msg_room_msg
+	{
+		public string free_game_;
+	}
 }
