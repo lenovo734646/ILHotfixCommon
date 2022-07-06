@@ -1,0 +1,3 @@
+[submodule "client/Plaza/Hotfix/ILHotfixCommon"]
+	path = client/Plaza/Hotfix/ILHotfixCommon
+	url = https://github.com/lenovo734646/ILHotfixCommon.git
