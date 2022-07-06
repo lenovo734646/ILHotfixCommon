@@ -133,26 +133,27 @@ namespace Hotfix.Common
 
 	public class msg_set_head_and_headframe : msg_from_client
 	{
-		public string head_ico_;      //头像ID
+		public string head_ico_ = "";      //头像ID
 		public int headframe_id_;  //头像框ID
-		public string nickname_;      //昵称
-		public string spread_;        //推荐人ID
+		public string nickname_ = "";      //昵称
+		public string spread_ = "";        //推荐人ID
+		public override int to_server() { return 1; }
 	}
 
 	//更改用户数据
 	public class msg_change_account_info : msg_from_client
 	{
-		public string gender_;
-		public string byear_;
-		public string bmonth_;
-		public string bday_;
-		public string address_;
-		public string nick_name_;
-		public string age_;
-		public string mobile_;
-		public string email_;
-		public string idcard_;
-		public string region1_, region2_, region3_;
+		public string gender_ = "";
+		public string byear_ = "";
+		public string bmonth_ = "";
+		public string bday_ = "";
+		public string address_ = "";
+		public string nick_name_ = "";
+		public string age_ = "";
+		public string mobile_ = "";
+		public string email_ = "";
+		public string idcard_ = "";
+		public string region1_ = "", region2_ = "", region3_ = "";
 		public override int to_server() { return 1; }
 	}
 

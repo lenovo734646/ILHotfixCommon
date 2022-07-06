@@ -134,7 +134,7 @@ namespace Hotfix.Common
 			Action<int, string> wrapCallback = (cmd, json) => {
 				if (cmd == (int)CommID.msg_common_reply) {
 					var rpl = LitJson.JsonMapper.ToObject<msg_common_reply>(json);
-					if(int.Parse(rpl.rp_cmd_) == rspID) {
+					if(int.Parse(rpl.rp_cmd_) == msgid) {
 						responsed = true;
 						callback(cmd, json);
 					}
