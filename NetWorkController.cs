@@ -16,6 +16,8 @@ namespace Hotfix.Common
 		public int msgID;
 		public Action<int, string> HandleMsg;
 		public object owner;
+		public float duation = float.MaxValue;
+		public float start = Time.time;
 	}
 
 	public class MsgPbHandler
@@ -145,11 +147,18 @@ namespace Hotfix.Common
 				if (responsed) {
 					RemoveMsgHandler(handler);
 					RemoveMsgHandler(handlerCommonRpl);
+
+					rpcWaiting.Remove(handler);
+					rpcWaiting.Remove(handlerCommonRpl);
 				}
 			};
 
+
 			handler = RegisterMsgHandler(rspID, wrapCallback, this);
 			handlerCommonRpl = RegisterMsgHandler((int)CommID.msg_common_reply, wrapCallback, this);
+
+			rpcWaiting.Add(handler);
+			rpcWaiting.Add(handlerCommonRpl);
 
 			return SendMessage(msgid, proto);
 		}
@@ -480,20 +489,36 @@ namespace Hotfix.Common
 			}
 
 		}
-
-		public override void Update()
+		public void LazyUpdate()
 		{
-			Globals.net?.Update();
-
-			if (checkSeesionTc_.Elapse() > 5.0f && App.ins.network.session != null ) {
+			if (checkSeesionTc_.Elapse() > 5.0f && App.ins.network.session != null) {
 				checkSeesionTc_.Restart();
 				if (!App.ins.disableNetwork &&
-					!App.ins.network.session.IsWorking() && 
+					!App.ins.network.session.IsWorking() &&
 					!App.ins.network.IsReconnecting()) {
 					this.StartCor(App.ins.network.Recounnect(), true);
 				}
 			}
+
+			//rpc超时数据包模拟
+			tmpUse.Clear();
+			tmpUse.AddRange(rpcWaiting);
+			foreach(var h in tmpUse) {
+				if(Time.time - h.start > h.duation) {
+					msg_common_reply msg = new msg_common_reply();
+					msg.rp_cmd_ = h.msgID.ToString();
+					msg.err_ = "-99999";
+					h.HandleMsg((int) CommID.msg_common_reply, LitJson.JsonMapper.ToJson(msg));
+					rpcWaiting.Remove(h);
+				}
+			}
 		}
+
+		public override void Update()
+		{
+			Globals.net?.Update();
+		}
+
 		public bool IsReconnecting()
 		{
 			return isReconnecting_;
@@ -689,5 +714,7 @@ namespace Hotfix.Common
 		Dictionary<int, List<MsgHandler>> msgHandlers = new Dictionary<int, List<MsgHandler>>();
 		Dictionary<string, List<MsgPbHandler>> msgPbHandlers = new Dictionary<string, List<MsgPbHandler>>();
 		List<MsgHandler> tmpUse = new List<MsgHandler>();
+
+		List<MsgHandler> rpcWaiting = new List<MsgHandler>();
 	}
 }

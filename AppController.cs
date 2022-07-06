@@ -168,12 +168,6 @@ namespace Hotfix.Common
 
 		public void InstallMsgHandler()
 		{
-			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
-// 				msg_sync_item msgi = JsonMapper.ToObject<msg_sync_item>(json);
-// 				self.gamePlayer.items.SetKeyVal(int.Parse(msgi.item_id_), long.Parse(msgi.count_));
-// 				self.gamePlayer.DispatchDataChanged();
-			}, this);
-
 			network.RegisterMsgHandler((int)AccRspID.msg_same_account_login, (cmd, json) => {
 				ins.disableNetwork = true;
 				ViewPopup.Create(LangUITip.SameAccountLogin, ViewPopup.Flag.BTN_OK_ONLY, () => {
@@ -222,6 +216,8 @@ namespace Hotfix.Common
 					if (!longp.Value.IsTimeout()) continue;
 					longp.Value.Trigger();
 				}
+
+				network.LazyUpdate();
 				yield return new WaitForSeconds(0.1f);
 			}
 		}
