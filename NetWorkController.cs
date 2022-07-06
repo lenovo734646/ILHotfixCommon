@@ -94,16 +94,21 @@ namespace Hotfix.Common
 		}
 
 		//做RPC调用,方便代码编写
-		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, MsgRpcRet> callback, float timeout = 3.0f)
+		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, MsgRpcRet> callback, float timeout = 3.0f, bool commonRpl = false)
 		{
 			bool responsed = false;
+			
 			MsgRpcRet ret = new MsgRpcRet();
 			Action<int, string> wrapCallback = (cmd, json) => {
-				responsed = true;
-				ret = callback(cmd, json);
+				if (!responsed) {
+					responsed = true;
+					ret = callback(cmd, json);
+				}
 			};
 
 			var handler = RegisterMsgHandler(rspID, wrapCallback, this);
+			var handlerCommonRpl = RegisterMsgHandler((int)CommID.msg_common_reply, wrapCallback, this);
+
 			SendMessage(msgid, proto);
 
 			TimeCounter tc = new TimeCounter("");
@@ -115,18 +120,37 @@ namespace Hotfix.Common
 				ret.err_ = -9999;
 			}
 			RemoveMsgHandler(handler);
+			RemoveMsgHandler(handlerCommonRpl);
 			yield return ret;
 		}
 
-		public bool Rpc(ushort msgid, MsgBase proto, ushort rspID, Action<int, string> callback)
+		public bool Rpc(ushort msgid, MsgBase proto, ushort rspID, Action<int, string> callback, float timeout = 3.0f, bool commonRpl = false)
 		{
-			MsgHandler handler = null;
+			MsgHandler handler = null, handlerCommonRpl = null;
+			bool responsed = false;
+
 			Action<int, string> wrapCallback = (cmd, json) => {
-				callback(cmd, json);
-				RemoveMsgHandler(handler);
+				if (cmd == (int)CommID.msg_common_reply) {
+					var rpl = LitJson.JsonMapper.ToObject<msg_common_reply>(json);
+					if(int.Parse(rpl.rp_cmd_) == rspID) {
+						responsed = true;
+						callback(cmd, json);
+					}
+				}
+				else {
+					responsed = true;
+					callback(cmd, json);
+				}
+
+				if (responsed) {
+					RemoveMsgHandler(handler);
+					RemoveMsgHandler(handlerCommonRpl);
+				}
 			};
 
 			handler = RegisterMsgHandler(rspID, wrapCallback, this);
+			handlerCommonRpl = RegisterMsgHandler((int)CommID.msg_common_reply, wrapCallback, this);
+
 			return SendMessage(msgid, proto);
 		}
 
