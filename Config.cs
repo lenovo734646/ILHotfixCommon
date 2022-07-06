@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Hotfix.Common
 {
@@ -486,10 +487,9 @@ namespace Hotfix.Common
 			return null;
 		}
 
-		
 		public string GetDeviceID()
 		{
-			return "dfgqrtasdagg43aed";
+			return SystemInfo.deviceUniqueIdentifier;
 		}
 	}
 }
