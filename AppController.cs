@@ -72,14 +72,10 @@ namespace Hotfix.Common
 				goto Clean;
 			}
 
-			if (currentApp != null) {
-				currentApp.Stop();
-				//清理本游戏声音资源
-				audio.StopAll();
-			}
-
+			AppBase oldApp = currentApp;
+			//清理本游戏声音资源
+			audio.StopAll();
 			currentApp = null;
-
 			//确保连接
 			if (!disableNetwork) {
 				MyDebug.LogFormat("network.ValidSession");
@@ -129,6 +125,10 @@ namespace Hotfix.Common
 					}
 				}
 			}
+
+			//清理旧游戏资源
+			oldApp?.Stop();
+
 			yield break;
 
 		Clean:

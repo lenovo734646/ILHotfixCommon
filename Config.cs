@@ -92,16 +92,22 @@ namespace Hotfix.Common
 	public partial class Config
 	{
 		public Dictionary<string, GameConfig> games = new Dictionary<string, GameConfig>();
-		public Dictionary<string, int> hosts = new Dictionary<string, int>();
+		public Dictionary<string, int> gameHosts = new Dictionary<string, int>();
 		public float networkTimeout = 5.0f;
+
+		public Dictionary<string, int> webRoots = new Dictionary<string, int>();
+
+		//public string webRoots = "http://139.224.233.71:8083/koko-manage2/third/";
+
 		public void Start()
 		{
 			//内网测试服
 			//hosts.Add("192.168.101.221", 16000);
 			//国内测试服
 			//hosts.Add("150.158.55.161", 16000);
-			hosts.Add("192.168.101.106", 8990);
+			gameHosts.Add("192.168.101.106", 8990);
 			//hosts.Add("47.100.172.186", 8990);
+			webRoots.Add("139.224.233.71", 8083);
 			{
 				GameConfig game = new GameConfig();
 				game.name = GameConfig.LingDianBY;
