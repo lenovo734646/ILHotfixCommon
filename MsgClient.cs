@@ -46,6 +46,7 @@ namespace Hotfix.Common
 		msg_bank_op = 124,
 		msg_alloc_game_server = 1030,
 		msg_set_head_and_headframe = 1042,
+		msg_get_rank_req = 506,
 	}
 
 	public enum GameReqID
@@ -235,6 +236,20 @@ namespace Hotfix.Common
 	{
 		public override int to_server() { return 1; }
 
+	}
+	//获取排行榜数据
+	public class msg_get_rank_req : msg_from_client
+	{
+
+		public enum ranktype{
+			rank_type_gold = 1, //财富榜
+			rank_type_score,    //积分榜
+		};
+
+		int type_;  //1财富榜，2积分榜
+		int page_;  //
+		int page_count_ = 0;//	
+		public override int to_server() { return 1; }
 	}
 
 	public class msg_alloc_game_server : msg_from_client

@@ -19,6 +19,7 @@ namespace Hotfix.Common
 		msg_switch_game_server = 1028,
 		msg_get_bank_info_ret = 1024,
 		msg_user_head_and_headframe= 1040,
+		msg_rank_data = 1122,
 	}
 
 	public enum GameRspID
@@ -212,4 +213,16 @@ namespace Hotfix.Common
 		public string headframe_id_;  //头像框ID
 		public string nickname_;
 	}
+
+	public class msg_rank_data : MsgBase
+	{
+		public string uname_;         //昵称	
+		public string head_ico_;      //头像
+		public string headframe_id_;  //请忽略
+		public string rank_type_;     //排行榜类型,和请求一样
+		public string tag_;           //0新的开始，1后续数据
+		public string data_;           //排行数据
+	}
+
+
 }
