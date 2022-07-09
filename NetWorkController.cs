@@ -317,10 +317,6 @@ namespace Hotfix.Common
 						RPCCallback<msg_common_reply>);
 					yield return resultOfRpc;
 
-					if (resultOfRpc.Current == null) {
-						progressOfLoading?.Desc(LangUITip.RegisterFailed);
-						goto Clean;
-					}
 					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
 					if(rpcd.err_ == 0) {
 						msg_common_reply r = (msg_common_reply)(rpcd.msg);
@@ -351,11 +347,6 @@ namespace Hotfix.Common
 						(ushort)AccRspID.msg_user_login_ret, RPCCallback<msg_user_login_ret>);
 					yield return resultOfRpc;
 
-					if (resultOfRpc.Current == null) {
-						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
-						goto Clean;
-					}
-
 					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
 					if (rpcd.err_ != 0) {
 						MyDebug.LogFormat("登录失败.{0}", rpcd.err_);
@@ -382,21 +373,13 @@ namespace Hotfix.Common
 					RPCCallback<msg_channel_server>);
 				yield return resultOfRpc;
 
-				if (resultOfRpc.Current == null) {
-					progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
-					MyDebug.LogFormat("Get Coordinate failed");
-					goto Clean;
-				}
-				else {
-					MyDebug.LogFormat("Get Coordinate succ.");
-				}
 				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-				msg_channel_server r = (msg_channel_server)(rpcd.msg);
 				if (rpcd.err_ != 0) {
 					progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 					MyDebug.LogFormat("Get Coordinate failed,error:{0},game:{1}", rpcd.err_, toGame.gameID);
 					goto Clean;
 				}
+				msg_channel_server r = (msg_channel_server)(rpcd.msg);
 				MyDebug.LogFormat($"Get Coordinate:{r.ip_},{r.port_},game:{toGame.gameID}");
 
 			}
@@ -417,14 +400,15 @@ namespace Hotfix.Common
 					var resultOfRpc = app.network.Rpc((ushort)CorReqID.msg_alloc_game_server, msg, (ushort)CorRspID.msg_switch_game_server, 
 						RPCCallback<msg_switch_game_server>);
 					yield return resultOfRpc;
-					if (resultOfRpc.Current == null) {
+					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
+					if (rpcd.err_ != 0) {
 						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 						MyDebug.LogFormat("alloc game server failed");
 						goto Clean;
 					}
 					else {
 						MyDebug.LogFormat("alloc game server succ.");
-						MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
+
 						msg_switch_game_server r = (msg_switch_game_server)(rpcd.msg);
 					}
 
