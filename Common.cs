@@ -16,10 +16,56 @@ namespace Hotfix.Common
 {
 	public static class Http
 	{
+		public const string Failed = "Falied";
+		public const string ServiceAvailableCode = "6E6C51D9-6B7D-4373-875F-8188FCF1024B";
 		public static IEnumerator GetRequest(string uri)
 		{
-			string ret = "Failed";
-			using (UnityWebRequest webRequest = UnityWebRequest.Get(uri)) {
+			string ret = Failed;
+			yield return GetUseableWebService();
+			if (usingWebHost_.Value < 0) {
+				yield return ret;
+				yield break;
+			}
+			yield return GetRequest(usingWebHost_.Key, usingWebHost_.Value, "koko-manage2/third/" + uri);
+		}
+
+		static KeyValuePair<string, int> usingWebHost_ = new KeyValuePair<string, int>("", -1);
+
+		static IEnumerator GetUseableWebService()
+		{
+			List<IEnumerator> lst = new List<IEnumerator>();
+			List<int> ids = new List<int>();
+			List<KeyValuePair<string, int>> lHosts = App.ins.conf.webRoots.ToArray();
+			//同时访问网站
+			foreach (var i in App.ins.conf.webRoots) {
+				var handle = GetRequest(i.Key, i.Value, "/versions/checkdns.txt");
+				ids.Add(lst.StartCor(handle, false));
+				lst.Add(handle);
+			}
+
+			//找最快回复的
+			bool finded = false;
+			TimeCounter tc = new TimeCounter("");
+			while (!finded && tc.Elapse() < 3.0f) { 
+				for (int i = 0; i < ids.Count; i++) {
+					if (!Globals.cor.isRuning(ids[i])) {
+						if ((string)lst[i].Current == ServiceAvailableCode) {
+							finded = true;
+							usingWebHost_ = lHosts[i];
+							break;
+						}
+					}
+				}
+				if(!finded) yield return new WaitForSeconds(0.1f);
+			}
+		}
+
+
+		static IEnumerator GetRequest(string host, int port, string uri)
+		{
+			string ret = Failed;
+			string url = string.Format("http://{0}:{1}/{2}", host, port, uri);
+			using (UnityWebRequest webRequest = UnityWebRequest.Get(url)) {
 				yield return webRequest.SendWebRequest();
 
 				string[] pages = uri.Split('/');
@@ -31,14 +77,21 @@ namespace Hotfix.Common
 					break;
 					case UnityWebRequest.Result.ProtocolError:
 					break;
-					case UnityWebRequest.Result.Success:
-					ret = webRequest.downloadHandler.text;
+					case UnityWebRequest.Result.Success: {
+						var contentType = webRequest.GetResponseHeader("content-type").ToLower();
+						if(contentType == "application/json" || contentType == "text/plain") {
+							ret = Encoding.UTF8.GetString(webRequest.downloadHandler.data);
+						}
+						
+					}
+
 					break;
 				}
 			}
 			yield return ret;
 		}
 	}
+
 	public class LongPressData
 	{
 		public float startTime, duration;

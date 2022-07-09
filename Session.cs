@@ -114,7 +114,7 @@ namespace Hotfix.Lobby
 			bool netReseted = false;
 			//如果网络模块不正常,则开始初始化网络============
 			if (Globals.net == null || !Globals.net.IsWorking()) {
-				StartKoKoNetwork(app.conf.hosts, App.ins.conf.networkTimeout);
+				StartKoKoNetwork(app.conf.gameHosts, App.ins.conf.networkTimeout);
 				netReseted = true;
 			}
 
