@@ -310,7 +310,7 @@ namespace Hotfix.Common.Slot
 		}
 
 		public abstract int GetResultType(SlotGameResult result);
-		protected abstract void PlayHitLineEffect();
+		protected abstract void PlayHitLineSoundEffect();
 		public override IEnumerator StartRoll()
 		{
 			yield return base.StartRoll();
@@ -340,7 +340,7 @@ namespace Hotfix.Common.Slot
 					}
 
 					if (gameResult_.winLines.Count > 0) {
-						PlayHitLineEffect();
+						PlayHitLineSoundEffect();
 						yield return new WaitForSeconds(1.0f);
 					}
 
