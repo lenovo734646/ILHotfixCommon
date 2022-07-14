@@ -23,7 +23,9 @@ namespace Hotfix.Common
 		public void LoadAssets<T>(string path, Action<AddressablesLoader.LoadTask<T>> callback) where T : UnityEngine.Object
 		{
 			Action<AddressablesLoader.LoadTask<T>> callbackWrapper = (AddressablesLoader.LoadTask<T> loader) => {
-				callback(loader);
+				if(loader.status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded){
+					callback(loader);
+				}
 			};
 			resourceLoader_.Add(Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading)); 
 		}
