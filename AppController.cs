@@ -174,6 +174,14 @@ namespace Hotfix.Common
 					ins.StartCor(ins.CheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
 				});
 			}, this);
+
+			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
+				msg_sync_item msg = JsonMapper.ToObject<msg_sync_item>(json);
+				int itemId = int.Parse(msg.item_id_);
+				if (!self.gamePlayer.items.ContainsKey(itemId)) {
+					self.gamePlayer.items[itemId] = int.Parse(msg.count_);
+				}
+			}, this);
 		}
 
 		IEnumerator CachedResources_()

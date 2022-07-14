@@ -98,7 +98,7 @@ namespace Hotfix.Common
 			AudioSource used = null;
 			if (clip == null) {
 				LoadAssets<AudioClip>(path, (t) => {
-					if (t != null) {
+					if (t.status == AsyncOperationStatus.Succeeded && t != null) {
 						if (isEffect) {
 							used = GetEffectSource_();
 							used.clip = t.Result;

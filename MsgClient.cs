@@ -64,7 +64,7 @@ namespace Hotfix.Common
 
 	public class MsgRpcRet
 	{
-		public int err_ = 0; //-999超时
+		public int err_ = -999; //-999超时
 		public MsgBase msg;
 	}
 

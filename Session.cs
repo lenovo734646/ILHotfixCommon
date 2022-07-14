@@ -45,7 +45,7 @@ namespace Hotfix.Lobby
 			msg.machine_id_ = App.ins.conf.GetDeviceID();
 			msg.sign_ = Globals.Md5Hash(msg.machine_id_ + "1EBE295C-BE45-45C0-9AA1-496C1CEE4BDB");
 
-			Func<int, string, MsgRpcRet> cb = (cmd, json) => {
+			Func<int, string, int, MsgRpcRet> cb = (cmd, json, reqID) => {
 				MsgRpcRet ret = new MsgRpcRet();
 				ret.msg = JsonMapper.ToObject<msg_handshake_ret>(json);
 				ret.err_ = 0;

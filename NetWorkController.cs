@@ -96,15 +96,16 @@ namespace Hotfix.Common
 		}
 
 		//做RPC调用,方便代码编写
-		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, MsgRpcRet> callback, float timeout = 3.0f, bool commonRpl = false)
+		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, int, MsgRpcRet> callback, float timeout = 3.0f, bool commonRpl = false)
 		{
 			bool responsed = false;
 			
 			MsgRpcRet ret = new MsgRpcRet();
 			Action<int, string> wrapCallback = (cmd, json) => {
-				if (!responsed) {
+				var rpcRet = callback(cmd, json, msgid);
+				if (rpcRet != null) {
 					responsed = true;
-					ret = callback(cmd, json);
+					ret = rpcRet;
 				}
 			};
 
@@ -264,21 +265,22 @@ namespace Hotfix.Common
 				yield return 1;
 		}
 
-		public MsgRpcRet RPCCallback<T>(int cmd, string json) where T: MsgBase
+		public MsgRpcRet RPCCallback<T>(int cmd, string json, int reqID) where T: MsgBase
 		{
 			MsgRpcRet msgr = new MsgRpcRet();
 			if (cmd ==(int)CommID.msg_common_reply) {
 				var msg = JsonMapper.ToObject<msg_common_reply>(json);
-				if(int.Parse(msg.rp_cmd_) == cmd) {
+				if(int.Parse(msg.rp_cmd_) == reqID) {
 					msgr.err_ = int.Parse(msg.err_);
+					msgr.msg = msg;
 				}
-				msgr.msg = msg;
 			}
 			else {
 				msgr.err_ = 0;
 				var msg = JsonMapper.ToObject<T>(json);
 				msgr.msg = msg;
 			}
+			if (msgr.msg == null) return null;
 			return msgr;
 		}
 
@@ -318,18 +320,13 @@ namespace Hotfix.Common
 					yield return resultOfRpc;
 
 					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-					if(rpcd.err_ == 0) {
-						msg_common_reply r = (msg_common_reply)(rpcd.msg);
-						if (r.err_ == "-994") {
-							progressOfLoading?.Desc(LangUITip.ServerIsBusy);
-							goto Clean;
-						}
-						else if (r.err_ != "0" && r.err_ != "-995") {
-							progressOfLoading?.Desc(LangUITip.RegisterFailed);
-							goto Clean;
-						}
+
+					msg_common_reply r = (msg_common_reply)(rpcd.msg);
+					if (r.err_ == "-994") {
+						progressOfLoading?.Desc(LangUITip.ServerIsBusy);
+						goto Clean;
 					}
-					else {
+					else if (r.err_ != "0" && r.err_ != "-995") {
 						progressOfLoading?.Desc(LangUITip.RegisterFailed);
 						goto Clean;
 					}

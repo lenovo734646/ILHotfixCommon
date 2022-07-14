@@ -40,6 +40,7 @@ namespace Hotfix.Common
 			FeiQingZhouSou = 64,
 			BaiJiaLe = 35,
 			JiuXianLaWang = 41,
+			ShuiHuZhuan = 42,
 		}
 
 		public const string HuanleBY = "HuanleBY";
@@ -67,7 +68,7 @@ namespace Hotfix.Common
 		public const string XingGanNvYou = "XGNY";
 		public const string LuoMaDaMaoXian = "LMDMX";
 		public const string ShuiGuoMali = "SGML";
-		public const string ShuiHuZhuan = "Shz";
+		public const string ShuiHuZhuan = "SHZ";
 		public const string JiJieHaoBY = "FishingJJH";
 		public const string LingDianBY = "Fishing3D";
 		public const string ShenHaiBY = "FishingSH";
@@ -419,6 +420,8 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots |(int)GameConfig.Tag.Hot;
+				game.enabled = true;
+				game.gameID = GameConfig.GameID.ShuiHuZhuan;
 				games.Add(game.name, game);
 			}
 

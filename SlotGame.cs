@@ -337,13 +337,13 @@ namespace Hotfix.Common.Slot
 						int line = it;
 						lines_[line].SetActive(true);
 						lines_[line].StartAnim();
+						PlayHitLineSoundEffect();
+						yield return new WaitForSeconds(0.3f);
 					}
 
 					if (gameResult_.winLines.Count > 0) {
-						PlayHitLineSoundEffect();
 						yield return new WaitForSeconds(1.0f);
 					}
-
 				}
 				else {
 					//未中奖的图标灰掉
