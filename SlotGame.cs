@@ -22,10 +22,10 @@ namespace Hotfix.Common.Slot
 		public float rollTime = 2.0f, instanceShowPercent = 0.95f;
 		public int simPages = 10, rowCount = 3, colCount = 5;
 		public Vector2 cellSize;
-		public float initY = -214;
+		public float initY = -214, space = 0;
 		public float colDelay = 0.3f;
 		public int defaultI = 0;
-		public bool addtionalRow = false;
+		public bool addtionalRow = false, stopRollSoundEff = true;
 	}
 
 	public class SlotGameResult
@@ -54,10 +54,11 @@ namespace Hotfix.Common.Slot
 			Win,
 		}
 
-		public RollItemBase(GameObject obj, int data)
+		public RollItemBase(GameObject obj, int data, int idx)
 		{
 			obj_ = obj;
 			data_ = data;
+			index = idx;
 		}
 
 		public void Close()
@@ -83,10 +84,13 @@ namespace Hotfix.Common.Slot
 		protected abstract void OnInit();
 		public abstract void SetState(State st);
 
+		public int index;
+
 		protected GameObject obj_;
 		protected State st_;
 		protected GameObject gray, normal, rolling, animation;
 		protected int data_;
+		
 	}
 
 	public abstract class RollGameBase
@@ -117,7 +121,7 @@ namespace Hotfix.Common.Slot
 
 		public void ShowInitPage()
 		{
-			SetRollItems(RandomAPage(null), RollItemBase.State.Normal);
+			SetRollItems(RandomAPage(null), RollItemBase.State.Normal, false);
 		}
 
 		public bool SetResultPage(List<int> result)
@@ -136,18 +140,19 @@ namespace Hotfix.Common.Slot
 		}
 
 		protected abstract List<int> RandomAPage(List<int> to);
-		protected abstract RollItemBase CreateRollItem(int data);
+		protected abstract RollItemBase CreateRollItem(int data, int index);
 		protected abstract IEnumerator PlayStartEffect();
 		protected abstract void PlayCompleteEffect();
 
-		public List<RollItemBase> SetRollItems(List<int> items, RollItemBase.State st)
+		public List<RollItemBase> SetRollItems(List<int> items, RollItemBase.State st, bool isResult)
 		{
 			List<RollItemBase> ret = new List<RollItemBase>();
 			for (int i = items.Count - 1; i >= 0; i--) {
 				int col = i % conf_.colCount;
-				RollItemBase itm = CreateRollItem(items[i]);
+				RollItemBase itm = CreateRollItem(items[i], i);
 				itm.Init();
 				itm.SetState(st);
+				if(isResult) itm.gameObject.name = "Result_" + i;
 				cols_[col].AddChild(itm.gameObject);
 				rollItems_.Add(itm);
 				ret.Add(itm);
@@ -157,6 +162,10 @@ namespace Hotfix.Common.Slot
 
 		public virtual IEnumerator StartRoll()
 		{
+			foreach(var it in rollItems_) {
+				it.SetState(RollItemBase.State.Normal);
+			}
+
 			TimeCounter tc1 = new TimeCounter("");
 			skipType_ = eSkipTo.None;
 			float offset = 0;
@@ -164,17 +173,17 @@ namespace Hotfix.Common.Slot
 			//先随机N页,显示模糊图标
 			for (int i = 0; i < conf_.simPages; i++) {
 				var lst = RandomAPage(result_);
-				sims.AddRange(SetRollItems(lst, RollItemBase.State.Rolling));
-				offset += conf_.cellSize.y * (lst.Count / conf_.colCount);
+				sims.AddRange(SetRollItems(lst, RollItemBase.State.Rolling, false));
+				offset += (conf_.cellSize.y + conf_.space) * (lst.Count / conf_.colCount);
 			}
 
 			//再显示结果页
-			var ret = SetRollItems(result_, RollItemBase.State.Normal);
-			offset += conf_.cellSize.y * (ret.Count / conf_.colCount);
+			var ret = SetRollItems(result_, RollItemBase.State.Normal, true);
+			offset += (conf_.cellSize.y + conf_.space) * (ret.Count / conf_.colCount);
 			//再随机1页,显示正常图显
 			if (conf_.addtionalRow){
 				var lst = RandomAPage(result_);
-				sims.AddRange(SetRollItems(lst, RollItemBase.State.Normal));
+				sims.AddRange(SetRollItems(lst, RollItemBase.State.Normal, false));
 			}
 
 			var eff = PlayStartEffect();
@@ -219,7 +228,7 @@ namespace Hotfix.Common.Slot
 				}
 			}
 			AudioSource aus = (AudioSource)(eff.Current);
-			if (aus != null) {
+			if (aus != null && conf_.stopRollSoundEff) {
 				if (eff.Current != null) {
 					aus.Stop();
 				}
@@ -311,6 +320,8 @@ namespace Hotfix.Common.Slot
 
 		public abstract int GetResultType(SlotGameResult result);
 		protected abstract void PlayHitLineSoundEffect();
+		protected abstract void PlayWinIconSoundEffect(int ico);
+		protected virtual void OnShowResultFinished() { }
 		public override IEnumerator StartRoll()
 		{
 			yield return base.StartRoll();
@@ -319,19 +330,6 @@ namespace Hotfix.Common.Slot
 
 			if(SkipTo != eSkipTo.SkipAll) {
 				if (gameResult_.iconXY.Count > 0) {
-					//中奖图标播放动画
-					ret.Reverse();
-					foreach (var it in gameResult_.iconXY) {
-						int x = it.Key, y = it.Value;
-						ret[y * conf_.colCount + x].SetState(RollItemBase.State.Win);
-					}
-					//未中奖的图标灰掉
-					foreach (var it in ret) {
-						if (it.state != RollItemBase.State.Win) {
-							it.SetState(RollItemBase.State.Gray);
-						}
-					}
-
 					//显示中奖线条
 					foreach (var it in gameResult_.winLines) {
 						int line = it;
@@ -340,6 +338,29 @@ namespace Hotfix.Common.Slot
 						PlayHitLineSoundEffect();
 						yield return new WaitForSeconds(0.3f);
 					}
+					yield return new WaitForSeconds(0.3f);
+					//中奖图标播放动画
+					ret.Reverse();
+					foreach (var it in gameResult_.iconXY) {
+						int x = it.Key, y = it.Value;
+						ret[y * conf_.colCount + x].SetState(RollItemBase.State.Win);
+					}
+
+					List<int> played = new List<int>();
+					foreach (var it in gameResult_.winIcons) {
+						if (!played.Contains(it.Key)) {
+							PlayWinIconSoundEffect(it.Key);
+							played.Add(it.Key);
+						}
+					}
+
+					//未中奖的图标灰掉
+					foreach (var it in ret) {
+						if (it.state != RollItemBase.State.Win) {
+							it.SetState(RollItemBase.State.Gray);
+						}
+					}
+					OnShowResultFinished();
 
 					if (gameResult_.winLines.Count > 0) {
 						yield return new WaitForSeconds(1.0f);
