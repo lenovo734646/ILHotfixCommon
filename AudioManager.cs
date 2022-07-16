@@ -106,6 +106,7 @@ namespace Hotfix.Common
 						}
 						else {
 							audioMusic.clip = t.Result;
+							audioMusic.loop = true;
 							audioMusic.Play();
 							used = audioMusic;
 						}
@@ -121,6 +122,7 @@ namespace Hotfix.Common
 				}
 				else {
 					audioMusic.clip = clip.Result;
+					audioMusic.loop = true;
 					audioMusic.Play();
 					used = audioMusic;
 				}

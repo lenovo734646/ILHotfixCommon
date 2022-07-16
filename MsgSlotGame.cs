@@ -105,6 +105,7 @@ namespace Hotfix.Common.Slot
 		public string my_favor_;
 		public string total_favor_;
 		public string win_;
+		public string hiticons_, hitfactors_;
 	}
 
 	public class msg_bigsmall_result : msg_room_msg

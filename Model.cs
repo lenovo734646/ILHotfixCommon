@@ -37,17 +37,21 @@ namespace Hotfix.Model
 			System.EventArgs evt = new System.EventArgs();
 			onDataChanged?.Invoke(this, evt);
 		}
-
-		//设置头像
-		public void SetHeadPic(Image img)
+		public static void SetHeadPic(string headIco, Image img)
 		{
-			if (headIco == null) headIco = "1";
+			if (headIco == null || headIco == "") headIco = "1";
 			int ico = int.Parse(headIco);
 			if (ico < 1) ico = 1;
 			if (ico > 10) ico = 10;
 
 			var texture = App.ins.headIcons[ico];
 			img.ChangeSprite(texture);
+		}
+
+		//设置头像
+		public void SetHeadPic(Image img)
+		{ 
+			SetHeadPic(headIco, img);
 		}
 
 		public void SetHeadFrame(Image img)
