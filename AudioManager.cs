@@ -147,13 +147,19 @@ namespace Hotfix.Common
 				foreach (var eff in audioEffectPool) {
 					eff.Stop();
 				}
+			}else if (enableEffect_)
+            {
+				foreach (var eff in audioEffectPool)
+				{
+					eff.Play();
+				}
 			}
 		}
 
 		void OnMusicEnableChanged_()
 		{
 			if (enableMusic_) {
-
+				audioMusic.Play();
 			}
 			else {
 				audioMusic.Stop();
