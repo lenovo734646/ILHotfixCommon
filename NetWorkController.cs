@@ -66,7 +66,7 @@ namespace Hotfix.Common
 
 		public override string GetDebugInfo()
 		{
-			return $"Network:Time Since Last Ping:{TimeElapseSinceLastPing()}s";
+			return $"Network:Time Since Last Ping:{TimeElapseSinceLastPing()}s, msgHandlers={msgHandlers.Count}, rpcWaiting={rpcWaiting.Count}";
 		}
 
 		public bool SendMessage(ushort subCmd, string json, int toserver)
@@ -96,12 +96,13 @@ namespace Hotfix.Common
 		}
 
 		//做RPC调用,方便代码编写
-		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, int, MsgRpcRet> callback, float timeout = 3.0f, bool commonRpl = false)
+		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, int, MsgRpcRet> callback, float timeout = 3.0f)
 		{
 			bool responsed = false;
 			
 			MsgRpcRet ret = new MsgRpcRet();
 			Action<int, string> wrapCallback = (cmd, json) => {
+				if (responsed) return;
 				var rpcRet = callback(cmd, json, msgid);
 				if (rpcRet != null) {
 					responsed = true;
@@ -127,12 +128,43 @@ namespace Hotfix.Common
 			yield return ret;
 		}
 
-		public bool Rpc(ushort msgid, MsgBase proto, ushort rspID, Action<int, string> callback, float timeout = 3.0f, bool commonRpl = false)
+		public bool Rpc(ushort msgid, MsgBase proto, Action<string> callback, float timeout = float.MaxValue)
+		{
+			MsgHandler handler = null;
+			bool responsed = false;
+			proto.rpc_sequence_ = Globals.Random_Range(1, 1000000).ToString();
+			Action<int, string> wrapCallback = (cmd, json) => {
+				if (responsed) return;
+
+				var rpl = LitJson.JsonMapper.ToObject<msg_rpc_call_ret>(json);
+				if (rpl.rpc_sequence_ == proto.rpc_sequence_) {
+					responsed = true;
+					callback(rpl.data_);
+				}
+
+				if (responsed) {
+					RemoveMsgHandler(handler);
+					rpcWaiting.Remove(handler);
+				}
+			};
+
+
+			handler = RegisterMsgHandler((int)CommID.msg_rpc_call_ret, wrapCallback, this);
+			handler.duation = timeout;
+			rpcWaiting.Add(handler);
+
+
+			return SendMessage(msgid, proto);
+		}
+
+		public bool Rpc(ushort msgid, MsgBase proto, ushort rspID, Action<int, string> callback, float timeout = float.MaxValue)
 		{
 			MsgHandler handler = null, handlerCommonRpl = null;
 			bool responsed = false;
 
 			Action<int, string> wrapCallback = (cmd, json) => {
+				if (responsed) return;
+
 				if (cmd == (int)CommID.msg_common_reply) {
 					var rpl = LitJson.JsonMapper.ToObject<msg_common_reply>(json);
 					if(int.Parse(rpl.rp_cmd_) == msgid) {
@@ -159,8 +191,10 @@ namespace Hotfix.Common
 			handlerCommonRpl = RegisterMsgHandler((int)CommID.msg_common_reply, wrapCallback, this);
 
 			rpcWaiting.Add(handler);
-			rpcWaiting.Add(handlerCommonRpl);
+			handler.duation = timeout;
 
+			rpcWaiting.Add(handlerCommonRpl);
+			handlerCommonRpl.duation = timeout;
 			return SendMessage(msgid, proto);
 		}
 
