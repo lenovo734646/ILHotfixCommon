@@ -430,7 +430,8 @@ namespace Hotfix.Common
 				msg.room_id_ = configid << 24 | roomid;
 				var resultOfRpc = App.ins.network.Rpc((ushort)GameReqID.msg_enter_game_req, msg, (ushort)GameRspID.msg_prepare_enter, RPCCallback<msg_prepare_enter>);
 				yield return resultOfRpc;
-				if (resultOfRpc.Current == null) {
+				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
+				if (rpcd.err_ != 0) {
 					MyDebug.LogFormat("enter game room msg_enter_game_req failed");
 					goto Clean;
 				}
@@ -442,18 +443,13 @@ namespace Hotfix.Common
 				msg_prepare_enter_complete msg = new msg_prepare_enter_complete();
 				var resultOfRpc = App.ins.network.Rpc((ushort)GameReqID.msg_prepare_enter_complete, msg, (ushort)CommID.msg_common_reply, RPCCallback<msg_common_reply>);
 				yield return resultOfRpc;
-				if (resultOfRpc.Current == null) {
-					MyDebug.LogFormat("msg_prepare_enter_complete failed");
-					goto Clean;
-				}
 				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-				msg_common_reply r = (msg_common_reply)(rpcd.msg);
-				if (r.err_ == "0") {
+				if (rpcd.err_ == 0) {
 					MyDebug.LogFormat("OnGameRoomSucc");
 					yield return App.ins.currentApp.game.GameRoomEnterSucc();
 				}
 				else {
-					MyDebug.LogFormat("msg_prepare_enter_complete msg_common_reply failed {0}", r.err_);
+					MyDebug.LogFormat("msg_prepare_enter_complete msg_common_reply failed {0}", rpcd.err_);
 					goto Clean;
 				}
 				succ = true;
@@ -618,7 +614,7 @@ namespace Hotfix.Common
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
-				stm.SetCurentRead(4);
+				int len = stm.ReadInt();
 				int cmd = stm.ReadInt();
 				int order = stm.ReadInt();
 
@@ -629,7 +625,7 @@ namespace Hotfix.Common
 						msg.Read(stm);
 
 						if(msg.subCmd != 0xFFFF) {
-							MyDebug.LogWarningFormat("json Msg :{0}, {1}", msg.subCmd, msg.content);
+							MyDebug.LogWarningFormat("json Msg len{2} cmd:{0}, {1},", msg.subCmd, msg.content, len);
 						}
 
 						List<MsgHandler> handlers;

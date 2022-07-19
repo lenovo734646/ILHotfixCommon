@@ -106,8 +106,8 @@ namespace Hotfix.Common
 			//hosts.Add("192.168.101.221", 16000);
 			//国内测试服
 			//hosts.Add("150.158.55.161", 16000);
-			gameHosts.Add("192.168.101.106", 8990);
-			//hosts.Add("47.100.172.186", 8990);
+			//gameHosts.Add("192.168.101.106", 8990);
+			gameHosts.Add("47.100.172.186", 8990);
 			webRoots.Add("139.224.233.71", 8083);
 			{
 				GameConfig game = new GameConfig();
