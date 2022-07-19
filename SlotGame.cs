@@ -273,7 +273,7 @@ namespace Hotfix.Common.Slot
 			
 		}
 
-		public virtual void Reset()
+		public virtual void Close()
 		{
 			foreach (var it in rollItems_) {
 				it.Close();
