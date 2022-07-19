@@ -285,7 +285,7 @@ namespace Hotfix.Common
 		List<ViewLoadTask<GameObject>> resNames_ = new List<ViewLoadTask<GameObject>>();
 		ViewLoadTask<AddressablesLoader.DownloadScene> resScenes_;
 		List<GameObject> objs = new List<GameObject>();
-		bool finished_ = false;
+		protected bool finished_ = false;
 	}
 
 	public abstract class ViewGameSceneBase : ViewBase

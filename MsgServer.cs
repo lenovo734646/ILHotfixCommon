@@ -55,6 +55,11 @@ namespace Hotfix.Common
 
 	}
 
+	public class msg_rpc_call_ret : MsgBase
+	{
+		public string data_;
+	}
+
 	public class msg_player_info : MsgBase
 	{
 		public string uid_;
