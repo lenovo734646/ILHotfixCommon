@@ -16,7 +16,6 @@ namespace Hotfix.Common
 		public int msgID;
 		public Action<int, string> HandleMsg;
 		public object owner;
-		public float duation = float.MaxValue;
 		public float start = Time.time;
 	}
 
@@ -96,7 +95,7 @@ namespace Hotfix.Common
 		}
 
 		//做RPC调用,方便代码编写
-		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, int, MsgRpcRet> callback, float timeout = 3.0f)
+		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, int, MsgRpcRet> callback)
 		{
 			bool responsed = false;
 			
@@ -116,7 +115,7 @@ namespace Hotfix.Common
 			SendMessage(msgid, proto);
 
 			TimeCounter tc = new TimeCounter("");
-			while (!responsed && tc.Elapse() < timeout) {
+			while (!responsed && tc.Elapse() < App.ins.conf.networkTimeout) {
 				yield return new WaitForSeconds(0.1f);
 			}
 			//超时回调
@@ -128,7 +127,7 @@ namespace Hotfix.Common
 			yield return ret;
 		}
 
-		public bool Rpc(ushort msgid, MsgBase proto, Action<string> callback, float timeout = float.MaxValue)
+		public bool Rpc(ushort msgid, MsgBase proto, Action<string> callback)
 		{
 			MsgHandler handler = null;
 			bool responsed = false;
@@ -150,7 +149,6 @@ namespace Hotfix.Common
 
 
 			handler = RegisterMsgHandler((int)CommID.msg_rpc_call_ret, wrapCallback, this);
-			handler.duation = timeout;
 			rpcWaiting.Add(handler);
 
 
@@ -191,10 +189,7 @@ namespace Hotfix.Common
 			handlerCommonRpl = RegisterMsgHandler((int)CommID.msg_common_reply, wrapCallback, this);
 
 			rpcWaiting.Add(handler);
-			handler.duation = timeout;
-
 			rpcWaiting.Add(handlerCommonRpl);
-			handlerCommonRpl.duation = timeout;
 			return SendMessage(msgid, proto);
 		}
 
@@ -513,7 +508,7 @@ namespace Hotfix.Common
 			tmpUse.Clear();
 			tmpUse.AddRange(rpcWaiting);
 			foreach(var h in tmpUse) {
-				if(Time.time - h.start > h.duation) {
+				if(Time.time - h.start > App.ins.conf.networkTimeout) {
 					msg_common_reply msg = new msg_common_reply();
 					msg.rp_cmd_ = h.msgID.ToString();
 					msg.err_ = "-99999";
@@ -670,7 +665,7 @@ namespace Hotfix.Common
 							}
 						}
 						catch (Exception ex) {
-							MyDebug.LogErrorFormat("HandleMsg Msg error tlen:{0} contentlen:{1}, unused char:{2}, err:{3}",
+							MyDebug.LogWarningFormat("HandleMsg Msg error tlen:{0} contentlen:{1}, unused char:{2}, err:{3}",
 								len, msg.content.Length, msg.content.Length - 1 - lastI, ex.Message);
 						}
 					}

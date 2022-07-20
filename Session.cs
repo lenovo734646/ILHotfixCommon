@@ -52,7 +52,7 @@ namespace Hotfix.Lobby
 				return ret;
 			};
 
-			var handle = App.ins.network.Rpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb, App.ins.conf.networkTimeout);
+			var handle = App.ins.network.Rpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb);
 			yield return handle;
 
 			int result = -2;

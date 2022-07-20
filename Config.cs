@@ -94,7 +94,7 @@ namespace Hotfix.Common
 	{
 		public Dictionary<string, GameConfig> games = new Dictionary<string, GameConfig>();
 		public Dictionary<string, int> gameHosts = new Dictionary<string, int>();
-		public float networkTimeout = 5.0f;
+		public float networkTimeout = 10.0f;
 
 		public Dictionary<string, int> webRoots = new Dictionary<string, int>();
 

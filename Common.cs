@@ -51,7 +51,7 @@ namespace Hotfix.Common
 			//找最快回复的
 			bool finded = false;
 			TimeCounter tc = new TimeCounter("");
-			while (!finded && tc.Elapse() < 10.0f) { 
+			while (!finded && tc.Elapse() < App.ins.conf.networkTimeout) { 
 				for (int i = 0; i < ids.Count; i++) {
 					if (!Globals.cor.isRuning(ids[i])) {
 						if ((string)lst[i].Current == ServiceAvailableCode) {
