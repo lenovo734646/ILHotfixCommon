@@ -653,60 +653,66 @@ namespace Hotfix.Common
 				int order = stm.ReadInt();
 
 				switch (cmd) {
-					//Json消息
-					case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
-						MsgJsonForm msg = new MsgJsonForm();
-						msg.Read(stm);
+				//Json消息
+				case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
+					MsgJsonForm msg = new MsgJsonForm();
+					msg.Read(stm);
+					int lastI = msg.content.LastIndexOf('}');
+					if (msg.subCmd != 0xFFFF) {
+						MyDebug.LogWarningFormat("json Msg len{2} cmd:{0}, {1},", msg.subCmd, msg.content, len);
+					}
 
-						if(msg.subCmd != 0xFFFF) {
-							MyDebug.LogWarningFormat("json Msg len{2} cmd:{0}, {1},", msg.subCmd, msg.content, len);
-						}
-
-						List<MsgHandler> handlers;
-						var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
-						if (succ) {
-							tmpUse.Clear(); tmpUse.AddRange(handlers);
+					List<MsgHandler> handlers;
+					var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
+					if (succ) {
+						tmpUse.Clear(); tmpUse.AddRange(handlers);
+						try {
 							foreach (var handler in tmpUse) {
 								handler.HandleMsg(msg.subCmd, msg.content);
 							}
 						}
-						else {
-							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.subCmd, msg.content);
+						catch (Exception ex) {
+							MyDebug.LogErrorFormat("HandleMsg Msg error tlen:{0} contentlen:{1}, unused char:{2}, err:{3}",
+								len, msg.content.Length, msg.content.Length - 1 - lastI, ex.Message);
 						}
 					}
-					break;
-					//Protobuffer消息
-					case (int)INT_MSGID.INTERNAL_MSGID_PB: {
-						MsgPbForm msg = new MsgPbForm();
-						msg.Read(stm);
+					else {
+						MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.subCmd, msg.content);
+					}
+				}
+				break;
+				//Protobuffer消息
+				case (int)INT_MSGID.INTERNAL_MSGID_PB: {
+					MsgPbForm msg = new MsgPbForm();
+					msg.Read(stm);
 
-// 						List<MsgPbHandler> handlers;
-// 						var succ = msgPbHandlers.TryGetValue(msg.protoName, out handlers);
-// 						if (succ) {
-// 							tmpUse.Clear(); tmpUse.AddRange(handlers);
-// 							foreach (var handler in tmpUse) {
-// 								handler.HandleMsg(msg.protoName, msg.content);
-// 							}
-// 						}
-// 						else {
-// 							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.protoName, msg.content);
-// 						}
-					}
-					break;
-					//二进制消息
-					case (int)INT_MSGID.INTERNAL_MSGID_BINFORM: {
+					// 						List<MsgPbHandler> handlers;
+					// 						var succ = msgPbHandlers.TryGetValue(msg.protoName, out handlers);
+					// 						if (succ) {
+					// 							tmpUse.Clear(); tmpUse.AddRange(handlers);
+					// 							foreach (var handler in tmpUse) {
+					// 								handler.HandleMsg(msg.protoName, msg.content);
+					// 							}
+					// 						}
+					// 						else {
+					// 							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.protoName, msg.content);
+					// 						}
+				}
+				break;
+				//二进制消息
+				case (int)INT_MSGID.INTERNAL_MSGID_BINFORM: {
 
+				}
+				break;
+				default: {
+					if (cmd == (int)INT_MSGID.INTERNAL_MSGID_PING) {
+						HandlePing_();
 					}
-					break;
-					default: {
-						if(cmd == (int)INT_MSGID.INTERNAL_MSGID_PING) {
-							HandlePing_();
-						}
-						else {
-							MyDebug.LogWarningFormat("Msg is ignored:{0}", cmd);
-						}
+					else {
+						MyDebug.LogWarningFormat("Msg is ignored:{0}", cmd);
 					}
-					break;
+				}
+				break;
 				}
 			}
 			else {
