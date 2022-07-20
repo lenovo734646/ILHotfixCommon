@@ -354,13 +354,11 @@ namespace Hotfix.Common
 					yield return resultOfRpc;
 
 					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-
-					msg_common_reply r = (msg_common_reply)(rpcd.msg);
-					if (r.err_ == "-994") {
+					if (rpcd.err_ == -994) {
 						progressOfLoading?.Desc(LangUITip.ServerIsBusy);
 						goto Clean;
 					}
-					else if (r.err_ != "0" && r.err_ != "-995") {
+					else if (rpcd.err_ != 0 && rpcd.err_ != -995) {
 						progressOfLoading?.Desc(LangUITip.RegisterFailed);
 						goto Clean;
 					}

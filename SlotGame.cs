@@ -44,7 +44,7 @@ namespace Hotfix.Common.Slot
 		public List<int> winLines = new List<int>();
 	}
 
-	public abstract class RollItemBase
+	public abstract class SlotRollItemBase
 	{
 		public enum State
 		{
@@ -54,7 +54,7 @@ namespace Hotfix.Common.Slot
 			Win,
 		}
 
-		public RollItemBase(GameObject obj, int data, int idx)
+		public SlotRollItemBase(GameObject obj, int data, int idx)
 		{
 			obj_ = obj;
 			data_ = data;
@@ -93,9 +93,9 @@ namespace Hotfix.Common.Slot
 		
 	}
 
-	public abstract class RollGameBase
+	public abstract class SlotRollGameBase
 	{
-		public RollGameBase(List<GameObject> cols, RollingConfigBase conf)
+		public SlotRollGameBase(List<GameObject> cols, RollingConfigBase conf)
 		{
 			conf_ = conf;
 			cols_ = cols;
@@ -121,7 +121,7 @@ namespace Hotfix.Common.Slot
 
 		public void ShowInitPage()
 		{
-			SetRollItems(RandomAPage(null), RollItemBase.State.Normal, false);
+			SetRollItems(RandomAPage(null), SlotRollItemBase.State.Normal, false);
 		}
 
 		public bool SetResultPage(List<int> result)
@@ -140,16 +140,16 @@ namespace Hotfix.Common.Slot
 		}
 
 		protected abstract List<int> RandomAPage(List<int> to);
-		protected abstract RollItemBase CreateRollItem(int data, int index);
+		protected abstract SlotRollItemBase CreateRollItem(int data, int index);
 		protected abstract IEnumerator PlayStartEffect();
 		protected abstract void PlayCompleteEffect();
 
-		public List<RollItemBase> SetRollItems(List<int> items, RollItemBase.State st, bool isResult)
+		public List<SlotRollItemBase> SetRollItems(List<int> items, SlotRollItemBase.State st, bool isResult)
 		{
-			List<RollItemBase> ret = new List<RollItemBase>();
+			List<SlotRollItemBase> ret = new List<SlotRollItemBase>();
 			for (int i = items.Count - 1; i >= 0; i--) {
 				int col = i % conf_.colCount;
-				RollItemBase itm = CreateRollItem(items[i], i);
+				SlotRollItemBase itm = CreateRollItem(items[i], i);
 				itm.Init();
 				itm.SetState(st);
 				if(isResult) itm.gameObject.name = "Result_" + i;
@@ -163,27 +163,27 @@ namespace Hotfix.Common.Slot
 		public virtual IEnumerator StartRoll()
 		{
 			foreach(var it in rollItems_) {
-				it.SetState(RollItemBase.State.Normal);
+				it.SetState(SlotRollItemBase.State.Normal);
 			}
 
 			TimeCounter tc1 = new TimeCounter("");
 			skipType_ = eSkipTo.None;
 			float offset = 0;
-			List<RollItemBase> sims = new List<RollItemBase>(rollItems_);
+			List<SlotRollItemBase> sims = new List<SlotRollItemBase>(rollItems_);
 			//先随机N页,显示模糊图标
 			for (int i = 0; i < conf_.simPages; i++) {
 				var lst = RandomAPage(result_);
-				sims.AddRange(SetRollItems(lst, RollItemBase.State.Rolling, false));
+				sims.AddRange(SetRollItems(lst, SlotRollItemBase.State.Rolling, false));
 				offset += (conf_.cellSize.y + conf_.space) * (lst.Count / conf_.colCount);
 			}
 
 			//再显示结果页
-			var ret = SetRollItems(result_, RollItemBase.State.Normal, true);
+			var ret = SetRollItems(result_, SlotRollItemBase.State.Normal, true);
 			offset += (conf_.cellSize.y + conf_.space) * (ret.Count / conf_.colCount);
 			//再随机1页,显示正常图显
 			if (conf_.addtionalRow){
 				var lst = RandomAPage(result_);
-				sims.AddRange(SetRollItems(lst, RollItemBase.State.Normal, false));
+				sims.AddRange(SetRollItems(lst, SlotRollItemBase.State.Normal, false));
 			}
 
 			var eff = PlayStartEffect();
@@ -291,7 +291,7 @@ namespace Hotfix.Common.Slot
 			get { return skipType_; }
 		}
 
-		public List<RollItemBase> ResultItems
+		public List<SlotRollItemBase> ResultItems
 		{
 			get { return rollItems_; }
 		}
@@ -308,11 +308,11 @@ namespace Hotfix.Common.Slot
 
 		eSkipTo skipType_ = eSkipTo.None;
 		List<GameObject> cols_;
-		List<RollItemBase> rollItems_ = new List<RollItemBase>();
+		List<SlotRollItemBase> rollItems_ = new List<SlotRollItemBase>();
 		
 	}
 
-	public abstract class SlotRollBase : RollGameBase
+	public abstract class SlotRollBase : SlotRollGameBase
 	{
 		public SlotRollBase(List<GameObject> cols, RollingConfigBase conf) : base(cols, conf)
 		{
@@ -343,7 +343,7 @@ namespace Hotfix.Common.Slot
 					ret.Reverse();
 					foreach (var it in gameResult_.iconXY) {
 						int x = it.Key, y = it.Value;
-						ret[y * conf_.colCount + x].SetState(RollItemBase.State.Win);
+						ret[y * conf_.colCount + x].SetState(SlotRollItemBase.State.Win);
 					}
 
 					List<int> played = new List<int>();
@@ -356,8 +356,8 @@ namespace Hotfix.Common.Slot
 
 					//未中奖的图标灰掉
 					foreach (var it in ret) {
-						if (it.state != RollItemBase.State.Win) {
-							it.SetState(RollItemBase.State.Gray);
+						if (it.state != SlotRollItemBase.State.Win) {
+							it.SetState(SlotRollItemBase.State.Gray);
 						}
 					}
 					OnShowResultFinished();
@@ -369,7 +369,7 @@ namespace Hotfix.Common.Slot
 				else {
 					//未中奖的图标灰掉
 					foreach (var it in ret) {
-						it.SetState(RollItemBase.State.Gray);
+						it.SetState(SlotRollItemBase.State.Gray);
 					}
 				}
 			}

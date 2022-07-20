@@ -18,15 +18,19 @@ namespace Hotfix.Common
 	{
 		public const string Failed = "Falied";
 		public const string ServiceAvailableCode = "6E6C51D9-6B7D-4373-875F-8188FCF1024B";
+		public static string lastError;
 		public static IEnumerator GetRequest(string uri)
 		{
 			string ret = Failed;
 			yield return GetUseableWebService();
 			if (usingWebHost_.Value < 0) {
+				MyDebug.LogWarningFormat("http request Failed usingWebHost_.Value < 0");
 				yield return ret;
 				yield break;
 			}
-			yield return GetRequest(usingWebHost_.Key, usingWebHost_.Value, "koko-manage2/third/" + uri);
+			var req = GetRequest(usingWebHost_.Key, usingWebHost_.Value, "koko-manage2/third/" + uri);
+			yield return req;
+			yield return req.Current;
 		}
 
 		static KeyValuePair<string, int> usingWebHost_ = new KeyValuePair<string, int>("", -1);
@@ -36,9 +40,10 @@ namespace Hotfix.Common
 			List<IEnumerator> lst = new List<IEnumerator>();
 			List<int> ids = new List<int>();
 			List<KeyValuePair<string, int>> lHosts = App.ins.conf.webRoots.ToArray();
+
 			//同时访问网站
 			foreach (var i in App.ins.conf.webRoots) {
-				var handle = GetRequest(i.Key, i.Value, "/versions/checkdns.txt");
+				var handle = GetRequest(i.Key, i.Value, "koko-manage2/third/checkservice.htm");
 				ids.Add(lst.StartCor(handle, false));
 				lst.Add(handle);
 			}
@@ -46,7 +51,7 @@ namespace Hotfix.Common
 			//找最快回复的
 			bool finded = false;
 			TimeCounter tc = new TimeCounter("");
-			while (!finded && tc.Elapse() < 3.0f) { 
+			while (!finded && tc.Elapse() < 10.0f) { 
 				for (int i = 0; i < ids.Count; i++) {
 					if (!Globals.cor.isRuning(ids[i])) {
 						if ((string)lst[i].Current == ServiceAvailableCode) {
@@ -65,11 +70,14 @@ namespace Hotfix.Common
 		{
 			string ret = Failed;
 			string url = string.Format("http://{0}:{1}/{2}", host, port, uri);
+			MyDebug.LogWarningFormat("http request:{0}", url);
 			using (UnityWebRequest webRequest = UnityWebRequest.Get(url)) {
 				yield return webRequest.SendWebRequest();
 
 				string[] pages = uri.Split('/');
 				int page = pages.Length - 1;
+				
+				lastError = webRequest.error;
 
 				switch (webRequest.result) {
 					case UnityWebRequest.Result.ConnectionError:
@@ -79,10 +87,9 @@ namespace Hotfix.Common
 					break;
 					case UnityWebRequest.Result.Success: {
 						var contentType = webRequest.GetResponseHeader("content-type").ToLower();
-						if(contentType == "application/json" || contentType == "text/plain") {
+						if (contentType.Contains("application/json") || contentType.Contains("text/plain")) {
 							ret = Encoding.UTF8.GetString(webRequest.downloadHandler.data);
 						}
-						
 					}
 
 					break;
