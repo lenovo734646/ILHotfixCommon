@@ -207,17 +207,6 @@ namespace Hotfix.Common
 		{
 			conf.Start();
 
-			var handler = Http.GetRequest("getWealthList.htm?uid=asdfasdfasdf");
-			yield return handler;
-			//失败
-			if((string)handler.Current == Http.Failed) {
-				MyDebug.LogWarningFormat("Get Http error :{0}", Http.lastError);
-			}
-			else {
-				string json = (string)handler.Current;
-				MyDebug.LogFormat("Get Http return :{0}", json);
-			}
-
 			if (defaultGameFromHost != "") conf.defaultGameName = defaultGameFromHost;
 			if (conf.defaultGame == null) {
 				throw new Exception($"default game is not exist.{conf.defaultGameName}");
