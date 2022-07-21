@@ -117,13 +117,12 @@ namespace Hotfix.Lobby
 				StartKoKoNetwork(app.conf.gameHosts, App.ins.conf.networkTimeout);
 				netReseted = true;
 			}
+			
+			yield return Globals.net.WaitingForReady(App.ins.conf.networkTimeout);
 
 			Globals.net.RegisterSockEventHandler(OnSockEvent_);
 			Globals.net.RegisterRawDataHandler(App.ins.network.HandleRawData);
-
-			while (!Globals.net.IsWorking() && tc.Elapse() < App.ins.conf.networkTimeout) {
-				yield return new WaitForSeconds(0.1f);
-			}
+			
 			//网络没连接上,跳出
 			if (!Globals.net.IsWorking()) {
 				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
