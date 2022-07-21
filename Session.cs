@@ -118,17 +118,16 @@ namespace Hotfix.Lobby
 				netReseted = true;
 			}
 			
-			yield return Globals.net.WaitingForReady(App.ins.conf.networkTimeout);
-
-			Globals.net.RegisterSockEventHandler(OnSockEvent_);
-			Globals.net.RegisterRawDataHandler(App.ins.network.HandleRawData);
-			
-			//网络没连接上,跳出
-			if (!Globals.net.IsWorking()) {
+			var wait1 = Globals.net.WaitingForReady(App.ins.conf.networkTimeout);
+			yield return wait1;
+			if((int)wait1.Current == 0) {
 				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 				MyDebug.LogFormat("KoKoSession failed with !Globals.net.IsWorking()");
 				goto Clean;
 			}
+
+			Globals.net.RegisterSockEventHandler(OnSockEvent_);
+			Globals.net.RegisterRawDataHandler(App.ins.network.HandleRawData);
 
 			if (netReseted) {
 				progressOfLoading?.Desc(LangNetWork.HandShake);
