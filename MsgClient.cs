@@ -246,9 +246,9 @@ namespace Hotfix.Common
 			rank_type_score,    //积分榜
 		};
 
-		int type_;  //1财富榜，2积分榜
-		int page_;  //
-		int page_count_ = 0;//	
+		public int type_;  //1财富榜，2积分榜
+		public int page_;  //
+		public int page_count_ = 0;//	
 		public override int to_server() { return 1; }
 	}
 
