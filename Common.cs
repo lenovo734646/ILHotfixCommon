@@ -16,6 +16,8 @@ namespace Hotfix.Common
 {
 	public static class Http
 	{
+		public const string Failed = "Falied";
+		public const string ServiceAvailableCode = "6E6C51D9-6B7D-4373-875F-8188FCF1024B";
 		public static string lastError;
 		public static IEnumerator GetRequest(string uri)
 		{
