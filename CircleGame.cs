@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AssemblyCommon;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,12 +64,23 @@ namespace Hotfix.Common.CircleGame
 			}
 
 			float wait = conf_.initSpeed;
-			foreach(var index in rollIndex) {
+			int played = 0;
+			int slowDownPos = (int)(conf_.initSpeed / conf_.speedDelta) + 2;
+			foreach (var index in rollIndex) {
+				if(items[index] == null) {
+					MyDebug.LogErrorFormat("items[index] == null,{0}", index);
+				}
 				items[index].Show();
-				if(index > 0) items[index - 1].Hide();
-				yield return new WaitForSeconds(wait);
 
-				if(index > rollIndex.Count - 15) {
+				if(index > 0)
+					items[index - 1].Hide();
+				else {
+					items[items.Count - 1].Hide();
+				}
+
+				yield return new WaitForSeconds(wait);
+				
+				if(played >= rollIndex.Count - slowDownPos) {
 					wait += conf_.speedDelta;
 					if (wait > conf_.initSpeed) wait = conf_.initSpeed;
 				}
@@ -76,6 +88,7 @@ namespace Hotfix.Common.CircleGame
 					wait -= conf_.speedDelta;
 					if (wait < conf_.minSpeed) wait = conf_.minSpeed;
 				}
+				played++;
 			}
 			current = toIndex;
 			items[current].ShowWin();

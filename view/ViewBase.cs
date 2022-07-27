@@ -53,7 +53,6 @@ namespace Hotfix.Common
 
 		public override bool IsReady()
 		{
-			if (!base.IsReady()) return false;
 			foreach(var tsk in resourceLoader_) {
 				if(tsk.status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.None) {
 					return false;
@@ -349,6 +348,7 @@ namespace Hotfix.Common
 
 		public abstract void OnServerParameter(msg_server_parameter msg);
 		public abstract void OnJackpotNumber(msg_get_public_data_ret msg);
+		public virtual void OnRoomEnterSucc() { }
 	}
 
 	public abstract class ViewSlotScene : ViewGameSceneBase
@@ -411,6 +411,9 @@ namespace Hotfix.Common
 		{
 			mainObject_.DoPopup();
 			var btn_close = mainObject_.FindChildDeeply("btn_close");
+			if(btn_close == null) {
+				btn_close = mainObject_.FindChildDeeply("btnClose");
+			}
 			btn_close.OnClick(() => {
 				Close();
 			});

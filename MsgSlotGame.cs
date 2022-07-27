@@ -137,4 +137,14 @@ namespace Hotfix.Common.Slot
 	{
 		public string free_game_;
 	}
+
+	public class msg_smary_result : msg_room_msg
+	{
+		public string count_;
+		public string circles_;      //外圈结果
+		public string internal_;     //内圈结果
+		public string result_;
+		public string bet_;
+		public string factor_;
+	}
 }

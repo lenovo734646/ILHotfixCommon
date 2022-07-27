@@ -184,7 +184,7 @@ namespace Hotfix.Lobby
 
 		TimeCounter pingTimer_ = new TimeCounter("");
 		TimeCounter pingCostCounter_ = new TimeCounter("");
-		float pingTimeCost_;
+		float pingTimeCost_ = 0.0f;
 		long pingSucc_ = 0;
 	}
 }

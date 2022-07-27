@@ -81,13 +81,20 @@ namespace Hotfix.Common.Slot
 			OnInit();
 		}
 
+		public void RestoreState()
+		{ 
+			if(resultSt_ == State.Win) {
+				SetState(State.Normal);
+			}
+		}
+
 		protected abstract void OnInit();
 		public abstract void SetState(State st);
 
 		public int index;
 
 		protected GameObject obj_;
-		protected State st_;
+		protected State st_, resultSt_;
 		protected GameObject gray, normal, rolling, animation;
 		protected int data_;
 		
@@ -124,7 +131,7 @@ namespace Hotfix.Common.Slot
 			SetRollItems(RandomAPage(null), SlotRollItemBase.State.Normal, false);
 		}
 
-		public bool SetResultPage(List<int> result)
+		protected bool SetResultPage(List<int> result)
 		{
 			bool bSame = result_.Count == result.Count;
 			if (bSame) {
@@ -163,10 +170,9 @@ namespace Hotfix.Common.Slot
 		public virtual IEnumerator StartRoll()
 		{
 			foreach(var it in rollItems_) {
-				it.SetState(SlotRollItemBase.State.Normal);
+				it.RestoreState();
 			}
 
-			TimeCounter tc1 = new TimeCounter("");
 			skipType_ = eSkipTo.None;
 			float offset = 0;
 			List<SlotRollItemBase> sims = new List<SlotRollItemBase>(rollItems_);
@@ -317,7 +323,7 @@ namespace Hotfix.Common.Slot
 		public SlotRollBase(List<GameObject> cols, RollingConfigBase conf) : base(cols, conf)
 		{
 		}
-
+		public Waitor<int> waitOther = null;
 		public abstract int GetResultType(SlotGameResult result);
 		protected abstract void PlayHitLineSoundEffect();
 		protected abstract void PlayWinIconSoundEffect(int ico);
@@ -326,8 +332,11 @@ namespace Hotfix.Common.Slot
 		{
 			yield return base.StartRoll();
 
-			var ret = ResultItems;
+			if (waitOther != null)
+				yield return waitOther.WaitResult();
 
+			var ret = ResultItems;
+			
 			if(SkipTo != eSkipTo.SkipAll) {
 				if (gameResult_.iconXY.Count > 0) {
 					//显示中奖线条
@@ -374,10 +383,13 @@ namespace Hotfix.Common.Slot
 				}
 			}
 		}
+
 		public void SetGameResult(SlotGameResult r)
 		{
 			gameResult_ = r;
+			SetResultPage(r.icons);
 		}
+
 		public void SetLines(List<GameObject> r)
 		{
 			lines_ = r;

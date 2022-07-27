@@ -217,6 +217,31 @@ namespace Hotfix.Common
 		}
 	}
 
+	public class Waitor<T>
+	{
+		public void Complete(T val)
+		{
+			result_ = val;
+			resultSetted = true;
+		}
+
+		public IEnumerator WaitResult()
+		{
+			while(!resultSetted) {
+				yield return 0;
+			}
+			yield return 1;
+		}
+		
+		public T result
+		{
+			get { return result_; }
+		}
+
+		T result_;
+		bool resultSetted = false;
+	}
+
 	public static class Utils
 	{
 		
