@@ -131,7 +131,7 @@ namespace Hotfix.Common.Slot
 			SetRollItems(RandomAPage(null), SlotRollItemBase.State.Normal, false);
 		}
 
-		protected bool SetResultPage(List<int> result)
+		public bool SetResultPage(List<int> result)
 		{
 			bool bSame = result_.Count == result.Count;
 			if (bSame) {
