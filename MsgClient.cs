@@ -11,6 +11,7 @@ namespace Hotfix.Common
 	{
 		msg_common_reply = 1001,
 		msg_sync_item = 1016,
+		msg_rpc_call_ret = 0xAAAA - 1,
 	}
 
 	public enum GateReqID
@@ -64,7 +65,7 @@ namespace Hotfix.Common
 
 	public class MsgRpcRet
 	{
-		public int err_ = 0; //-999超时
+		public int err_ = -999; //-999超时
 		public MsgBase msg;
 	}
 

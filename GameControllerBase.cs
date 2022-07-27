@@ -35,7 +35,26 @@ namespace Hotfix.Common
 			state_new_turn_begins = 100,//新一轮开始阶段
 			state_delay_time = 987,
 		}
-		public ViewGameSceneBase mainView;
+
+		ViewGameSceneBase mainView_;
+		void OnMainViewClose(object sender, EventArgs e)
+		{
+			mainView_ = null;
+		}
+
+		public ViewGameSceneBase mainView
+		{
+			get { return mainView_; }
+			set { 
+				if(value == null) {
+					mainView_.ClosedEvent -= OnMainViewClose;
+				}
+				mainView_ = value;
+
+				mainView_.ClosedEvent += OnMainViewClose;
+			}
+		}
+
 		public bool isEntering = true;
 		//创建和管理View
 		public void OpenView(ViewBase view)

@@ -45,14 +45,14 @@ namespace Hotfix.Lobby
 			msg.machine_id_ = App.ins.conf.GetDeviceID();
 			msg.sign_ = Globals.Md5Hash(msg.machine_id_ + "1EBE295C-BE45-45C0-9AA1-496C1CEE4BDB");
 
-			Func<int, string, MsgRpcRet> cb = (cmd, json) => {
+			Func<int, string, int, MsgRpcRet> cb = (cmd, json, reqID) => {
 				MsgRpcRet ret = new MsgRpcRet();
 				ret.msg = JsonMapper.ToObject<msg_handshake_ret>(json);
 				ret.err_ = 0;
 				return ret;
 			};
 
-			var handle = App.ins.network.Rpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb, App.ins.conf.networkTimeout);
+			var handle = App.ins.network.Rpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb);
 			yield return handle;
 
 			int result = -2;
@@ -117,19 +117,17 @@ namespace Hotfix.Lobby
 				StartKoKoNetwork(app.conf.gameHosts, App.ins.conf.networkTimeout);
 				netReseted = true;
 			}
-
-			Globals.net.RegisterSockEventHandler(OnSockEvent_);
-			Globals.net.RegisterRawDataHandler(App.ins.network.HandleRawData);
-
-			while (!Globals.net.IsWorking() && tc.Elapse() < App.ins.conf.networkTimeout) {
-				yield return new WaitForSeconds(0.1f);
-			}
-			//网络没连接上,跳出
-			if (!Globals.net.IsWorking()) {
+			
+			var wait1 = Globals.net.WaitingForReady(App.ins.conf.networkTimeout);
+			yield return wait1;
+			if((int)wait1.Current == 0) {
 				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 				MyDebug.LogFormat("KoKoSession failed with !Globals.net.IsWorking()");
 				goto Clean;
 			}
+
+			Globals.net.RegisterSockEventHandler(OnSockEvent_);
+			Globals.net.RegisterRawDataHandler(App.ins.network.HandleRawData);
 
 			if (netReseted) {
 				progressOfLoading?.Desc(LangNetWork.HandShake);
@@ -186,7 +184,7 @@ namespace Hotfix.Lobby
 
 		TimeCounter pingTimer_ = new TimeCounter("");
 		TimeCounter pingCostCounter_ = new TimeCounter("");
-		float pingTimeCost_;
+		float pingTimeCost_ = 0.0f;
 		long pingSucc_ = 0;
 	}
 }

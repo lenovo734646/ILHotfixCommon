@@ -151,6 +151,7 @@ namespace Hotfix.Common
 
 		public override void Start()
 		{
+			
 			MyDebug.LogFormat("Hotfix Module Begins.");
 			//注册protobuf类
 			ILRuntime_CLGT.Initlize();
@@ -173,6 +174,14 @@ namespace Hotfix.Common
 				ViewPopup.Create(LangUITip.SameAccountLogin, ViewPopup.Flag.BTN_OK_ONLY, () => {
 					ins.StartCor(ins.CheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
 				});
+			}, this);
+
+			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
+				msg_sync_item msg = JsonMapper.ToObject<msg_sync_item>(json);
+				int itemId = int.Parse(msg.item_id_);
+				if (!self.gamePlayer.items.ContainsKey(itemId)) {
+					self.gamePlayer.items[itemId] = int.Parse(msg.count_);
+				}
 			}, this);
 		}
 
@@ -197,6 +206,7 @@ namespace Hotfix.Common
 		IEnumerator DoStart_()
 		{
 			conf.Start();
+
 			if (defaultGameFromHost != "") conf.defaultGameName = defaultGameFromHost;
 			if (conf.defaultGame == null) {
 				throw new Exception($"default game is not exist.{conf.defaultGameName}");

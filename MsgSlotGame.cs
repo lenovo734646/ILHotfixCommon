@@ -105,6 +105,7 @@ namespace Hotfix.Common.Slot
 		public string my_favor_;
 		public string total_favor_;
 		public string win_;
+		public string hiticons_, hitfactors_;
 	}
 
 	public class msg_bigsmall_result : msg_room_msg
@@ -135,5 +136,15 @@ namespace Hotfix.Common.Slot
 	public class msg_hylj_gameinfo:msg_room_msg
 	{
 		public string free_game_;
+	}
+
+	public class msg_smary_result : msg_room_msg
+	{
+		public string count_;
+		public string circles_;      //外圈结果
+		public string internal_;     //内圈结果
+		public string result_;
+		public string bet_;
+		public string factor_;
 	}
 }

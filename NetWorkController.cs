@@ -16,7 +16,6 @@ namespace Hotfix.Common
 		public int msgID;
 		public Action<int, string> HandleMsg;
 		public object owner;
-		public float duation = float.MaxValue;
 		public float start = Time.time;
 	}
 
@@ -66,7 +65,7 @@ namespace Hotfix.Common
 
 		public override string GetDebugInfo()
 		{
-			return $"Network:Time Since Last Ping:{TimeElapseSinceLastPing()}s";
+			return $"Network:Time Since Last Ping:{TimeElapseSinceLastPing()}s, msgHandlers={msgHandlers.Count}, rpcWaiting={rpcWaiting.Count}";
 		}
 
 		public bool SendMessage(ushort subCmd, string json, int toserver)
@@ -96,15 +95,17 @@ namespace Hotfix.Common
 		}
 
 		//做RPC调用,方便代码编写
-		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, MsgRpcRet> callback, float timeout = 3.0f, bool commonRpl = false)
+		public IEnumerator Rpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, int, MsgRpcRet> callback)
 		{
 			bool responsed = false;
 			
 			MsgRpcRet ret = new MsgRpcRet();
 			Action<int, string> wrapCallback = (cmd, json) => {
-				if (!responsed) {
+				if (responsed) return;
+				var rpcRet = callback(cmd, json, msgid);
+				if (rpcRet != null) {
 					responsed = true;
-					ret = callback(cmd, json);
+					ret = rpcRet;
 				}
 			};
 
@@ -114,7 +115,7 @@ namespace Hotfix.Common
 			SendMessage(msgid, proto);
 
 			TimeCounter tc = new TimeCounter("");
-			while (!responsed && tc.Elapse() < timeout) {
+			while (!responsed && tc.Elapse() < App.ins.conf.networkTimeout) {
 				yield return new WaitForSeconds(0.1f);
 			}
 			//超时回调
@@ -126,12 +127,42 @@ namespace Hotfix.Common
 			yield return ret;
 		}
 
-		public bool Rpc(ushort msgid, MsgBase proto, ushort rspID, Action<int, string> callback, float timeout = 3.0f, bool commonRpl = false)
+		public bool Rpc(ushort msgid, MsgBase proto, Action<string> callback)
+		{
+			MsgHandler handler = null;
+			bool responsed = false;
+			proto.rpc_sequence_ = Globals.Random_Range(1, 1000000).ToString();
+			Action<int, string> wrapCallback = (cmd, json) => {
+				if (responsed) return;
+
+				var rpl = LitJson.JsonMapper.ToObject<msg_rpc_call_ret>(json);
+				if (rpl.rpc_sequence_ == proto.rpc_sequence_) {
+					responsed = true;
+					callback(rpl.data_);
+				}
+
+				if (responsed) {
+					RemoveMsgHandler(handler);
+					rpcWaiting.Remove(handler);
+				}
+			};
+
+
+			handler = RegisterMsgHandler((int)CommID.msg_rpc_call_ret, wrapCallback, this);
+			rpcWaiting.Add(handler);
+
+
+			return SendMessage(msgid, proto);
+		}
+
+		public bool Rpc(ushort msgid, MsgBase proto, ushort rspID, Action<int, string> callback, float timeout = float.MaxValue)
 		{
 			MsgHandler handler = null, handlerCommonRpl = null;
 			bool responsed = false;
 
 			Action<int, string> wrapCallback = (cmd, json) => {
+				if (responsed) return;
+
 				if (cmd == (int)CommID.msg_common_reply) {
 					var rpl = LitJson.JsonMapper.ToObject<msg_common_reply>(json);
 					if(int.Parse(rpl.rp_cmd_) == msgid) {
@@ -159,7 +190,6 @@ namespace Hotfix.Common
 
 			rpcWaiting.Add(handler);
 			rpcWaiting.Add(handlerCommonRpl);
-
 			return SendMessage(msgid, proto);
 		}
 
@@ -264,21 +294,22 @@ namespace Hotfix.Common
 				yield return 1;
 		}
 
-		public MsgRpcRet RPCCallback<T>(int cmd, string json) where T: MsgBase
+		public MsgRpcRet RPCCallback<T>(int cmd, string json, int reqID) where T: MsgBase
 		{
 			MsgRpcRet msgr = new MsgRpcRet();
 			if (cmd ==(int)CommID.msg_common_reply) {
 				var msg = JsonMapper.ToObject<msg_common_reply>(json);
-				if(int.Parse(msg.rp_cmd_) == cmd) {
+				if(int.Parse(msg.rp_cmd_) == reqID) {
 					msgr.err_ = int.Parse(msg.err_);
+					msgr.msg = msg;
 				}
-				msgr.msg = msg;
 			}
 			else {
 				msgr.err_ = 0;
 				var msg = JsonMapper.ToObject<T>(json);
 				msgr.msg = msg;
 			}
+			if (msgr.msg == null) return null;
 			return msgr;
 		}
 
@@ -318,18 +349,11 @@ namespace Hotfix.Common
 					yield return resultOfRpc;
 
 					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-					if(rpcd.err_ == 0) {
-						msg_common_reply r = (msg_common_reply)(rpcd.msg);
-						if (r.err_ == "-994") {
-							progressOfLoading?.Desc(LangUITip.ServerIsBusy);
-							goto Clean;
-						}
-						else if (r.err_ != "0" && r.err_ != "-995") {
-							progressOfLoading?.Desc(LangUITip.RegisterFailed);
-							goto Clean;
-						}
+					if (rpcd.err_ == -994) {
+						progressOfLoading?.Desc(LangUITip.ServerIsBusy);
+						goto Clean;
 					}
-					else {
+					else if (rpcd.err_ != 0 && rpcd.err_ != -995) {
 						progressOfLoading?.Desc(LangUITip.RegisterFailed);
 						goto Clean;
 					}
@@ -433,7 +457,8 @@ namespace Hotfix.Common
 				msg.room_id_ = configid << 24 | roomid;
 				var resultOfRpc = App.ins.network.Rpc((ushort)GameReqID.msg_enter_game_req, msg, (ushort)GameRspID.msg_prepare_enter, RPCCallback<msg_prepare_enter>);
 				yield return resultOfRpc;
-				if (resultOfRpc.Current == null) {
+				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
+				if (rpcd.err_ != 0) {
 					MyDebug.LogFormat("enter game room msg_enter_game_req failed");
 					goto Clean;
 				}
@@ -445,18 +470,13 @@ namespace Hotfix.Common
 				msg_prepare_enter_complete msg = new msg_prepare_enter_complete();
 				var resultOfRpc = App.ins.network.Rpc((ushort)GameReqID.msg_prepare_enter_complete, msg, (ushort)CommID.msg_common_reply, RPCCallback<msg_common_reply>);
 				yield return resultOfRpc;
-				if (resultOfRpc.Current == null) {
-					MyDebug.LogFormat("msg_prepare_enter_complete failed");
-					goto Clean;
-				}
 				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-				msg_common_reply r = (msg_common_reply)(rpcd.msg);
-				if (r.err_ == "0") {
+				if (rpcd.err_ == 0) {
 					MyDebug.LogFormat("OnGameRoomSucc");
 					yield return App.ins.currentApp.game.GameRoomEnterSucc();
 				}
 				else {
-					MyDebug.LogFormat("msg_prepare_enter_complete msg_common_reply failed {0}", r.err_);
+					MyDebug.LogFormat("msg_prepare_enter_complete msg_common_reply failed {0}", rpcd.err_);
 					goto Clean;
 				}
 				succ = true;
@@ -488,7 +508,7 @@ namespace Hotfix.Common
 			tmpUse.Clear();
 			tmpUse.AddRange(rpcWaiting);
 			foreach(var h in tmpUse) {
-				if(Time.time - h.start > h.duation) {
+				if(Time.time - h.start > App.ins.conf.networkTimeout) {
 					msg_common_reply msg = new msg_common_reply();
 					msg.rp_cmd_ = h.msgID.ToString();
 					msg.err_ = "-99999";
@@ -621,65 +641,71 @@ namespace Hotfix.Common
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
-				stm.SetCurentRead(4);
+				int len = stm.ReadInt();
 				int cmd = stm.ReadInt();
 				int order = stm.ReadInt();
 
 				switch (cmd) {
-					//Json消息
-					case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
-						MsgJsonForm msg = new MsgJsonForm();
-						msg.Read(stm);
+				//Json消息
+				case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
+					MsgJsonForm msg = new MsgJsonForm();
+					msg.Read(stm);
+					int lastI = msg.content.LastIndexOf('}');
+					if (msg.subCmd != 0xFFFF) {
+						MyDebug.LogWarningFormat("json Msg len{2} cmd:{0}, {1},", msg.subCmd, msg.content, len);
+					}
 
-						if(msg.subCmd != 0xFFFF) {
-							MyDebug.LogWarningFormat("json Msg :{0}, {1}", msg.subCmd, msg.content);
-						}
-
-						List<MsgHandler> handlers;
-						var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
-						if (succ) {
-							tmpUse.Clear(); tmpUse.AddRange(handlers);
+					List<MsgHandler> handlers;
+					var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
+					if (succ) {
+						tmpUse.Clear(); tmpUse.AddRange(handlers);
+						try {
 							foreach (var handler in tmpUse) {
 								handler.HandleMsg(msg.subCmd, msg.content);
 							}
 						}
-						else {
-							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.subCmd, msg.content);
+						catch (Exception ex) {
+							MyDebug.LogWarningFormat("HandleMsg Msg error tlen:{0} contentlen:{1}, unused char:{2}, err:{3}",
+								len, msg.content.Length, msg.content.Length - 1 - lastI, ex.Message);
 						}
 					}
-					break;
-					//Protobuffer消息
-					case (int)INT_MSGID.INTERNAL_MSGID_PB: {
-						MsgPbForm msg = new MsgPbForm();
-						msg.Read(stm);
+					else {
+						MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.subCmd, msg.content);
+					}
+				}
+				break;
+				//Protobuffer消息
+				case (int)INT_MSGID.INTERNAL_MSGID_PB: {
+					MsgPbForm msg = new MsgPbForm();
+					msg.Read(stm);
 
-// 						List<MsgPbHandler> handlers;
-// 						var succ = msgPbHandlers.TryGetValue(msg.protoName, out handlers);
-// 						if (succ) {
-// 							tmpUse.Clear(); tmpUse.AddRange(handlers);
-// 							foreach (var handler in tmpUse) {
-// 								handler.HandleMsg(msg.protoName, msg.content);
-// 							}
-// 						}
-// 						else {
-// 							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.protoName, msg.content);
-// 						}
-					}
-					break;
-					//二进制消息
-					case (int)INT_MSGID.INTERNAL_MSGID_BINFORM: {
+					// 						List<MsgPbHandler> handlers;
+					// 						var succ = msgPbHandlers.TryGetValue(msg.protoName, out handlers);
+					// 						if (succ) {
+					// 							tmpUse.Clear(); tmpUse.AddRange(handlers);
+					// 							foreach (var handler in tmpUse) {
+					// 								handler.HandleMsg(msg.protoName, msg.content);
+					// 							}
+					// 						}
+					// 						else {
+					// 							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.protoName, msg.content);
+					// 						}
+				}
+				break;
+				//二进制消息
+				case (int)INT_MSGID.INTERNAL_MSGID_BINFORM: {
 
+				}
+				break;
+				default: {
+					if (cmd == (int)INT_MSGID.INTERNAL_MSGID_PING) {
+						HandlePing_();
 					}
-					break;
-					default: {
-						if(cmd == (int)INT_MSGID.INTERNAL_MSGID_PING) {
-							HandlePing_();
-						}
-						else {
-							MyDebug.LogWarningFormat("Msg is ignored:{0}", cmd);
-						}
+					else {
+						MyDebug.LogWarningFormat("Msg is ignored:{0}", cmd);
 					}
-					break;
+				}
+				break;
 				}
 			}
 			else {

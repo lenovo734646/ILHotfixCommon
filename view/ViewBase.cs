@@ -23,7 +23,9 @@ namespace Hotfix.Common
 		public void LoadAssets<T>(string path, Action<AddressablesLoader.LoadTask<T>> callback) where T : UnityEngine.Object
 		{
 			Action<AddressablesLoader.LoadTask<T>> callbackWrapper = (AddressablesLoader.LoadTask<T> loader) => {
-				callback(loader);
+				if(loader.status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded){
+					callback(loader);
+				}
 			};
 			resourceLoader_.Add(Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading)); 
 		}
@@ -51,7 +53,6 @@ namespace Hotfix.Common
 
 		public override bool IsReady()
 		{
-			if (!base.IsReady()) return false;
 			foreach(var tsk in resourceLoader_) {
 				if(tsk.status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.None) {
 					return false;
@@ -283,7 +284,7 @@ namespace Hotfix.Common
 		List<ViewLoadTask<GameObject>> resNames_ = new List<ViewLoadTask<GameObject>>();
 		ViewLoadTask<AddressablesLoader.DownloadScene> resScenes_;
 		List<GameObject> objs = new List<GameObject>();
-		bool finished_ = false;
+		protected bool finished_ = false;
 	}
 
 	public abstract class ViewGameSceneBase : ViewBase
@@ -347,6 +348,7 @@ namespace Hotfix.Common
 
 		public abstract void OnServerParameter(msg_server_parameter msg);
 		public abstract void OnJackpotNumber(msg_get_public_data_ret msg);
+		public virtual void OnRoomEnterSucc() { }
 	}
 
 	public abstract class ViewSlotScene : ViewGameSceneBase
@@ -409,6 +411,9 @@ namespace Hotfix.Common
 		{
 			mainObject_.DoPopup();
 			var btn_close = mainObject_.FindChildDeeply("btn_close");
+			if(btn_close == null) {
+				btn_close = mainObject_.FindChildDeeply("btnClose");
+			}
 			btn_close.OnClick(() => {
 				Close();
 			});

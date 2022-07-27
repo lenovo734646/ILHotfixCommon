@@ -98,7 +98,7 @@ namespace Hotfix.Common
 			AudioSource used = null;
 			if (clip == null) {
 				LoadAssets<AudioClip>(path, (t) => {
-					if (t != null) {
+					if (t.status == AsyncOperationStatus.Succeeded && t != null) {
 						if (isEffect) {
 							used = GetEffectSource_();
 							used.clip = t.Result;
@@ -106,6 +106,7 @@ namespace Hotfix.Common
 						}
 						else {
 							audioMusic.clip = t.Result;
+							audioMusic.loop = true;
 							audioMusic.Play();
 							used = audioMusic;
 						}
@@ -121,6 +122,7 @@ namespace Hotfix.Common
 				}
 				else {
 					audioMusic.clip = clip.Result;
+					audioMusic.loop = true;
 					audioMusic.Play();
 					used = audioMusic;
 				}
