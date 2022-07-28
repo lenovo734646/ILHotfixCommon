@@ -40,11 +40,11 @@ namespace Hotfix.Common.CircleGame
 			conf_ = conf;
 			current = conf.initPos;
 		}
-		public abstract void CreateItems();
-		public abstract CirleRollItemBase CreateRollItem(int data, int index);
-		
+		public abstract List<CirleRollItemBase> CreateItems();
+
 		public IEnumerator StartRoll(int toIndex)
 		{
+			List<CirleRollItemBase> items = CreateItems();
 			List<int> one = new List<int>();
 			for (int i = 0; i < items.Count; i++) {
 				one.Add(i);
@@ -95,7 +95,6 @@ namespace Hotfix.Common.CircleGame
 		}
 
 		protected CirleRollGameConfigBase conf_;
-		protected List<CirleRollItemBase> items = new List<CirleRollItemBase>();
 		protected int current = 0;
 	}
 }
