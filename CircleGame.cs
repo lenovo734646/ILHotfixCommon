@@ -16,6 +16,8 @@ namespace Hotfix.Common.CircleGame
 		public float speedDelta = 0.1f;
 		public float initSpeed = 1.5f;
 		public float minSpeed = 0.05f;
+		//不使用加减速
+		public float uniformSpeed = -1.0f;
 	}
 
 	public abstract class CirleRollItemBase
@@ -40,11 +42,20 @@ namespace Hotfix.Common.CircleGame
 			conf_ = conf;
 			current = conf.initPos;
 		}
+		
+		public void SetStartFrom(CirleRollItemBase itm)
+		{
+			startFromItem_ = itm;
+		}
+
 		public abstract List<CirleRollItemBase> CreateItems();
 
-		public IEnumerator StartRoll(int toIndex)
+		public IEnumerator StartRoll(int toIndex, float timeScale)
 		{
 			List<CirleRollItemBase> items = CreateItems();
+			if (startFromItem_ != null) {
+				current = items.FindIndex(0, items.Count, (t) => { return t == startFromItem_; });
+			}
 			List<int> one = new List<int>();
 			for (int i = 0; i < items.Count; i++) {
 				one.Add(i);
@@ -64,6 +75,8 @@ namespace Hotfix.Common.CircleGame
 			}
 
 			float wait = conf_.initSpeed;
+			if (conf_.uniformSpeed > 0.0f) wait = conf_.uniformSpeed;
+
 			int played = 0;
 			int slowDownPos = (int)(conf_.initSpeed / conf_.speedDelta) + 2;
 			foreach (var index in rollIndex) {
@@ -78,22 +91,23 @@ namespace Hotfix.Common.CircleGame
 					items[items.Count - 1].Hide();
 				}
 
-				yield return new WaitForSeconds(wait);
-				
-				if(played >= rollIndex.Count - slowDownPos) {
-					wait += conf_.speedDelta;
-					if (wait > conf_.initSpeed) wait = conf_.initSpeed;
-				}
-				else {
-					wait -= conf_.speedDelta;
-					if (wait < conf_.minSpeed) wait = conf_.minSpeed;
+				yield return new WaitForSeconds(wait * timeScale);
+				if(conf_.uniformSpeed < 0.0f) {
+					if (played >= rollIndex.Count - slowDownPos) {
+						wait += conf_.speedDelta;
+						if (wait > conf_.initSpeed) wait = conf_.initSpeed;
+					}
+					else {
+						wait -= conf_.speedDelta;
+						if (wait < conf_.minSpeed) wait = conf_.minSpeed;
+					}
 				}
 				played++;
 			}
 			current = toIndex;
 			items[current].ShowWin();
 		}
-
+		protected CirleRollItemBase startFromItem_;
 		protected CirleRollGameConfigBase conf_;
 		protected int current = 0;
 	}
