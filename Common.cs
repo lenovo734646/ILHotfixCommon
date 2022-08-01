@@ -154,8 +154,12 @@ namespace Hotfix.Common
 
 		public static string ShowAsGold(this long num)
 		{
-			string s = num.ToString();
-			return ShowAsGold(s);
+			string s = Math.Abs(num).ToString();
+			if (num > 0)
+				return ShowAsGold(s);
+			else {
+				return "-" + ShowAsGold(s);
+			}
 		}
 
 		public static string ShowAsGold(this string s)

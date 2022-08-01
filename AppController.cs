@@ -164,7 +164,7 @@ namespace Hotfix.Common
 			audio.Start();
 
 			runQueue.StartCor(DoStart_(), true);
-			this.StartCor(LazyUpdate(), false);
+			this.StartCor(DoLazyUpdate(), false);
 		}
 
 		public void InstallMsgHandler()
@@ -218,16 +218,21 @@ namespace Hotfix.Common
 			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
-		IEnumerator LazyUpdate()
+		IEnumerator DoLazyUpdate()
 		{
 			while (true) {
-				foreach(var longp in longPress) {
+				var arr = longPress.ToArray();
+				for (int i = 0; i < arr.Count; i++) {
+					var longp = arr[i];
 					if (longp.Value.triggered) continue;
 					if (!longp.Value.IsTimeout()) continue;
 					longp.Value.Trigger();
 				}
 
-				network.LazyUpdate();
+				for(int i = 0; i  < instances.Count; i++) {
+					if(instances[i].IsReady())
+						instances[i].LazyUpdate();
+				}
 				yield return new WaitForSeconds(0.1f);
 			}
 		}
@@ -256,7 +261,7 @@ namespace Hotfix.Common
 		public NetWorkController network = new NetWorkController();
 		public SelfPlayer self = new SelfPlayer();
 		public List<AccountInfo> accounts = new List<AccountInfo>();
-		public Dictionary<GameObject, LongPressData> longPress = new Dictionary<GameObject, LongPressData>();
+		public DictionaryCached<GameObject, LongPressData> longPress = new DictionaryCached<GameObject, LongPressData>();
 		public AccountInfo lastUseAccount = null;
 		public GameConfig currentGameConfig = null;
 		public string defaultGameFromHost;

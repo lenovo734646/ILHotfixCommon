@@ -491,9 +491,10 @@ namespace Hotfix.Common
 			else {
 				yield return 1;
 			}
-
+			
 		}
-		public void LazyUpdate()
+
+		public override void LazyUpdate()
 		{
 			if (checkSeesionTc_.Elapse() > 5.0f && App.ins.network.session != null) {
 				checkSeesionTc_.Restart();
@@ -650,23 +651,13 @@ namespace Hotfix.Common
 				case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
 					MsgJsonForm msg = new MsgJsonForm();
 					msg.Read(stm);
-					int lastI = msg.content.LastIndexOf('}');
-					if (msg.subCmd != 0xFFFF) {
-						MyDebug.LogWarningFormat("json Msg len{2} cmd:{0}, {1},", msg.subCmd, msg.content, len);
-					}
 
 					List<MsgHandler> handlers;
 					var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
 					if (succ) {
 						tmpUse.Clear(); tmpUse.AddRange(handlers);
-						try {
-							foreach (var handler in tmpUse) {
-								handler.HandleMsg(msg.subCmd, msg.content);
-							}
-						}
-						catch (Exception ex) {
-							MyDebug.LogWarningFormat("HandleMsg Msg error tlen:{0} contentlen:{1}, unused char:{2}, err:{3}",
-								len, msg.content.Length, msg.content.Length - 1 - lastI, ex.Message);
+						foreach (var handler in tmpUse) {
+							handler.HandleMsg(msg.subCmd, msg.content);
 						}
 					}
 					else {

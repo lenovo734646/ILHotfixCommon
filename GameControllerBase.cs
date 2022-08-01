@@ -65,12 +65,12 @@ namespace Hotfix.Common
 
 		public void OnViewClosed(ViewBase view)
 		{
-			views_.Remove(view);
+			closing_.Add(view);
 		}
 
 		public void CloseAllView()
 		{
-			viewsCopy.Clear();
+			List<ViewBase> viewsCopy = new List<ViewBase>();
 			viewsCopy.AddRange(views_);
 			foreach (var view in viewsCopy) {
 				view.Close();
@@ -174,10 +174,13 @@ namespace Hotfix.Common
 		public override void Update()
 		{
 			if (prepared_) {
-				viewsCopy.Clear();
-				viewsCopy.AddRange(views_);
-				foreach (var view in viewsCopy) {
-					view.Update();
+				for (int i = 0; i < closing_.Count; i++) {
+					views_.Remove(closing_[i]);
+				}
+				closing_.Clear();
+
+				for (int i = 0; i < views_.Count; i++) {
+					views_[i].Update();
 				}
 			}
 		}
@@ -226,8 +229,7 @@ namespace Hotfix.Common
 		{
 			players.Remove(serverPos);
 		}
-
-		List<ViewBase> viewsCopy = new List<ViewBase>();
+		List<ViewBase> closing_ = new List<ViewBase>();
 		List<ViewBase> views_ = new List<ViewBase>();
 		Dictionary<int, GamePlayer> players = new Dictionary<int,GamePlayer>();
 		bool prepared_ = true;
