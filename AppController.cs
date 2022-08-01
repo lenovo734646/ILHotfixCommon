@@ -252,7 +252,6 @@ namespace Hotfix.Common
 			this.StopAllCor();
 			base.Stop();
 		}
-
 		public static App ins = null;
 		public Config conf = new Config();
 		public AppBase currentApp = null;
@@ -261,12 +260,13 @@ namespace Hotfix.Common
 		public NetWorkController network = new NetWorkController();
 		public SelfPlayer self = new SelfPlayer();
 		public List<AccountInfo> accounts = new List<AccountInfo>();
-		public DictionaryCached<GameObject, LongPressData> longPress = new DictionaryCached<GameObject, LongPressData>();
+		
 		public AccountInfo lastUseAccount = null;
 		public GameConfig currentGameConfig = null;
 		public string defaultGameFromHost;
 		public bool autoLoginFromHost = true, disableNetwork = false;
 
+		public DictionaryCached<GameObject, LongPressData> longPress = new DictionaryCached<GameObject, LongPressData>();
 		public Dictionary<int, Texture2D> headIcons = new Dictionary<int, Texture2D>();
 		public Dictionary<int, Texture2D> headFrames = new Dictionary<int, Texture2D>();
 
@@ -275,5 +275,6 @@ namespace Hotfix.Common
 		List<string> cachedCatalog = new List<string>();
 		GameRunQueue runQueue = new GameRunQueue();
 		bool runningGame_ = false;
+
 	}
 }

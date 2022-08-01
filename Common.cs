@@ -101,7 +101,7 @@ namespace Hotfix.Common
 	public class LongPressData
 	{
 		public float startTime, duration;
-		public System.Action callback;
+		public System.Action longCallback_, clickCallback_;
 		public bool triggered = false;
 		public bool IsTimeout()
 		{
@@ -109,7 +109,7 @@ namespace Hotfix.Common
 		}
 		public void Trigger()
 		{
-			callback();
+			longCallback_();
 			triggered = true;
 		}
 	}
@@ -174,7 +174,7 @@ namespace Hotfix.Common
 			return ret;
 		}
 
-		public static void LongPress(this GameObject obj, System.Action act, float duration = 3.0f)
+		public static void LongPress(this GameObject obj, System.Action act, float duration = 3.0f, System.Action clickCallback = null)
 		{
 			var trigger = obj.AddComponent<EventTrigger>();
 			var watcher = obj.AddComponent<OnDestryWatcher>();
@@ -187,8 +187,9 @@ namespace Hotfix.Common
 				enter.eventID = EventTriggerType.PointerDown;
 				enter.callback.AddListener((evt) => {
 					LongPressData data = new LongPressData();
-					data.callback = act;
+					data.longCallback_ = act;
 					data.duration = duration;
+					data.clickCallback_ = clickCallback;
 					data.startTime = Time.time;
 					App.ins.longPress.Add(obj, data);
 				});
@@ -210,8 +211,11 @@ namespace Hotfix.Common
 				enter.callback.AddListener((evt) => {
 					LongPressData lp;
 					App.ins.longPress.TryGetValue(obj, out lp);
-					if(lp != null && lp.triggered) {
+					if(lp != null) {
 						evt.Use();
+						if (lp.clickCallback_ != null && !lp.triggered) {
+							lp.clickCallback_();
+						}
 					}
 					App.ins.longPress.Remove(obj);
 				});
