@@ -649,22 +649,22 @@ namespace Hotfix.Common
 				switch (cmd) {
 				//Json消息
 				case (int)INT_MSGID.INTERNAL_MSGID_JSONFORM: {
-					MsgJsonForm msg = new MsgJsonForm();
-					msg.Read(stm);
-
-					List<MsgHandler> handlers;
-					var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
-					if (succ) {
-						tmpUse.Clear(); tmpUse.AddRange(handlers);
-						foreach (var handler in tmpUse) {
-							handler.HandleMsg(msg.subCmd, msg.content);
+						MsgJsonForm msg = new MsgJsonForm();
+						msg.Read(stm);
+						List<MsgHandler> handlers;
+						var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
+						if (succ) {
+							MyDebug.LogWarningFormat("Msg is Recved:{0}, {1}", msg.subCmd, msg.content);
+							tmpUse.Clear(); tmpUse.AddRange(handlers);
+							foreach (var handler in tmpUse) {
+								handler.HandleMsg(msg.subCmd, msg.content);
+							}
+						}
+						else {
+							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.subCmd, msg.content);
 						}
 					}
-					else {
-						MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.subCmd, msg.content);
-					}
-				}
-				break;
+					break;
 				//Protobuffer消息
 				case (int)INT_MSGID.INTERNAL_MSGID_PB: {
 					MsgPbForm msg = new MsgPbForm();

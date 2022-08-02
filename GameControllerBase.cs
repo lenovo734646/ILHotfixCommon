@@ -114,7 +114,6 @@ namespace Hotfix.Common
 
 			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_deposit_change2, (cmd, json) => {
 				msg_deposit_change2 msg = JsonMapper.ToObject<msg_deposit_change2>(json);
-				MyDebug.LogFormat("msg_deposit_change2:{0}", long.Parse(msg.credits_));
 				mainView?.OnGoldChange(msg);
 			}, this);
 
