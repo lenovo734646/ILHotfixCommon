@@ -132,6 +132,10 @@ namespace Hotfix.Common
 				mainView?.OnGoldChange(msg);
 			}, this);
 
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_player_hint, (cmd, json) => {
+				msg_player_hint msg = JsonMapper.ToObject<msg_player_hint>(json);
+			}, this);
+
 			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_server_parameter, (cmd, json) => {
 				msg_server_parameter msg = JsonMapper.ToObject<msg_server_parameter>(json);
 				mainView?.OnServerParameter(msg);

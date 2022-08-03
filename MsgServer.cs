@@ -18,7 +18,7 @@ namespace Hotfix.Common
 	{
 		msg_switch_game_server = 1028,
 		msg_get_bank_info_ret = 1024,
-		msg_user_head_and_headframe= 1040,
+		msg_user_head_and_headframe = 1040,
 		msg_rank_data = 1122,
 	}
 
@@ -32,6 +32,12 @@ namespace Hotfix.Common
 		msg_server_parameter = 1107,
 		msg_system_showdown = 1221,
 		msg_get_public_data_ret = 1304,
+		msg_player_hint = 1499,
+	}
+
+	public class msg_player_hint : msg_room_msg
+	{
+		public string hint_type_;  //1断线重连
 	}
 
 	public class msg_system_showdown : MsgBase

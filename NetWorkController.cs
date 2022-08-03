@@ -639,6 +639,12 @@ namespace Hotfix.Common
 			if (lastPingSend_ < 0) lastPingSend_ = 0;
 		}
 
+		List<int> logMsgID_ = new List<int>();
+		public void LogMsg(int cmd)
+		{
+			logMsgID_.Add(cmd);
+		}
+
 		private void HandleDataFrame_(MySocket sock, BinaryStream stm)
 		{
 			if (sock.useProtocolParser == ProtocolParser.KOKOProtocol) {
@@ -654,7 +660,11 @@ namespace Hotfix.Common
 						List<MsgHandler> handlers;
 						var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
 						if (succ) {
-							MyDebug.LogWarningFormat("Msg is Recved:{0}, {1}", msg.subCmd, msg.content);
+#if DEBUG
+							if (logMsgID_.Contains(msg.subCmd) || logMsgID_.Contains(-1)) {
+								MyDebug.LogWarningFormat("Msg is Recved:{0}, {1}", msg.subCmd, msg.content);
+							}
+#endif
 							tmpUse.Clear(); tmpUse.AddRange(handlers);
 							foreach (var handler in tmpUse) {
 								handler.HandleMsg(msg.subCmd, msg.content);

@@ -155,7 +155,7 @@ namespace Hotfix.Common
 		public static string ShowAsGold(this long num)
 		{
 			string s = Math.Abs(num).ToString();
-			if (num > 0)
+			if (num >= 0)
 				return ShowAsGold(s);
 			else {
 				return "-" + ShowAsGold(s);
