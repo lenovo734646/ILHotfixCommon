@@ -430,6 +430,8 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Fishing | (int)GameConfig.Tag.Hot;
+				game.enabled = true;
+				game.gameID = GameConfig.GameID.HuanleBY;
 				games.Add(game.name, game);
 			}
 
