@@ -48,7 +48,10 @@ namespace Hotfix.Common
 		msg_alloc_game_server = 1030,
 		msg_set_head_and_headframe = 1042,
 		msg_get_rank_req = 506,
+		msg_get_login_prize_list = 1039, //获取我的登录奖励列表
+		msg_get_login_prize = 1040,      //获取我的登录奖励
 	}
+
 
 	public enum GameReqID
 	{
@@ -107,56 +110,11 @@ namespace Hotfix.Common
 		public override int to_server() { return 0; }
 	}
 
-	public class msg_user_login_channel : msg_from_client
-	{
-		public string uid_;
-		public string sn_;
-		public string token_;
-		public string device_;
-		public string platform_;
-		public string nickanme_;
-		public override int to_server() { return 1; }
-	}
-
 	public class msg_get_game_coordinate : msg_from_client
 	{
 		public string uid_;
 		public int gameid_;
 		public override int to_server() { return 0; }
-	}
-
-	public class msg_chat : msg_from_client
-	{
-		public int channel_;       //频道id
-		public string to_;            //密语对象,不是密语则为空
-		public string content_;       //内容
-		public override int to_server() { return 1; }
-	}
-
-	public class msg_set_head_and_headframe : msg_from_client
-	{
-		public string head_ico_ = "";      //头像ID
-		public int headframe_id_;  //头像框ID
-		public string nickname_ = "";      //昵称
-		public string spread_ = "";        //推荐人ID
-		public override int to_server() { return 1; }
-	}
-
-	//更改用户数据
-	public class msg_change_account_info : msg_from_client
-	{
-		public string gender_ = "";
-		public string byear_ = "";
-		public string bmonth_ = "";
-		public string bday_ = "";
-		public string address_ = "";
-		public string nick_name_ = "";
-		public string age_ = "";
-		public string mobile_ = "";
-		public string email_ = "";
-		public string idcard_ = "";
-		public string region1_ = "", region2_ = "", region3_ = "";
-		public override int to_server() { return 1; }
 	}
 
 	public class msg_get_verify_code : msg_from_client
@@ -192,6 +150,50 @@ namespace Hotfix.Common
 		public override int to_server() { return 0; }
 	}
 
+	public class msg_user_login_channel : msg_from_client
+	{
+		public string uid_;
+		public string sn_;
+		public string token_;
+		public string device_;
+		public string platform_;
+		public string nickanme_;
+		public override int to_server() { return 1; }
+	}
+
+	public class msg_chat : msg_from_client
+	{
+		public int channel_;       //频道id
+		public string to_;            //密语对象,不是密语则为空
+		public string content_;       //内容
+		public override int to_server() { return 1; }
+	}
+
+	public class msg_set_head_and_headframe : msg_from_client
+	{
+		public string head_ico_ = "";      //头像ID
+		public int headframe_id_;  //头像框ID
+		public string nickname_ = "";      //昵称
+		public string spread_ = "";        //推荐人ID
+		public override int to_server() { return 1; }
+	}
+
+	//更改用户数据
+	public class msg_change_account_info : msg_from_client
+	{
+		public string gender_ = "";
+		public string byear_ = "";
+		public string bmonth_ = "";
+		public string bday_ = "";
+		public string address_ = "";
+		public string nick_name_ = "";
+		public string age_ = "";
+		public string mobile_ = "";
+		public string email_ = "";
+		public string idcard_ = "";
+		public string region1_ = "", region2_ = "", region3_ = "";
+		public override int to_server() { return 1; }
+	}
 
 	public class msg_get_bank_info : msg_from_client
 	{
@@ -260,6 +262,16 @@ namespace Hotfix.Common
 		public override int to_server() { return 1; }
 	}
 
+
+	public class msg_get_login_prize_list : msg_from_client
+	{
+		public	int is_auto_request_ = 0; //1系统自动请求 ，0用户点击请求
+	}
+
+	public class msg_get_login_prize : msg_from_client
+	{
+		public int type_;  //0-每日签到奖励 1:3天连续签到奖励 2:6天连续签到奖励 3:9天连续签到奖励 
+	}
 
 	//请求进入游戏房间,要求服务器锁定一个位置
 	public class msg_enter_game_req : msg_from_client

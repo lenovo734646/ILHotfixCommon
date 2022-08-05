@@ -20,6 +20,9 @@ namespace Hotfix.Common
 		msg_get_bank_info_ret = 1024,
 		msg_user_head_and_headframe = 1040,
 		msg_rank_data = 1122,
+
+		msg_common_recv_present = 1050,
+		msg_user_login_prize_list = 1037,
 	}
 
 	public enum GameRspID
@@ -235,5 +238,19 @@ namespace Hotfix.Common
 		public string data_;           //排行数据
 	}
 
+	public class msg_user_login_prize_list : MsgBase
+	{
+		public string sign_days_;         //总签到天数
+		public string serial_days_;       //连续登录天数
+		public string serial_state_;      //最多三位数（个位-3天，十位-6天，百位-9天  0-未领取 1-已领取）
+		public string login_day_;         //当前第几天(1~7)
+		public string login_state_;       //登录奖励状态：0-未领取 1-已领取
+		public string is_auto_;           //是否自动请求
+	}
 
+	public class msg_common_recv_present : MsgBase
+	{
+		public string type_;
+		public string item_;
+	}
 }
