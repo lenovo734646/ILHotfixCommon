@@ -167,11 +167,11 @@ namespace Hotfix.Common
 			yield return 0;
 		}
 
-		public override void Start()
+		public virtual IEnumerator CoStart()
 		{
 			UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
 			InstallMsgHandler();
-			base.Start();
+			yield return 0;
 		}
 
 		public override void Update()

@@ -37,7 +37,8 @@ namespace Hotfix.Common
 
 				var handleCatalog = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
 				yield return handleCatalog;
-				if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
+				//失败继续,这里不用goto
+				//if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
 
 				var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
 				yield return handleDep;
@@ -80,7 +81,7 @@ namespace Hotfix.Common
 			if (!disableNetwork) {
 				MyDebug.LogFormat("network.ValidSession");
 				network.progressOfLoading = ip;
-				var handleSess = network.ValidSession();
+				var handleSess = network.CoValidSession();
 				yield return handleSess;
 
 				if ((int)handleSess.Current != 1) {
@@ -102,6 +103,7 @@ namespace Hotfix.Common
 			currentApp = (AppBase)Activator.CreateInstance(entryClass);
 			currentApp.progressOfLoading = ip;
 			currentApp.Start();
+			yield return currentApp.CoStart();
 			yield return currentApp.WaitingForReady();
 
 			network.lastState = SessionBase.EnState.Initiation;
@@ -111,7 +113,7 @@ namespace Hotfix.Common
 			if (showLogin)
 				yield return currentApp.game.ShowLogin();
 			else {
-				var loginHandle = network.EnterGame(conf);
+				var loginHandle = network.CoEnterGame(conf);
 				yield return loginHandle;
 				//登录失败
 				if ((int)loginHandle.Current == 0) {
