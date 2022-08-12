@@ -24,10 +24,10 @@ namespace Hotfix.Model
 		public string headIco;
 		public string headFrame;
 		public event System.EventHandler onDataChanged;
-		public long Item(int id)
+		public long Item(ITEMID id)
 		{
-			if (items.ContainsKey(id)) {
-				return items[id];
+			if (items.ContainsKey((int)id)) {
+				return items[(int)id];
 			}
 			return 0;
 		}

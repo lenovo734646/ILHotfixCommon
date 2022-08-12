@@ -140,7 +140,7 @@ namespace Hotfix.Common
 
 				var slider = GetView.FindChildDeeply("Slider").GetComponent<Slider>();
 				slider.onValueChanged.AddListener((val) => {
-					txt.text = ((long)(App.ins.self.gamePlayer.Item((int)ITEMID.BANK_GOLD) * val / 100.0f)).ShowAsGold();
+					txt.text = ((long)(App.ins.self.gamePlayer.Item(ITEMID.BANK_GOLD) * val / 100.0f)).ShowAsGold();
 				});
 
 				var btn_Reset = GetView.FindChildDeeply("btn_Reset").GetComponent<Button>();
@@ -193,7 +193,7 @@ namespace Hotfix.Common
 
 				var slider = PutView.FindChildDeeply("Slider").GetComponent<Slider>();
 				slider.onValueChanged.AddListener((val) => {
-					txt.text = ((long)(App.ins.self.gamePlayer.Item((int)ITEMID.GOLD) * val / 100.0f)).ShowAsGold();
+					txt.text = ((long)(App.ins.self.gamePlayer.Item(ITEMID.GOLD) * val / 100.0f)).ShowAsGold();
 				});
 
 				var btn_Reset = PutView.FindChildDeeply("btn_Reset").GetComponent<Button>();
