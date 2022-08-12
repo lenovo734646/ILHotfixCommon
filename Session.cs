@@ -55,15 +55,14 @@ namespace Hotfix.Lobby
 			var handle = App.ins.network.CoRpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb);
 			yield return handle;
 
-			int result = -2;
+			Co.Result result = Co.Result.Failure;
 			var msgRet = (MsgRpcRet)handle.Current;
 			if (msgRet.err_ == 0) {
 				var msg1 = (msg_handshake_ret)msgRet.msg;
 				if (msg1.ret_ == "0") {
-					result = 1;
+					result = Co.Result.Success;
 				}
 				else {
-					result = -2;
 					if (msg1 != null) MyDebug.LogFormat("Handshake failed with:{0}", msg1.ret_);
 				}
 			}
@@ -120,7 +119,7 @@ namespace Hotfix.Lobby
 			
 			var wait1 = Globals.net.WaitingForReady(App.ins.conf.networkTimeout);
 			yield return wait1;
-			if((int)wait1.Current == 0) {
+			if((Co.Result)wait1.Current == Co.Result.Failure) {
 				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 				MyDebug.LogFormat("KoKoSession failed with !Globals.net.IsWorking()");
 				goto Clean;
@@ -135,7 +134,7 @@ namespace Hotfix.Lobby
 				var handle1 = Handshake_();
 				yield return handle1;
 				//如果握手失败
-				if ((int)handle1.Current != 1) {
+				if ((Co.Result)handle1.Current != Co.Result.Success) {
 					progressOfLoading?.Desc(LangNetWork.HandShakeFailed);
 					MyDebug.LogFormat("KoKoSession failed with Handshake");
 					goto Clean;

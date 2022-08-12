@@ -56,10 +56,10 @@ namespace Hotfix.Common
 		Clean:
 			if (!succ) {
 				MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
-				yield return -1;
+				yield return Co.Result.Failure;
 			}
 			else
-				yield return 0;
+				yield return Co.Result.Success;
 			
 		}
 
@@ -69,7 +69,7 @@ namespace Hotfix.Common
 
 			var chkUpdate = DoCheckUpdate(conf, ip);
 			yield return chkUpdate;
-			if ((int)chkUpdate.Current != 0) {
+			if ((Co.Result)chkUpdate.Current != Co.Result.Success) {
 				goto Clean;
 			}
 
@@ -84,7 +84,7 @@ namespace Hotfix.Common
 				var handleSess = network.CoValidSession();
 				yield return handleSess;
 
-				if ((int)handleSess.Current != 1) {
+				if ((Co.Result)handleSess.Current != Co.Result.Success) {
 					if (ins.conf.defaultGame == conf) {
 						MyDebug.LogFormat("network.ValidSession failed, will show login.");
 						showLogin = true;
@@ -116,7 +116,7 @@ namespace Hotfix.Common
 				var loginHandle = network.CoEnterGame(conf);
 				yield return loginHandle;
 				//登录失败
-				if ((int)loginHandle.Current == 0) {
+				if ((Co.Result)loginHandle.Current == Co.Result.Failure) {
 					//如果是登录大厅失败,返回登录界面
 					if (conf == ins.conf.defaultGame) {
 						yield return currentApp.game.ShowLogin();
@@ -130,7 +130,7 @@ namespace Hotfix.Common
 
 			//清理旧游戏资源
 			oldApp?.Stop();
-
+			yield return Co.Result.Success;
 			yield break;
 
 		Clean:
@@ -139,6 +139,7 @@ namespace Hotfix.Common
 			}
 			else {
 				ip?.Desc(LangNetWork.GameStartFailed);
+				yield return Co.Result.Failure;
 			}
 		}
 
