@@ -126,8 +126,10 @@ namespace Hotfix.Common
 				msg_currency_change msg = JsonMapper.ToObject<msg_currency_change>(json);
 				if (msg.why_ == "0" || msg.why_ == "5") {
 					MyDebug.LogFormat("OnGoldChange:{0}", long.Parse(msg.credits_));
-					App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-					App.ins.self.gamePlayer.DispatchDataChanged();
+					if(App.ins.currentApp.game.Self != null) {
+						App.ins.currentApp.game.Self.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+						App.ins.currentApp.game.Self.DispatchDataChanged();
+					}
 				}
 				mainView?.OnGoldChange(msg);
 			}, this);
@@ -185,6 +187,11 @@ namespace Hotfix.Common
 				for (int i = 0; i < views_.Count; i++) {
 					views_[i].Update();
 				}
+
+				var arr = players.ToArray();
+				for (int i = 0; i < arr.Count; i++) {
+					arr[i].Value.Update();
+				}
 			}
 		}
 
@@ -192,6 +199,10 @@ namespace Hotfix.Common
 		{
 			CloseAllView();
 			App.ins.network.RemoveMsgHandler(this);
+			var arr = players.ToArray();
+			for (int i = 0; i < arr.Count; i++) {
+				arr[i].Value.Destroy();
+			}
 		}
 		
 		public virtual GamePlayer CreateGamePlayer()
@@ -205,12 +216,18 @@ namespace Hotfix.Common
 				players.Remove(p.serverPos);
 			}
 			players.Add(p.serverPos, p);
-			p.DispatchDataChanged();
+			OnAddPlayer(p);
+		}
+
+		public virtual void OnAddPlayer(GamePlayer p)
+		{
+
 		}
 
 		public GamePlayer GetPlayer(int serverPos)
 		{
-			foreach(var pp in players) {
+			var arr = players.ToArray();
+			foreach(var pp in arr) {
 				if(pp.Value.serverPos == serverPos) {
 					return pp.Value;
 				}
@@ -220,21 +237,37 @@ namespace Hotfix.Common
 
 		public GamePlayer GetPlayer(string uid)
 		{
-			foreach (var pp in players) {
+			var arr = players.ToArray();
+			foreach (var pp in arr) {
 				if (pp.Value.uid == uid) {
 					return pp.Value;
 				}
 			}
 			return null;
 		}
+		public GamePlayer Self
+		{
+			get {
+				var arr = players.ToArray();
+				foreach (var pp in arr) {
+					if (pp.Value.uid == App.ins.self.uid) {
+						return pp.Value;
+					}
+				}
+				return null;
+			}
+			
+		}
 
 		public void RemovePlayer(int serverPos)
 		{
 			players.Remove(serverPos);
 		}
+
+		public DictionaryCached<int, GamePlayer> players = new DictionaryCached<int, GamePlayer>();
+		
 		List<ViewBase> closing_ = new List<ViewBase>();
 		List<ViewBase> views_ = new List<ViewBase>();
-		Dictionary<int, GamePlayer> players = new Dictionary<int,GamePlayer>();
 		bool prepared_ = true;
 	}
 

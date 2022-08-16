@@ -380,7 +380,7 @@ namespace Hotfix.Common
 					}
 
 					msg_user_login_ret r = (msg_user_login_ret)(rpcd.msg);
-					var player = app.self.gamePlayer;
+					var player = app.self;
 					player.iid = int.Parse(r.iid_);
 					player.nickName = r.nickname_;
 					player.uid = r.uid_;
@@ -392,7 +392,7 @@ namespace Hotfix.Common
 			{
 				msg_get_game_coordinate msg = new msg_get_game_coordinate();
 				msg.gameid_ = ((int)toGame.gameID);
-				msg.uid_ = app.self.gamePlayer.uid;
+				msg.uid_ = app.self.uid;
 
 				var resultOfRpc = app.network.CoRpc((ushort)AccReqID.msg_get_game_coordinate, msg, (ushort)AccRspID.msg_channel_server,
 					RPCCallback<msg_channel_server>);

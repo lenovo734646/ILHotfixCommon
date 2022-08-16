@@ -64,25 +64,18 @@ namespace Hotfix.Model
 			var texture = App.ins.headFrames[ico];
 			img.ChangeSprite(texture);
 		}
+		public virtual void Update() { }
+		public virtual void Destroy() { }
 	}
 
 	//玩家时数据
-	public partial class GamePlayer : PlayerBase
+	public class GamePlayer : PlayerBase
 	{
 		public int serverPos;
 	}
 
-	public class SelfPlayer
+	public class SelfPlayer : PlayerBase
 	{
-		public GamePlayer gamePlayer{
-			set{
-				pp_ = value;
-			}
-			get {
-				return pp_;
-			}
-		} 
-		GamePlayer pp_ = new GamePlayer();
 		public string bankPsw;
 		public string phone;
 	}

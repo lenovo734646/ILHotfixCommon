@@ -182,8 +182,23 @@ namespace Hotfix.Common
 			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
 				msg_sync_item msg = JsonMapper.ToObject<msg_sync_item>(json);
 				int itemId = int.Parse(msg.item_id_);
-				if (!self.gamePlayer.items.ContainsKey(itemId)) {
-					self.gamePlayer.items[itemId] = int.Parse(msg.count_);
+				//刷新大厅里的我
+				if (self.items.ContainsKey(itemId)) {
+					self.items[itemId] = int.Parse(msg.count_);
+				}
+				else {
+					self.items.Add(itemId, int.Parse(msg.count_));
+				}
+
+				//刷新游戏里的我
+				var gself = App.ins.currentApp.game.Self;
+				if (gself != null) {
+					if (gself.items.ContainsKey(itemId)) {
+						gself.items[itemId] = int.Parse(msg.count_);
+					}
+					else {
+						gself.items.Add(itemId, int.Parse(msg.count_));
+					}
 				}
 			}, this);
 		}

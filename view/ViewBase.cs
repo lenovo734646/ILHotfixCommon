@@ -228,6 +228,7 @@ namespace Hotfix.Common
 					progressOfLoading?.Progress((int)resScenes_.loader.SceneHandle.PercentComplete * 100, 100);
 					yield return 0;
 				}
+				yield return resScenes_.loader.ActiveScene();
 				resScenes_ = null;
 				yield return 0;
 			}
@@ -296,23 +297,18 @@ namespace Hotfix.Common
 
 		public virtual GamePlayer OnPlayerEnter(msg_player_seat msg)
 		{
-			if (App.ins.self.gamePlayer.uid == msg.uid_) {
-				App.ins.self.gamePlayer.serverPos = int.Parse(msg.pos_);
-				App.ins.self.gamePlayer.lv = int.Parse(msg.lv_);
-				return App.ins.self.gamePlayer;
-			}
-			else {
-				var game = App.ins.currentApp.game;
-				var pp = game.CreateGamePlayer();
-				pp.serverPos = int.Parse(msg.pos_);
-				pp.nickName = msg.uname_;
-				pp.headFrame = msg.headframe_id_;
-				pp.headIco = msg.head_ico_;
-				pp.lv = int.Parse(msg.lv_);
-				game.AddPlayer(pp);
-				return pp;
-			}
+			var game = App.ins.currentApp.game;
+			var pp = game.CreateGamePlayer();
+			pp.uid = msg.uid_;
+			pp.serverPos = int.Parse(msg.pos_);
+			pp.nickName = msg.uname_;
+			pp.headFrame = msg.headframe_id_;
+			pp.headIco = msg.head_ico_;
+			pp.lv = int.Parse(msg.lv_);
+			game.AddPlayer(pp);
+			return pp;
 		}
+
 		public virtual void OnPlayerLeave(msg_player_leave msg)
 		{
 			var game = App.ins.currentApp.game;
@@ -326,11 +322,11 @@ namespace Hotfix.Common
 		//玩家货币变币
 		public virtual void OnGoldChange(msg_deposit_change2 msg)
 		{
-			int pos = App.ins.self.gamePlayer.serverPos;
+			int pos = App.ins.currentApp.game.Self.serverPos;
 			if (int.Parse(msg.pos_) == pos) {
 				if (int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_sync_gold) {
-					App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-					App.ins.self.gamePlayer.DispatchDataChanged();
+					App.ins.currentApp.game.Self.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+					App.ins.currentApp.game.Self.DispatchDataChanged();
 				}
 			}
 		}
@@ -348,7 +344,7 @@ namespace Hotfix.Common
 
 		public abstract void OnServerParameter(msg_server_parameter msg);
 		public abstract void OnJackpotNumber(msg_get_public_data_ret msg);
-		public virtual void OnRoomEnterSucc() { }
+		public virtual IEnumerator OnRoomEnterSucc() { yield return 0; }
 	}
 
 	public abstract class ViewSlotScene : ViewGameSceneBase
