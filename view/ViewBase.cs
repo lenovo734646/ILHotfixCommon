@@ -312,8 +312,9 @@ namespace Hotfix.Common
 		public virtual void OnPlayerLeave(msg_player_leave msg)
 		{
 			var game = App.ins.currentApp.game;
-			
+			game.RemovePlayer(int.Parse(msg.pos_));
 		}
+
 		public virtual void OnCommonReply(msg_common_reply msg)
 		{
 
