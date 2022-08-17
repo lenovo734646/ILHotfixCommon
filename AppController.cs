@@ -37,7 +37,8 @@ namespace Hotfix.Common
 
 				var handleCatalog = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
 				yield return handleCatalog;
-				if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
+				//失败继续,这里不用goto
+				//if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
 
 				var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
 				yield return handleDep;
@@ -55,10 +56,10 @@ namespace Hotfix.Common
 		Clean:
 			if (!succ) {
 				MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
-				yield return -1;
+				yield return Co.Result.Failure;
 			}
 			else
-				yield return 0;
+				yield return Co.Result.Success;
 			
 		}
 
@@ -68,7 +69,7 @@ namespace Hotfix.Common
 
 			var chkUpdate = DoCheckUpdate(conf, ip);
 			yield return chkUpdate;
-			if ((int)chkUpdate.Current != 0) {
+			if ((Co.Result)chkUpdate.Current != Co.Result.Success) {
 				goto Clean;
 			}
 
@@ -80,10 +81,10 @@ namespace Hotfix.Common
 			if (!disableNetwork) {
 				MyDebug.LogFormat("network.ValidSession");
 				network.progressOfLoading = ip;
-				var handleSess = network.ValidSession();
+				var handleSess = network.CoValidSession();
 				yield return handleSess;
 
-				if ((int)handleSess.Current != 1) {
+				if ((Co.Result)handleSess.Current != Co.Result.Success) {
 					if (ins.conf.defaultGame == conf) {
 						MyDebug.LogFormat("network.ValidSession failed, will show login.");
 						showLogin = true;
@@ -102,6 +103,7 @@ namespace Hotfix.Common
 			currentApp = (AppBase)Activator.CreateInstance(entryClass);
 			currentApp.progressOfLoading = ip;
 			currentApp.Start();
+			yield return currentApp.CoStart();
 			yield return currentApp.WaitingForReady();
 
 			network.lastState = SessionBase.EnState.Initiation;
@@ -111,10 +113,10 @@ namespace Hotfix.Common
 			if (showLogin)
 				yield return currentApp.game.ShowLogin();
 			else {
-				var loginHandle = network.EnterGame(conf);
+				var loginHandle = network.CoEnterGame(conf);
 				yield return loginHandle;
 				//登录失败
-				if ((int)loginHandle.Current == 0) {
+				if ((Co.Result)loginHandle.Current == Co.Result.Failure) {
 					//如果是登录大厅失败,返回登录界面
 					if (conf == ins.conf.defaultGame) {
 						yield return currentApp.game.ShowLogin();
@@ -128,7 +130,7 @@ namespace Hotfix.Common
 
 			//清理旧游戏资源
 			oldApp?.Stop();
-
+			yield return Co.Result.Success;
 			yield break;
 
 		Clean:
@@ -137,6 +139,7 @@ namespace Hotfix.Common
 			}
 			else {
 				ip?.Desc(LangNetWork.GameStartFailed);
+				yield return Co.Result.Failure;
 			}
 		}
 
@@ -151,6 +154,7 @@ namespace Hotfix.Common
 
 		public override void Start()
 		{
+			
 			MyDebug.LogFormat("Hotfix Module Begins.");
 			//注册protobuf类
 			ILRuntime_CLGT.Initlize();
@@ -163,7 +167,7 @@ namespace Hotfix.Common
 			audio.Start();
 
 			runQueue.StartCor(DoStart_(), true);
-			this.StartCor(LazyUpdate(), false);
+			this.StartCor(DoLazyUpdate(), false);
 		}
 
 		public void InstallMsgHandler()
@@ -173,6 +177,29 @@ namespace Hotfix.Common
 				ViewPopup.Create(LangUITip.SameAccountLogin, ViewPopup.Flag.BTN_OK_ONLY, () => {
 					ins.StartCor(ins.CheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
 				});
+			}, this);
+
+			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
+				msg_sync_item msg = JsonMapper.ToObject<msg_sync_item>(json);
+				int itemId = int.Parse(msg.item_id_);
+				//刷新大厅里的我
+				if (self.items.ContainsKey(itemId)) {
+					self.items[itemId] = int.Parse(msg.count_);
+				}
+				else {
+					self.items.Add(itemId, int.Parse(msg.count_));
+				}
+
+				//刷新游戏里的我
+				var gself = App.ins.currentApp.game.Self;
+				if (gself != null) {
+					if (gself.items.ContainsKey(itemId)) {
+						gself.items[itemId] = int.Parse(msg.count_);
+					}
+					else {
+						gself.items.Add(itemId, int.Parse(msg.count_));
+					}
+				}
 			}, this);
 		}
 
@@ -197,6 +224,7 @@ namespace Hotfix.Common
 		IEnumerator DoStart_()
 		{
 			conf.Start();
+
 			if (defaultGameFromHost != "") conf.defaultGameName = defaultGameFromHost;
 			if (conf.defaultGame == null) {
 				throw new Exception($"default game is not exist.{conf.defaultGameName}");
@@ -208,16 +236,21 @@ namespace Hotfix.Common
 			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
-		IEnumerator LazyUpdate()
+		IEnumerator DoLazyUpdate()
 		{
 			while (true) {
-				foreach(var longp in longPress) {
+				var arr = longPress.ToArray();
+				for (int i = 0; i < arr.Count; i++) {
+					var longp = arr[i];
 					if (longp.Value.triggered) continue;
 					if (!longp.Value.IsTimeout()) continue;
 					longp.Value.Trigger();
 				}
 
-				network.LazyUpdate();
+				for(int i = 0; i  < instances.Count; i++) {
+					if(instances[i].IsReady())
+						instances[i].LazyUpdate();
+				}
 				yield return new WaitForSeconds(0.1f);
 			}
 		}
@@ -237,7 +270,6 @@ namespace Hotfix.Common
 			this.StopAllCor();
 			base.Stop();
 		}
-
 		public static App ins = null;
 		public Config conf = new Config();
 		public AppBase currentApp = null;
@@ -246,12 +278,13 @@ namespace Hotfix.Common
 		public NetWorkController network = new NetWorkController();
 		public SelfPlayer self = new SelfPlayer();
 		public List<AccountInfo> accounts = new List<AccountInfo>();
-		public Dictionary<GameObject, LongPressData> longPress = new Dictionary<GameObject, LongPressData>();
+		
 		public AccountInfo lastUseAccount = null;
 		public GameConfig currentGameConfig = null;
 		public string defaultGameFromHost;
 		public bool autoLoginFromHost = true, disableNetwork = false;
 
+		public DictionaryCached<GameObject, LongPressData> longPress = new DictionaryCached<GameObject, LongPressData>();
 		public Dictionary<int, Texture2D> headIcons = new Dictionary<int, Texture2D>();
 		public Dictionary<int, Texture2D> headFrames = new Dictionary<int, Texture2D>();
 
@@ -260,5 +293,6 @@ namespace Hotfix.Common
 		List<string> cachedCatalog = new List<string>();
 		GameRunQueue runQueue = new GameRunQueue();
 		bool runningGame_ = false;
+
 	}
 }

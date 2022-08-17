@@ -35,7 +35,26 @@ namespace Hotfix.Common
 			state_new_turn_begins = 100,//新一轮开始阶段
 			state_delay_time = 987,
 		}
-		public ViewGameSceneBase mainView;
+
+		ViewGameSceneBase mainView_;
+		void OnMainViewClose(object sender, EventArgs e)
+		{
+			mainView_ = null;
+		}
+
+		public ViewGameSceneBase mainView
+		{
+			get { return mainView_; }
+			set { 
+				if(value == null) {
+					mainView_.ClosedEvent -= OnMainViewClose;
+				}
+				mainView_ = value;
+
+				mainView_.ClosedEvent += OnMainViewClose;
+			}
+		}
+
 		public bool isEntering = true;
 		//创建和管理View
 		public void OpenView(ViewBase view)
@@ -46,12 +65,12 @@ namespace Hotfix.Common
 
 		public void OnViewClosed(ViewBase view)
 		{
-			views_.Remove(view);
+			closing_.Add(view);
 		}
 
 		public void CloseAllView()
 		{
-			viewsCopy.Clear();
+			List<ViewBase> viewsCopy = new List<ViewBase>();
 			viewsCopy.AddRange(views_);
 			foreach (var view in viewsCopy) {
 				view.Close();
@@ -95,7 +114,6 @@ namespace Hotfix.Common
 
 			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_deposit_change2, (cmd, json) => {
 				msg_deposit_change2 msg = JsonMapper.ToObject<msg_deposit_change2>(json);
-				MyDebug.LogFormat("msg_deposit_change2:{0}", long.Parse(msg.credits_));
 				mainView?.OnGoldChange(msg);
 			}, this);
 
@@ -108,10 +126,16 @@ namespace Hotfix.Common
 				msg_currency_change msg = JsonMapper.ToObject<msg_currency_change>(json);
 				if (msg.why_ == "0" || msg.why_ == "5") {
 					MyDebug.LogFormat("OnGoldChange:{0}", long.Parse(msg.credits_));
-					App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-					App.ins.self.gamePlayer.DispatchDataChanged();
+					if(App.ins.currentApp.game.Self != null) {
+						App.ins.currentApp.game.Self.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+						App.ins.currentApp.game.Self.DispatchDataChanged();
+					}
 				}
 				mainView?.OnGoldChange(msg);
+			}, this);
+
+			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_player_hint, (cmd, json) => {
+				msg_player_hint msg = JsonMapper.ToObject<msg_player_hint>(json);
 			}, this);
 
 			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_server_parameter, (cmd, json) => {
@@ -145,20 +169,28 @@ namespace Hotfix.Common
 			yield return 0;
 		}
 
-		public override void Start()
+		public virtual IEnumerator CoStart()
 		{
 			UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
 			InstallMsgHandler();
-			base.Start();
+			yield return 0;
 		}
 
 		public override void Update()
 		{
 			if (prepared_) {
-				viewsCopy.Clear();
-				viewsCopy.AddRange(views_);
-				foreach (var view in viewsCopy) {
-					view.Update();
+				for (int i = 0; i < closing_.Count; i++) {
+					views_.Remove(closing_[i]);
+				}
+				closing_.Clear();
+
+				for (int i = 0; i < views_.Count; i++) {
+					views_[i].Update();
+				}
+
+				var arr = players.ToArray();
+				for (int i = 0; i < arr.Count; i++) {
+					arr[i].Value.Update();
 				}
 			}
 		}
@@ -167,6 +199,10 @@ namespace Hotfix.Common
 		{
 			CloseAllView();
 			App.ins.network.RemoveMsgHandler(this);
+			var arr = players.ToArray();
+			for (int i = 0; i < arr.Count; i++) {
+				arr[i].Value.Destroy();
+			}
 		}
 		
 		public virtual GamePlayer CreateGamePlayer()
@@ -180,12 +216,18 @@ namespace Hotfix.Common
 				players.Remove(p.serverPos);
 			}
 			players.Add(p.serverPos, p);
-			p.DispatchDataChanged();
+			OnAddPlayer(p);
+		}
+
+		public virtual void OnAddPlayer(GamePlayer p)
+		{
+
 		}
 
 		public GamePlayer GetPlayer(int serverPos)
 		{
-			foreach(var pp in players) {
+			var arr = players.ToArray();
+			foreach(var pp in arr) {
 				if(pp.Value.serverPos == serverPos) {
 					return pp.Value;
 				}
@@ -195,12 +237,26 @@ namespace Hotfix.Common
 
 		public GamePlayer GetPlayer(string uid)
 		{
-			foreach (var pp in players) {
+			var arr = players.ToArray();
+			foreach (var pp in arr) {
 				if (pp.Value.uid == uid) {
 					return pp.Value;
 				}
 			}
 			return null;
+		}
+		public GamePlayer Self
+		{
+			get {
+				var arr = players.ToArray();
+				foreach (var pp in arr) {
+					if (pp.Value.uid == App.ins.self.uid) {
+						return pp.Value;
+					}
+				}
+				return null;
+			}
+			
 		}
 
 		public void RemovePlayer(int serverPos)
@@ -208,9 +264,10 @@ namespace Hotfix.Common
 			players.Remove(serverPos);
 		}
 
-		List<ViewBase> viewsCopy = new List<ViewBase>();
+		public DictionaryCached<int, GamePlayer> players = new DictionaryCached<int, GamePlayer>();
+		
+		List<ViewBase> closing_ = new List<ViewBase>();
 		List<ViewBase> views_ = new List<ViewBase>();
-		Dictionary<int, GamePlayer> players = new Dictionary<int,GamePlayer>();
 		bool prepared_ = true;
 	}
 

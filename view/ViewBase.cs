@@ -23,7 +23,9 @@ namespace Hotfix.Common
 		public void LoadAssets<T>(string path, Action<AddressablesLoader.LoadTask<T>> callback) where T : UnityEngine.Object
 		{
 			Action<AddressablesLoader.LoadTask<T>> callbackWrapper = (AddressablesLoader.LoadTask<T> loader) => {
-				callback(loader);
+				if(loader.status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded){
+					callback(loader);
+				}
 			};
 			resourceLoader_.Add(Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading)); 
 		}
@@ -51,7 +53,6 @@ namespace Hotfix.Common
 
 		public override bool IsReady()
 		{
-			if (!base.IsReady()) return false;
 			foreach(var tsk in resourceLoader_) {
 				if(tsk.status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.None) {
 					return false;
@@ -227,6 +228,7 @@ namespace Hotfix.Common
 					progressOfLoading?.Progress((int)resScenes_.loader.SceneHandle.PercentComplete * 100, 100);
 					yield return 0;
 				}
+				yield return resScenes_.loader.ActiveScene();
 				resScenes_ = null;
 				yield return 0;
 			}
@@ -283,7 +285,7 @@ namespace Hotfix.Common
 		List<ViewLoadTask<GameObject>> resNames_ = new List<ViewLoadTask<GameObject>>();
 		ViewLoadTask<AddressablesLoader.DownloadScene> resScenes_;
 		List<GameObject> objs = new List<GameObject>();
-		bool finished_ = false;
+		protected bool finished_ = false;
 	}
 
 	public abstract class ViewGameSceneBase : ViewBase
@@ -295,23 +297,18 @@ namespace Hotfix.Common
 
 		public virtual GamePlayer OnPlayerEnter(msg_player_seat msg)
 		{
-			if (App.ins.self.gamePlayer.uid == msg.uid_) {
-				App.ins.self.gamePlayer.serverPos = int.Parse(msg.pos_);
-				App.ins.self.gamePlayer.lv = int.Parse(msg.lv_);
-				return App.ins.self.gamePlayer;
-			}
-			else {
-				var game = App.ins.currentApp.game;
-				var pp = game.CreateGamePlayer();
-				pp.serverPos = int.Parse(msg.pos_);
-				pp.nickName = msg.uname_;
-				pp.headFrame = msg.headframe_id_;
-				pp.headIco = msg.head_ico_;
-				pp.lv = int.Parse(msg.lv_);
-				game.AddPlayer(pp);
-				return pp;
-			}
+			var game = App.ins.currentApp.game;
+			var pp = game.CreateGamePlayer();
+			pp.uid = msg.uid_;
+			pp.serverPos = int.Parse(msg.pos_);
+			pp.nickName = msg.uname_;
+			pp.headFrame = msg.headframe_id_;
+			pp.headIco = msg.head_ico_;
+			pp.lv = int.Parse(msg.lv_);
+			game.AddPlayer(pp);
+			return pp;
 		}
+
 		public virtual void OnPlayerLeave(msg_player_leave msg)
 		{
 			var game = App.ins.currentApp.game;
@@ -325,11 +322,11 @@ namespace Hotfix.Common
 		//玩家货币变币
 		public virtual void OnGoldChange(msg_deposit_change2 msg)
 		{
-			int pos = App.ins.self.gamePlayer.serverPos;
+			int pos = App.ins.currentApp.game.Self.serverPos;
 			if (int.Parse(msg.pos_) == pos) {
 				if (int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_sync_gold) {
-					App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-					App.ins.self.gamePlayer.DispatchDataChanged();
+					App.ins.currentApp.game.Self.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+					App.ins.currentApp.game.Self.DispatchDataChanged();
 				}
 			}
 		}
@@ -347,6 +344,7 @@ namespace Hotfix.Common
 
 		public abstract void OnServerParameter(msg_server_parameter msg);
 		public abstract void OnJackpotNumber(msg_get_public_data_ret msg);
+		public virtual IEnumerator OnRoomEnterSucc() { yield return 0; }
 	}
 
 	public abstract class ViewSlotScene : ViewGameSceneBase
@@ -409,6 +407,9 @@ namespace Hotfix.Common
 		{
 			mainObject_.DoPopup();
 			var btn_close = mainObject_.FindChildDeeply("btn_close");
+			if(btn_close == null) {
+				btn_close = mainObject_.FindChildDeeply("btnClose");
+			}
 			btn_close.OnClick(() => {
 				Close();
 			});

@@ -45,25 +45,24 @@ namespace Hotfix.Lobby
 			msg.machine_id_ = App.ins.conf.GetDeviceID();
 			msg.sign_ = Globals.Md5Hash(msg.machine_id_ + "1EBE295C-BE45-45C0-9AA1-496C1CEE4BDB");
 
-			Func<int, string, MsgRpcRet> cb = (cmd, json) => {
+			Func<int, string, int, MsgRpcRet> cb = (cmd, json, reqID) => {
 				MsgRpcRet ret = new MsgRpcRet();
 				ret.msg = JsonMapper.ToObject<msg_handshake_ret>(json);
 				ret.err_ = 0;
 				return ret;
 			};
 
-			var handle = App.ins.network.Rpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb, App.ins.conf.networkTimeout);
+			var handle = App.ins.network.CoRpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb);
 			yield return handle;
 
-			int result = -2;
+			Co.Result result = Co.Result.Failure;
 			var msgRet = (MsgRpcRet)handle.Current;
 			if (msgRet.err_ == 0) {
 				var msg1 = (msg_handshake_ret)msgRet.msg;
 				if (msg1.ret_ == "0") {
-					result = 1;
+					result = Co.Result.Success;
 				}
 				else {
-					result = -2;
 					if (msg1 != null) MyDebug.LogFormat("Handshake failed with:{0}", msg1.ret_);
 				}
 			}
@@ -117,19 +116,17 @@ namespace Hotfix.Lobby
 				StartKoKoNetwork(app.conf.gameHosts, App.ins.conf.networkTimeout);
 				netReseted = true;
 			}
-
-			Globals.net.RegisterSockEventHandler(OnSockEvent_);
-			Globals.net.RegisterRawDataHandler(App.ins.network.HandleRawData);
-
-			while (!Globals.net.IsWorking() && tc.Elapse() < App.ins.conf.networkTimeout) {
-				yield return new WaitForSeconds(0.1f);
-			}
-			//网络没连接上,跳出
-			if (!Globals.net.IsWorking()) {
+			
+			var wait1 = Globals.net.WaitingForReady(App.ins.conf.networkTimeout);
+			yield return wait1;
+			if((Co.Result)wait1.Current == Co.Result.Failure) {
 				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 				MyDebug.LogFormat("KoKoSession failed with !Globals.net.IsWorking()");
 				goto Clean;
 			}
+
+			Globals.net.RegisterSockEventHandler(OnSockEvent_);
+			Globals.net.RegisterRawDataHandler(App.ins.network.HandleRawData);
 
 			if (netReseted) {
 				progressOfLoading?.Desc(LangNetWork.HandShake);
@@ -137,7 +134,7 @@ namespace Hotfix.Lobby
 				var handle1 = Handshake_();
 				yield return handle1;
 				//如果握手失败
-				if ((int)handle1.Current != 1) {
+				if ((Co.Result)handle1.Current != Co.Result.Success) {
 					progressOfLoading?.Desc(LangNetWork.HandShakeFailed);
 					MyDebug.LogFormat("KoKoSession failed with Handshake");
 					goto Clean;
@@ -186,7 +183,7 @@ namespace Hotfix.Lobby
 
 		TimeCounter pingTimer_ = new TimeCounter("");
 		TimeCounter pingCostCounter_ = new TimeCounter("");
-		float pingTimeCost_;
+		float pingTimeCost_ = 0.0f;
 		long pingSucc_ = 0;
 	}
 }

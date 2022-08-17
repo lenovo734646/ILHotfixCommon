@@ -10,9 +10,9 @@ namespace Hotfix.Common
 	{
 		//每个小游戏都有一个GameController
 		public GameControllerBase game = null;
-		public override void Start()
+		public virtual IEnumerator CoStart()
 		{
-			game?.Start();
+			yield return game?.CoStart();
 		}
 
 		public override void Stop()

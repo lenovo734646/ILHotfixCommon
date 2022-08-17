@@ -18,15 +18,19 @@ namespace Hotfix.Common
 	{
 		public const string Failed = "Falied";
 		public const string ServiceAvailableCode = "6E6C51D9-6B7D-4373-875F-8188FCF1024B";
+		public static string lastError;
 		public static IEnumerator GetRequest(string uri)
 		{
 			string ret = Failed;
 			yield return GetUseableWebService();
 			if (usingWebHost_.Value < 0) {
+				MyDebug.LogWarningFormat("http request Failed usingWebHost_.Value < 0");
 				yield return ret;
 				yield break;
 			}
-			yield return GetRequest(usingWebHost_.Key, usingWebHost_.Value, "koko-manage2/third/" + uri);
+			var req = GetRequest(usingWebHost_.Key, usingWebHost_.Value, "koko-manage2/third/" + uri);
+			yield return req;
+			yield return req.Current;
 		}
 
 		static KeyValuePair<string, int> usingWebHost_ = new KeyValuePair<string, int>("", -1);
@@ -36,9 +40,10 @@ namespace Hotfix.Common
 			List<IEnumerator> lst = new List<IEnumerator>();
 			List<int> ids = new List<int>();
 			List<KeyValuePair<string, int>> lHosts = App.ins.conf.webRoots.ToArray();
+
 			//同时访问网站
 			foreach (var i in App.ins.conf.webRoots) {
-				var handle = GetRequest(i.Key, i.Value, "/versions/checkdns.txt");
+				var handle = GetRequest(i.Key, i.Value, "koko-manage2/third/checkservice.htm");
 				ids.Add(lst.StartCor(handle, false));
 				lst.Add(handle);
 			}
@@ -46,7 +51,7 @@ namespace Hotfix.Common
 			//找最快回复的
 			bool finded = false;
 			TimeCounter tc = new TimeCounter("");
-			while (!finded && tc.Elapse() < 3.0f) { 
+			while (!finded && tc.Elapse() < App.ins.conf.networkTimeout) { 
 				for (int i = 0; i < ids.Count; i++) {
 					if (!Globals.cor.isRuning(ids[i])) {
 						if ((string)lst[i].Current == ServiceAvailableCode) {
@@ -65,11 +70,14 @@ namespace Hotfix.Common
 		{
 			string ret = Failed;
 			string url = string.Format("http://{0}:{1}/{2}", host, port, uri);
+			MyDebug.LogWarningFormat("http request:{0}", url);
 			using (UnityWebRequest webRequest = UnityWebRequest.Get(url)) {
 				yield return webRequest.SendWebRequest();
 
 				string[] pages = uri.Split('/');
 				int page = pages.Length - 1;
+				
+				lastError = webRequest.error;
 
 				switch (webRequest.result) {
 					case UnityWebRequest.Result.ConnectionError:
@@ -79,10 +87,9 @@ namespace Hotfix.Common
 					break;
 					case UnityWebRequest.Result.Success: {
 						var contentType = webRequest.GetResponseHeader("content-type").ToLower();
-						if(contentType == "application/json" || contentType == "text/plain") {
+						if (contentType.Contains("application/json") || contentType.Contains("text/plain")) {
 							ret = Encoding.UTF8.GetString(webRequest.downloadHandler.data);
 						}
-						
 					}
 
 					break;
@@ -91,11 +98,10 @@ namespace Hotfix.Common
 			yield return ret;
 		}
 	}
-
 	public class LongPressData
 	{
 		public float startTime, duration;
-		public System.Action callback;
+		public System.Action longCallback_, clickCallback_;
 		public bool triggered = false;
 		public bool IsTimeout()
 		{
@@ -103,7 +109,7 @@ namespace Hotfix.Common
 		}
 		public void Trigger()
 		{
-			callback();
+			longCallback_();
 			triggered = true;
 		}
 	}
@@ -148,8 +154,12 @@ namespace Hotfix.Common
 
 		public static string ShowAsGold(this long num)
 		{
-			string s = num.ToString();
-			return ShowAsGold(s);
+			string s = Math.Abs(num).ToString();
+			if (num >= 0)
+				return ShowAsGold(s);
+			else {
+				return "-" + ShowAsGold(s);
+			}
 		}
 
 		public static string ShowAsGold(this string s)
@@ -164,7 +174,7 @@ namespace Hotfix.Common
 			return ret;
 		}
 
-		public static void LongPress(this GameObject obj, System.Action act, float duration = 3.0f)
+		public static void LongPress(this GameObject obj, System.Action act, float duration = 3.0f, System.Action clickCallback = null)
 		{
 			var trigger = obj.AddComponent<EventTrigger>();
 			var watcher = obj.AddComponent<OnDestryWatcher>();
@@ -177,8 +187,9 @@ namespace Hotfix.Common
 				enter.eventID = EventTriggerType.PointerDown;
 				enter.callback.AddListener((evt) => {
 					LongPressData data = new LongPressData();
-					data.callback = act;
+					data.longCallback_ = act;
 					data.duration = duration;
+					data.clickCallback_ = clickCallback;
 					data.startTime = Time.time;
 					App.ins.longPress.Add(obj, data);
 				});
@@ -200,14 +211,42 @@ namespace Hotfix.Common
 				enter.callback.AddListener((evt) => {
 					LongPressData lp;
 					App.ins.longPress.TryGetValue(obj, out lp);
-					if(lp != null && lp.triggered) {
+					if(lp != null) {
 						evt.Use();
+						if (lp.clickCallback_ != null && !lp.triggered) {
+							lp.clickCallback_();
+						}
 					}
 					App.ins.longPress.Remove(obj);
 				});
 				trigger.triggers.Add(enter);
 			}
 		}
+	}
+
+	public class Waitor<T>
+	{
+		public void Complete(T val)
+		{
+			result_ = val;
+			resultSetted = true;
+		}
+
+		public IEnumerator WaitResult()
+		{
+			while(!resultSetted) {
+				yield return 0;
+			}
+			yield return 1;
+		}
+		
+		public T result
+		{
+			get { return result_; }
+		}
+
+		T result_;
+		bool resultSetted = false;
 	}
 
 	public static class Utils

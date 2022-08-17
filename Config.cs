@@ -40,6 +40,7 @@ namespace Hotfix.Common
 			FeiQingZhouSou = 64,
 			BaiJiaLe = 35,
 			JiuXianLaWang = 41,
+			ShuiHuZhuan = 42,
 		}
 
 		public const string HuanleBY = "HuanleBY";
@@ -67,7 +68,7 @@ namespace Hotfix.Common
 		public const string XingGanNvYou = "XGNY";
 		public const string LuoMaDaMaoXian = "LMDMX";
 		public const string ShuiGuoMali = "SGML";
-		public const string ShuiHuZhuan = "Shz";
+		public const string ShuiHuZhuan = "SHZ";
 		public const string JiJieHaoBY = "FishingJJH";
 		public const string LingDianBY = "Fishing3D";
 		public const string ShenHaiBY = "FishingSH";
@@ -93,7 +94,7 @@ namespace Hotfix.Common
 	{
 		public Dictionary<string, GameConfig> games = new Dictionary<string, GameConfig>();
 		public Dictionary<string, int> gameHosts = new Dictionary<string, int>();
-		public float networkTimeout = 5.0f;
+		public float networkTimeout = 10.0f;
 
 		public Dictionary<string, int> webRoots = new Dictionary<string, int>();
 
@@ -101,12 +102,9 @@ namespace Hotfix.Common
 
 		public void Start()
 		{
-			//内网测试服
-			//hosts.Add("192.168.101.221", 16000);
-			//国内测试服
-			//hosts.Add("150.158.55.161", 16000);
-			gameHosts.Add("192.168.101.106", 8990);
-			//hosts.Add("47.100.172.186", 8990);
+			gameHosts.Add("127.0.0.1", 8990);
+			gameHosts.Add("192.168.102.110", 8990);
+			gameHosts.Add("8.210.20.24", 8990);
 			webRoots.Add("139.224.233.71", 8083);
 			{
 				GameConfig game = new GameConfig();
@@ -419,6 +417,8 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots |(int)GameConfig.Tag.Hot;
+				game.enabled = true;
+				game.gameID = GameConfig.GameID.ShuiHuZhuan;
 				games.Add(game.name, game);
 			}
 
@@ -430,6 +430,8 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Fishing | (int)GameConfig.Tag.Hot;
+				game.enabled = true;
+				game.gameID = GameConfig.GameID.HuanleBY;
 				games.Add(game.name, game);
 			}
 

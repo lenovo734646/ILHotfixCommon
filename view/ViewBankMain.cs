@@ -140,7 +140,7 @@ namespace Hotfix.Common
 
 				var slider = GetView.FindChildDeeply("Slider").GetComponent<Slider>();
 				slider.onValueChanged.AddListener((val) => {
-					txt.text = ((long)(App.ins.self.gamePlayer.Item((int)ITEMID.BANK_GOLD) * val / 100.0f)).ShowAsGold();
+					txt.text = ((long)(App.ins.self.Item(ITEMID.BANK_GOLD) * val / 100.0f)).ShowAsGold();
 				});
 
 				var btn_Reset = GetView.FindChildDeeply("btn_Reset").GetComponent<Button>();
@@ -193,7 +193,7 @@ namespace Hotfix.Common
 
 				var slider = PutView.FindChildDeeply("Slider").GetComponent<Slider>();
 				slider.onValueChanged.AddListener((val) => {
-					txt.text = ((long)(App.ins.self.gamePlayer.Item((int)ITEMID.GOLD) * val / 100.0f)).ShowAsGold();
+					txt.text = ((long)(App.ins.self.Item(ITEMID.GOLD) * val / 100.0f)).ShowAsGold();
 				});
 
 				var btn_Reset = PutView.FindChildDeeply("btn_Reset").GetComponent<Button>();
@@ -314,18 +314,18 @@ namespace Hotfix.Common
 			GetBankInfo();
 
 			ShowFirstTab_();
-			App.ins.self.gamePlayer.onDataChanged += OnUserDataChanged;
+			App.ins.self.onDataChanged += OnUserDataChanged;
 		}
 
 		protected override void OnClose()
 		{
-			App.ins.self.gamePlayer.onDataChanged -= OnUserDataChanged;
+			App.ins.self.onDataChanged -= OnUserDataChanged;
 		}
 
 		void OnUserDataChanged(object sender, System.EventArgs evt)
 		{
-			goldText.text = App.ins.self.gamePlayer.items.GetVal((int)ITEMID.GOLD).ShowAsGold();
-			bankGoldText.text = App.ins.self.gamePlayer.items.GetVal((int)ITEMID.BANK_GOLD).ShowAsGold();
+			goldText.text = App.ins.self.Item(ITEMID.GOLD).ShowAsGold();
+			bankGoldText.text = App.ins.self.Item(ITEMID.BANK_GOLD).ShowAsGold();
 		}
 
 		void ShowFirstTab_()
@@ -343,8 +343,8 @@ namespace Hotfix.Common
 			msg_get_bank_info msg = new msg_get_bank_info();
 			App.ins.network.Rpc((ushort)CorReqID.msg_get_bank_info, msg, (ushort)CorRspID.msg_get_bank_info_ret, (cmd, json) => {
 				var info = JsonMapper.ToObject<msg_get_bank_info_ret>(json);
-				App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.BANK_GOLD, long.Parse(info.bank_gold_game_));
-				App.ins.self.gamePlayer.DispatchDataChanged();
+				App.ins.self.items.SetKeyVal((int)ITEMID.BANK_GOLD, long.Parse(info.bank_gold_game_));
+				App.ins.self.DispatchDataChanged();
 			});
 		}
 
