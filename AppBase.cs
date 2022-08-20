@@ -25,5 +25,11 @@ namespace Hotfix.Common
 		{
 			game?.Update();
 		}
+
+		//本游戏即将退出,请清理需要清理的协程,事件回调之类,避免在游戏退出过程中报错.
+		public virtual void AboutToStop()
+		{
+			
+		}
 	}
 }

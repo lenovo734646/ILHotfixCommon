@@ -542,7 +542,7 @@ namespace Hotfix.Common
 			isReconnecting_ = true;
 			MyDebug.LogFormat("Reconnecting");
 
-			var handle1 = App.ins.CheckUpdateAndRun(App.ins.currentGameConfig, null, false);
+			var handle1 = App.ins.CoCheckUpdateAndRun(App.ins.currentGameConfig, null, false);
 			yield return handle1;
 			if ((Co.Result)handle1.Current == Co.Result.Failure) {
 				MyDebug.LogFormat("CheckUpdateAndRun failed.");

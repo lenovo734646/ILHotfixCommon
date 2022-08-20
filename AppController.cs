@@ -63,7 +63,7 @@ namespace Hotfix.Common
 			
 		}
 
-		IEnumerator DoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
+		IEnumerator CoDoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
 			MyDebug.LogFormat("===================>CheckUpdateAndRun showlogin={0}", showLogin);
 
@@ -74,6 +74,7 @@ namespace Hotfix.Common
 			}
 
 			AppBase oldApp = currentApp;
+			currentApp?.AboutToStop();
 			//清理本游戏声音资源
 			audio.StopAll();
 			currentApp = null;
@@ -123,7 +124,7 @@ namespace Hotfix.Common
 					}
 					//如果登录游戏失败,返回登录大厅
 					else {
-						yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
+						yield return CoDoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 					}
 				}
 			}
@@ -135,7 +136,7 @@ namespace Hotfix.Common
 
 		Clean:
 			if (ins.conf.defaultGame != conf) {
-				yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
+				yield return CoDoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 			}
 			else {
 				ip?.Desc(LangNetWork.GameStartFailed);
@@ -143,11 +144,11 @@ namespace Hotfix.Common
 			}
 		}
 
-		public IEnumerator CheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
+		public IEnumerator CoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
 			if (!runningGame_) {
 				runningGame_ = true;
-				yield return DoCheckUpdateAndRun(conf, ip, showLogin);
+				yield return CoDoCheckUpdateAndRun(conf, ip, showLogin);
 				runningGame_ = false;
 			}
 		}
@@ -175,7 +176,7 @@ namespace Hotfix.Common
 			network.RegisterMsgHandler((int)AccRspID.msg_same_account_login, (cmd, json) => {
 				ins.disableNetwork = true;
 				ViewPopup.Create(LangUITip.SameAccountLogin, ViewPopup.Flag.BTN_OK_ONLY, () => {
-					ins.StartCor(ins.CheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
+					ins.StartCor(ins.CoCheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
 				});
 			}, this);
 
@@ -233,7 +234,7 @@ namespace Hotfix.Common
 			progressOfLoading.Reset();
 
 			yield return CachedResources_();
-			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
+			yield return CoCheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
 		IEnumerator DoLazyUpdate()
