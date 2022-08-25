@@ -20,6 +20,12 @@ namespace Hotfix.Common
 	//AppController,资源生存周期与整个APP一样
 	public class ResourceMonitor : ControllerBase
 	{
+		public enum Result
+		{
+			Failure,
+			Success,
+		}
+
 		public void LoadAssets<T>(string path, Action<AddressablesLoader.LoadTask<T>> callback) where T : UnityEngine.Object
 		{
 			Action<AddressablesLoader.LoadTask<T>> callbackWrapper = (AddressablesLoader.LoadTask<T> loader) => {
@@ -30,7 +36,7 @@ namespace Hotfix.Common
 			resourceLoader_.Add(Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading)); 
 		}
 
-		public override void Stop()
+		public override void OnStop()
 		{
 			ClearResource();
 		}
@@ -148,10 +154,9 @@ namespace Hotfix.Common
 			return finished_;
 		}
 
-		public override void Stop()
+		public override void OnStop()
 		{
 			RemoveInstance();
-			base.Stop();
 		}
 
 		//每个View必须要调用这个Close才能正确的释放资源.

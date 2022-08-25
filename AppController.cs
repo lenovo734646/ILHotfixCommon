@@ -22,7 +22,6 @@ namespace Hotfix.Common
 	//热更入口类
 	public class App : ResourceMonitor
 	{
-		public class GameRunQueue { };
 		public App()
 		{
 			ins = this;
@@ -56,10 +55,10 @@ namespace Hotfix.Common
 		Clean:
 			if (!succ) {
 				MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
-				yield return Co.Result.Failure;
+				yield return Result.Failure;
 			}
 			else
-				yield return Co.Result.Success;
+				yield return Result.Success;
 			
 		}
 
@@ -69,7 +68,7 @@ namespace Hotfix.Common
 
 			var chkUpdate = DoCheckUpdate(conf, ip);
 			yield return chkUpdate;
-			if ((Co.Result)chkUpdate.Current != Co.Result.Success) {
+			if ((Result)chkUpdate.Current != Result.Success) {
 				goto Clean;
 			}
 
@@ -85,7 +84,7 @@ namespace Hotfix.Common
 				var handleSess = network.CoValidSession();
 				yield return handleSess;
 
-				if ((Co.Result)handleSess.Current != Co.Result.Success) {
+				if ((Result)handleSess.Current != Result.Success) {
 					if (ins.conf.defaultGame == conf) {
 						MyDebug.LogFormat("network.ValidSession failed, will show login.");
 						showLogin = true;
@@ -117,7 +116,7 @@ namespace Hotfix.Common
 				var loginHandle = network.CoEnterGame(conf);
 				yield return loginHandle;
 				//登录失败
-				if ((Co.Result)loginHandle.Current == Co.Result.Failure) {
+				if ((Result)loginHandle.Current == Result.Failure) {
 					//如果是登录大厅失败,返回登录界面
 					if (conf == ins.conf.defaultGame) {
 						yield return currentApp.game.ShowLogin();
@@ -131,7 +130,7 @@ namespace Hotfix.Common
 
 			//清理旧游戏资源
 			oldApp?.Stop();
-			yield return Co.Result.Success;
+			yield return Result.Success;
 			yield break;
 
 		Clean:
@@ -140,7 +139,7 @@ namespace Hotfix.Common
 			}
 			else {
 				ip?.Desc(LangNetWork.GameStartFailed);
-				yield return Co.Result.Failure;
+				yield return Result.Failure;
 			}
 		}
 
@@ -262,13 +261,12 @@ namespace Hotfix.Common
 			if(currentApp != null) currentApp.Update();
 		}
 
-		public override void Stop()
+		public override void OnStop()
 		{
 			audio.Stop();
 			if (currentApp != null) currentApp.Stop();
 			network.Stop();
 
-			this.StopAllCor();
 			base.Stop();
 		}
 		public static App ins = null;
@@ -292,7 +290,7 @@ namespace Hotfix.Common
 		public AudioManager audio = new AudioManager();
 
 		List<string> cachedCatalog = new List<string>();
-		GameRunQueue runQueue = new GameRunQueue();
+		ControllerBase runQueue = new ControllerBase();
 		bool runningGame_ = false;
 
 	}

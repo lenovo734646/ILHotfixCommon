@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static AssemblyCommon.MySocket;
+using static Hotfix.Common.ResourceMonitor;
 
 namespace Hotfix.Lobby
 {
@@ -55,12 +56,12 @@ namespace Hotfix.Lobby
 			var handle = App.ins.network.CoRpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb);
 			yield return handle;
 
-			Co.Result result = Co.Result.Failure;
+			Result result = Result.Failure;
 			var msgRet = (MsgRpcRet)handle.Current;
 			if (msgRet.err_ == 0) {
 				var msg1 = (msg_handshake_ret)msgRet.msg;
 				if (msg1.ret_ == "0") {
-					result = Co.Result.Success;
+					result = Result.Success;
 				}
 				else {
 					if (msg1 != null) MyDebug.LogFormat("Handshake failed with:{0}", msg1.ret_);
@@ -119,7 +120,7 @@ namespace Hotfix.Lobby
 			
 			var wait1 = Globals.net.WaitingForReady(App.ins.conf.networkTimeout);
 			yield return wait1;
-			if((Co.Result)wait1.Current == Co.Result.Failure) {
+			if((Result)wait1.Current == Result.Failure) {
 				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 				MyDebug.LogFormat("KoKoSession failed with !Globals.net.IsWorking()");
 				goto Clean;
@@ -134,7 +135,7 @@ namespace Hotfix.Lobby
 				var handle1 = Handshake_();
 				yield return handle1;
 				//如果握手失败
-				if ((Co.Result)handle1.Current != Co.Result.Success) {
+				if ((Result)handle1.Current != Result.Success) {
 					progressOfLoading?.Desc(LangNetWork.HandShakeFailed);
 					MyDebug.LogFormat("KoKoSession failed with Handshake");
 					goto Clean;
@@ -167,7 +168,7 @@ namespace Hotfix.Lobby
 
 		//session手动关闭,不重连
 		//Global.net.Stop 关闭网络连接,会自动重连
-		public override void Stop()
+		public override void OnStop()
 		{
 			if (closeByManual <= 2)
 				closeByManual = 4;

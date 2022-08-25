@@ -32,10 +32,9 @@ namespace Hotfix.Common
 		}
 
 		//停止这个模块
-		public override void Stop()
+		public override void OnStop()
 		{
 			StopAll();
-			base.Stop();
 		}
 
 		public void PlayMusicOneShot(string path)

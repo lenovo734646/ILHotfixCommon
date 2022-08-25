@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static AssemblyCommon.MySocket;
+using static Hotfix.Common.ResourceMonitor;
 
 namespace Hotfix.Common
 {
@@ -285,14 +286,14 @@ namespace Hotfix.Common
 				}
 
 				if (!session.IsWorking()) {
-					yield return Co.Result.Failure;
+					yield return Result.Failure;
 				}
 				else {
-					yield return Co.Result.Success;
+					yield return Result.Success;
 				}
 			}
 			else
-				yield return Co.Result.Success;
+				yield return Result.Success;
 		}
 
 		public MsgRpcRet RPCCallback<T>(int cmd, string json, int reqID) where T: MsgBase
@@ -327,7 +328,7 @@ namespace Hotfix.Common
 
 			var handleSession = CoValidSession();
 			yield return handleSession;
-			if ((Co.Result)handleSession.Current == Co.Result.Failure) {
+			if ((Result)handleSession.Current == Result.Failure) {
 				MyDebug.LogFormat("AutoLogin failed on valid session fail.");
 				goto Clean;
 			}
@@ -443,10 +444,10 @@ namespace Hotfix.Common
 		Clean:
 			if (!succ) {
 				MyDebug.LogFormat("auto login failed.");
-				yield return Co.Result.Failure;
+				yield return Result.Failure;
 			}
 			else {
-				yield return Co.Result.Success;
+				yield return Result.Success;
 			}
 		}
 
@@ -493,10 +494,10 @@ namespace Hotfix.Common
 			lastRoomid = roomid;
 		Clean:
 			if (!succ) {
-				yield return Co.Result.Failure;
+				yield return Result.Failure;
 			}
 			else {
-				yield return Co.Result.Success;
+				yield return Result.Success;
 			}
 			
 		}
@@ -544,7 +545,7 @@ namespace Hotfix.Common
 
 			var handle1 = App.ins.CoCheckUpdateAndRun(App.ins.currentGameConfig, null, false);
 			yield return handle1;
-			if ((Co.Result)handle1.Current == Co.Result.Failure) {
+			if ((Result)handle1.Current == Result.Failure) {
 				MyDebug.LogFormat("CheckUpdateAndRun failed.");
 				goto Clean;
 			}
@@ -553,7 +554,7 @@ namespace Hotfix.Common
 			if (lastState == SessionBase.EnState.Gaming) {
 				var handle3 = CoEnterGameRoom(lastConfigid, lastRoomid);
 				yield return handle3;
-				if((Co.Result)handle3.Current == Co.Result.Failure) { 
+				if((Result)handle3.Current == Result.Failure) { 
 					MyDebug.LogFormat("EnterGameRoom failed.");
 					goto Clean;
 				}
@@ -565,12 +566,12 @@ namespace Hotfix.Common
 			ViewToast.Clear();
 			isReconnecting_ = false;
 			if (succ) {
-				yield return Co.Result.Success;
+				yield return Result.Success;
 			}
 			else {
 				Globals.net.Stop();
 				MyDebug.LogFormat("Reconnecting failed.");
-				yield return Co.Result.Failure;
+				yield return Result.Failure;
 			}
 		}
 
@@ -586,7 +587,7 @@ namespace Hotfix.Common
 			}, this);
 		}
 
-		public override void Stop()
+		public override void OnStop()
 		{
 			session.Stop();
 		}

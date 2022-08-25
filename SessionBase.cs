@@ -79,9 +79,8 @@ namespace Hotfix.Common
 			return closeByManual != 4;
 		}
 
-		public override void Stop()
+		public override void OnStop()
 		{
-			throw new NotImplementedException();
 		}
 
 		public EnState st = EnState.Initiation;

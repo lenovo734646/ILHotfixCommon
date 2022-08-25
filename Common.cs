@@ -44,7 +44,7 @@ namespace Hotfix.Common
 			//同时访问网站
 			foreach (var i in App.ins.conf.webRoots) {
 				var handle = GetRequest(i.Key, i.Value, "koko-manage2/third/checkservice.htm");
-				ids.Add(lst.StartCor(handle, false));
+				ids.Add(App.ins.StartCor(handle, false));
 				lst.Add(handle);
 			}
 
@@ -53,7 +53,7 @@ namespace Hotfix.Common
 			TimeCounter tc = new TimeCounter("");
 			while (!finded && tc.Elapse() < App.ins.conf.networkTimeout) { 
 				for (int i = 0; i < ids.Count; i++) {
-					if (!Globals.cor.isRuning(ids[i])) {
+					if (!Globals.CoIsRunning(ids[i])) {
 						if ((string)lst[i].Current == ServiceAvailableCode) {
 							finded = true;
 							usingWebHost_ = lHosts[i];

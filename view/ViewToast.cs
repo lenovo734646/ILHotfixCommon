@@ -60,7 +60,7 @@ namespace Hotfix.Common
 				txt.text = text_;
 
 				if (autoCloseTime_ > 0.01f) {
-					Globals.cor.RunAction(this, autoCloseTime_, () => {
+					this.RunAction(autoCloseTime_, () => {
 						Close();
 					});
 				}

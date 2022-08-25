@@ -14,7 +14,7 @@ namespace Hotfix.Model
 		BANK_GOLD = 5,
 	}
 
-	public class PlayerBase
+	public class PlayerBase : ControllerBase
 	{
 		public string nickName;
 		public Dictionary<int, long> items = new Dictionary<int, long>();
@@ -64,8 +64,6 @@ namespace Hotfix.Model
 			var texture = App.ins.headFrames[ico];
 			img.ChangeSprite(texture);
 		}
-		public virtual void Update() { }
-		public virtual void Destroy() { }
 	}
 
 	//玩家时数据

@@ -195,13 +195,13 @@ namespace Hotfix.Common
 			}
 		}
 
-		public override void Stop()
+		public override void OnStop()
 		{
 			CloseAllView();
 			App.ins.network.RemoveMsgHandler(this);
 			var arr = players.ToArray();
 			for (int i = 0; i < arr.Count; i++) {
-				arr[i].Value.Destroy();
+				arr[i].Value.Stop();
 			}
 		}
 		
@@ -261,6 +261,9 @@ namespace Hotfix.Common
 
 		public void RemovePlayer(int serverPos)
 		{
+			if (players.ContainsKey(serverPos)) {
+				players[serverPos].Stop();
+			}
 			players.Remove(serverPos);
 		}
 
