@@ -38,13 +38,11 @@ namespace Hotfix.Common
 				yield return handleCatalog;
 				//失败继续,这里不用goto
 				//if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
-
+				MyDebug.LogFormat("DownloadDependency:{0}", conf.folder);
 				var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
 				yield return handleDep;
 
 				if (handleDep.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
-				MyDebug.LogFormat("DownloadDependency:{0}", address);
-
 
 				succ = true;
 			}
