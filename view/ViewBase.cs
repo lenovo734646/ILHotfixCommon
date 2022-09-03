@@ -243,15 +243,27 @@ namespace Hotfix.Common
 
 		protected IEnumerator ReadyResource()
 		{
+			bool hasFailed = false;
 			foreach (var it in resNames_) {
-				var obj = it.loader.Instantiate();
-				if (it.isMain) mainObject_ = obj;
-				if (it.callback != null) it.callback(obj);
-				objs.Add(obj);
+				if(it.loader.status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded) {
+					var obj = it.loader.Instantiate();
+					if (it.isMain) mainObject_ = obj;
+					if (it.callback != null) it.callback(obj);
+					objs.Add(obj);
+				}
+				else {
+					hasFailed = true;
+				}
+			}
+
+			if (!hasFailed)
+				//这里很重要,要停一下
+				yield return OnResourceReady();
+			else {
+				MyDebug.LogWarningFormat("some resouce of the view load failed.{0}", resNames_[0].assetPath);
+				yield return 0;
 			}
 			resNames_.Clear();
-			//这里很重要,要停一下
-			yield return OnResourceReady();
 		}
 
 		protected abstract IEnumerator OnResourceReady();
