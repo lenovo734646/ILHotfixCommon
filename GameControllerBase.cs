@@ -176,7 +176,7 @@ namespace Hotfix.Common
 			yield return 0;
 		}
 
-		public override void Update()
+		public override void LazyUpdate()
 		{
 			if (prepared_) {
 				for (int i = 0; i < closing_.Count; i++) {
