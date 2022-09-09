@@ -79,10 +79,6 @@ namespace Hotfix.Common
 			return closeByManual != 4;
 		}
 
-		public override void OnStop()
-		{
-		}
-
 		public EnState st = EnState.Initiation;
 	}
 }

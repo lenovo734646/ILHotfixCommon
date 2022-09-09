@@ -502,14 +502,16 @@ namespace Hotfix.Common
 			
 		}
 
-		public override void LazyUpdate()
+		protected override void OnLazyUpdate()
 		{
-			if (checkSeesionTc_.Elapse() > 5.0f && App.ins.network.session != null) {
+			session?.LazyUpdate();
+
+			if (checkSeesionTc_.Elapse() > 5.0f && session != null) {
 				checkSeesionTc_.Restart();
 				if (!App.ins.disableNetwork &&
-					!App.ins.network.session.IsWorking() &&
-					!App.ins.network.IsReconnecting()) {
-					this.StartCor(App.ins.network.CoRecounnect(), true);
+					!session.IsWorking() &&
+					!IsReconnecting()) {
+					this.StartCor(CoRecounnect(), true);
 				}
 			}
 
@@ -527,7 +529,7 @@ namespace Hotfix.Common
 			}
 		}
 
-		public override void Update()
+		protected override void OnUpdate()
 		{
 			Globals.net?.Update();
 		}
@@ -580,14 +582,15 @@ namespace Hotfix.Common
 			return lastPingSend_;
 		}
 
-		public override void Start()
+		protected override IEnumerator OnStart()
 		{
 			RegisterMsgHandler((int)INT_MSGID.INTERNAL_MSGID_PING, (cmd, json) => {
 				HandlePing_();
 			}, this);
+			yield break;
 		}
 
-		public override void OnStop()
+		protected override void OnStop()
 		{
 			session.Stop();
 		}

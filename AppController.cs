@@ -16,6 +16,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static Hotfix.Common.ResourceMonitor;
 
 namespace Hotfix.Common
 {
@@ -25,6 +26,8 @@ namespace Hotfix.Common
 		public App()
 		{
 			ins = this;
+			AddChild(network);
+			AddChild(audio);
 		}
 
 		public IEnumerator DoCheckUpdate(GameConfig conf, IShowDownloadProgress ip)
@@ -101,7 +104,8 @@ namespace Hotfix.Common
 			currentApp = (AppBase)Activator.CreateInstance(entryClass);
 			currentApp.progressOfLoading = ip;
 			currentApp.Start();
-			yield return currentApp.CoStart();
+			AddChild(currentApp);
+
 			yield return currentApp.WaitingForReady();
 
 			network.lastState = SessionBase.EnState.Initiation;
@@ -150,22 +154,31 @@ namespace Hotfix.Common
 			}
 		}
 
+		//只是为了ILRuntime能调用到函数
 		public override void Start()
 		{
-			
+			base.Start();
+		}
+		//只是为了ILRuntime能调用到函数
+		public override void Update()
+		{
+			base.Update();
+		}
+		//只是为了ILRuntime能调用到函数
+		public override void Stop()
+		{
+			base.Stop();
+		}
+
+		protected override IEnumerator OnStart()
+		{
 			MyDebug.LogFormat("Hotfix Module Begins.");
 			//注册protobuf类
 			ILRuntime_CLGT.Initlize();
 			ILRuntime_CLPF.Initlize();
 			ILRuntime_Global.Initlize();
-
-			network.Start();
-
 			InstallMsgHandler();
-			audio.Start();
-
-			runQueue.StartCor(DoStart_(), true);
-			this.StartCor(DoLazyUpdate(), false);
+			yield return DoStart_();
 		}
 
 		public void InstallMsgHandler()
@@ -230,6 +243,8 @@ namespace Hotfix.Common
 			progressOfLoading = progressFromHost;
 			progressOfLoading.Reset();
 
+			StartCor(DoLazyUpdate(), false);
+
 			yield return CachedResources_();
 			yield return CoCheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
@@ -245,28 +260,12 @@ namespace Hotfix.Common
 					longp.Value.Trigger();
 				}
 
-				for(int i = 0; i  < instances.Count; i++) {
-					if(instances[i].IsReady())
-						instances[i].LazyUpdate();
-				}
+				LazyUpdate();
+
 				yield return new WaitForSeconds(0.1f);
 			}
 		}
 
-		public override  void Update()
-		{
-			network.Update();
-			if(currentApp != null) currentApp.Update();
-		}
-
-		public override void OnStop()
-		{
-			audio.Stop();
-			if (currentApp != null) currentApp.Stop();
-			network.Stop();
-
-			base.Stop();
-		}
 		public static App ins = null;
 		public Config conf = new Config();
 		public AppBase currentApp = null;

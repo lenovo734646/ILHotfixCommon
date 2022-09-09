@@ -317,7 +317,7 @@ namespace Hotfix.Common
 			App.ins.self.onDataChanged += OnUserDataChanged;
 		}
 
-		protected override void OnClose()
+		protected override void OnStop()
 		{
 			App.ins.self.onDataChanged -= OnUserDataChanged;
 		}

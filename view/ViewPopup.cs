@@ -145,7 +145,7 @@ namespace Hotfix.Common
 			base.Close();
 		}
 
-		protected override void OnClose()
+		protected override void OnStop()
 		{
 			if(opening != null) {
 				this.StartCor(DoClose(), true);

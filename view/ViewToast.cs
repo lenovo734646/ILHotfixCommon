@@ -36,7 +36,7 @@ namespace Hotfix.Common
 			opening = this;
 		}
 
-		protected override void OnClose()
+		protected override void OnStop()
 		{
 			opening = null;
 		}

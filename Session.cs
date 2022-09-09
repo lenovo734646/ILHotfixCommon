@@ -14,7 +14,7 @@ namespace Hotfix.Lobby
 {
 	public class KoKoSession : SessionBase
 	{
-		public override void Update()
+		protected override void OnLazyUpdate ()
 		{
 			if (pingTimer_.Elapse() > 2.0f) {
 				pingTimer_.Restart();
@@ -101,7 +101,7 @@ namespace Hotfix.Lobby
 			}
 		}
 
-		IEnumerator DoStart()
+		protected override IEnumerator OnStart()
 		{
 			MyDebug.LogFormat("New FLLSession Runing:{0}", GetHashCode());
 			st = EnState.HandShake;
@@ -147,7 +147,6 @@ namespace Hotfix.Lobby
 			st = EnState.HandShakeSucc;
 			closeByManual = 2;
 			while (Globals.net.IsWorking() && closeByManual == 2) {
-				Update();
 				yield return new WaitForSeconds(0.1f);
 			}
 			MyDebug.LogFormat("Session will exit! Globals.net.IsWorking():{0}, closeByManual:{1}", Globals.net.IsWorking(), closeByManual);
@@ -159,21 +158,13 @@ namespace Hotfix.Lobby
 			ViewToast.Clear();
 		}
 
-		public override void Start()
-		{
-			MyDebug.LogFormat("New FLLSession Start {0}", GetHashCode());
-			//这个协程进行排队.避免多个一起进行
-			App.ins.StartCor(DoStart(), true);
-		}
-
 		//session手动关闭,不重连
 		//Global.net.Stop 关闭网络连接,会自动重连
-		public override void OnStop()
+		protected override void OnStop()
 		{
 			if (closeByManual <= 2)
 				closeByManual = 4;
 			MyDebug.LogFormat("====>Session Stop:{0}", closeByManual);
-			RemoveInstance();
 		}
 
 		//获取消息延时

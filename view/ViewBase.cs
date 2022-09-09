@@ -36,7 +36,7 @@ namespace Hotfix.Common
 			resourceLoader_.Add(Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading)); 
 		}
 
-		public override void OnStop()
+		protected override void OnStop()
 		{
 			ClearResource();
 		}
@@ -74,6 +74,7 @@ namespace Hotfix.Common
 	//画布命名使用Canvas
 	public abstract class ViewBase : ResourceMonitor
 	{
+		public System.WeakReference<GameControllerBase> parent = null;
 		public class ViewLoadTask<T> where T : UnityEngine.Object
 		{
 			public string assetPath;
@@ -81,6 +82,7 @@ namespace Hotfix.Common
 			public Action<T> callback;
 			public bool isMain = false;
 		}
+
 		public ViewBase(IShowDownloadProgress loadingProgress)
 		{
 			progressOfLoading = loadingProgress;
@@ -143,9 +145,9 @@ namespace Hotfix.Common
 			if (obj != null) GameObject.Destroy(obj);
 		}
 
-		public override void Start()
+		protected override IEnumerator OnStart()
 		{
-			this.StartCor(DoStart_(), false);
+			yield return DoStart_();
 		}
 
 		public override bool IsReady()
@@ -154,22 +156,20 @@ namespace Hotfix.Common
 			return finished_;
 		}
 
-		public override void OnStop()
+		public void Close()
 		{
-			RemoveInstance();
+			GameControllerBase ctrl;
+			if(parent != null && parent.TryGetTarget(out ctrl)) {
+				ctrl.OnViewClosed(this);
+			}
 		}
 
-		//每个View必须要调用这个Close才能正确的释放资源.
-		//跳过这个直接清理了Canvas会造成资源泄露,
-		//Adressable资源不能正确释放
-		public  void Close()
+		protected override void OnStop()
 		{
-			OnClose();
 			ClosedEvent?.Invoke(this, new EventArgs());
-			App.ins.currentApp?.game?.OnViewClosed(this);
 			//按加载顺序倒着释放
 			objs.Reverse();
-			foreach(var obj in objs) {
+			foreach (var obj in objs) {
 				GameObject.Destroy(obj);
 			}
 			objs.Clear();
@@ -178,15 +178,6 @@ namespace Hotfix.Common
 			resScenes_ = null;
 
 			App.ins.network.RemoveMsgHandler(this);
-
-			//停止本窗口所有协程
-			this.StopCor(-1);
-			Stop();
-		}
-
-		protected virtual void OnClose()
-		{
-			
 		}
 
 		IEnumerator LoadResources()

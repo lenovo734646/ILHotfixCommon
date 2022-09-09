@@ -8,21 +8,14 @@ namespace Hotfix.Common
 	//每个小游戏都有一个MyApp,
 	public class AppBase : ResourceMonitor
 	{
+		GameControllerBase game_ = null;
 		//每个小游戏都有一个GameController
-		public GameControllerBase game = null;
-		public virtual IEnumerator CoStart()
-		{
-			yield return game?.CoStart();
-		}
-
-		public override void OnStop()
-		{
-			game?.Stop();
-		}
-
-		public override void Update()
-		{
-			game?.Update();
+		public GameControllerBase game {
+			set { 
+				AddChild(value);
+				game_ = value;
+			}
+			get { return game_; }
 		}
 	}
 }

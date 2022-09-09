@@ -59,7 +59,8 @@ namespace Hotfix.Common
 		//创建和管理View
 		public void OpenView(ViewBase view)
 		{
-			views_.Add(view);
+			view.parent = new WeakReference<GameControllerBase>(this);
+			AddChild(view);
 			view.Start();
 		}
 
@@ -67,17 +68,6 @@ namespace Hotfix.Common
 		{
 			closing_.Add(view);
 		}
-
-		public void CloseAllView()
-		{
-			List<ViewBase> viewsCopy = new List<ViewBase>();
-			viewsCopy.AddRange(views_);
-			foreach (var view in viewsCopy) {
-				view.Close();
-			}
-			views_.Clear();
-		}
-
 
 		public virtual IEnumerator ShowLogin()
 		{
@@ -169,40 +159,26 @@ namespace Hotfix.Common
 			yield return 0;
 		}
 
-		public virtual IEnumerator CoStart()
+		protected override IEnumerator OnStart()
 		{
 			UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
 			InstallMsgHandler();
 			yield return 0;
 		}
 
-		public override void LazyUpdate()
+		protected override void OnLazyUpdate()
 		{
 			if (prepared_) {
 				for (int i = 0; i < closing_.Count; i++) {
-					views_.Remove(closing_[i]);
+					closing_[i].Stop();
 				}
 				closing_.Clear();
-
-				for (int i = 0; i < views_.Count; i++) {
-					views_[i].Update();
-				}
-
-				var arr = players.ToArray();
-				for (int i = 0; i < arr.Count; i++) {
-					arr[i].Value.Update();
-				}
 			}
 		}
 
-		public override void OnStop()
+		protected override void OnStop()
 		{
-			CloseAllView();
 			App.ins.network.RemoveMsgHandler(this);
-			var arr = players.ToArray();
-			for (int i = 0; i < arr.Count; i++) {
-				arr[i].Value.Stop();
-			}
 		}
 		
 		public virtual GamePlayer CreateGamePlayer()
@@ -217,6 +193,7 @@ namespace Hotfix.Common
 			}
 			players.Add(p.serverPos, p);
 			OnAddPlayer(p);
+			AddChild(p);
 		}
 
 		public virtual void OnAddPlayer(GamePlayer p)
@@ -270,7 +247,6 @@ namespace Hotfix.Common
 		public DictionaryCached<int, GamePlayer> players = new DictionaryCached<int, GamePlayer>();
 		
 		List<ViewBase> closing_ = new List<ViewBase>();
-		List<ViewBase> views_ = new List<ViewBase>();
 		bool prepared_ = true;
 	}
 

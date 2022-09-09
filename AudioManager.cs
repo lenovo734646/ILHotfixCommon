@@ -13,10 +13,11 @@ namespace Hotfix.Common
 {
 	public class AudioManager:ResourceMonitor
 	{
-		public override void Start()
+		protected override IEnumerator OnStart()
 		{
 			//加入音乐播放
 			audioMusic = BridgeToHotfix.ins.gameObject.AddComponent<AudioSource>();
+			yield return 0;
 		}
 
 		//停止所有声音
@@ -32,7 +33,7 @@ namespace Hotfix.Common
 		}
 
 		//停止这个模块
-		public override void OnStop()
+		protected override void OnStop()
 		{
 			StopAll();
 		}
