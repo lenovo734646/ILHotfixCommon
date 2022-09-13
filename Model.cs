@@ -23,6 +23,7 @@ namespace Hotfix.Model
 		public int lv;
 		public string headIco;
 		public string headFrame;
+		public bool isBot = false;
 		public event System.EventHandler onDataChanged;
 		public long Item(ITEMID id)
 		{

@@ -173,6 +173,11 @@ namespace Hotfix.Lobby
 			return pingTimeCost_ / pingSucc_;
 		}
 
+		public override bool IsReady()
+		{
+			return st == EnState.HandShakeSucc;
+		}
+
 		TimeCounter pingTimer_ = new TimeCounter("");
 		TimeCounter pingCostCounter_ = new TimeCounter("");
 		float pingTimeCost_ = 0.0f;

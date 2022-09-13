@@ -194,6 +194,7 @@ namespace Hotfix.Common
 			players.Add(p.serverPos, p);
 			OnAddPlayer(p);
 			AddChild(p);
+			p.Start();
 		}
 
 		public virtual void OnAddPlayer(GamePlayer p)
