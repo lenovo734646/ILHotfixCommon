@@ -178,6 +178,11 @@ namespace Hotfix.Lobby
 			return st == EnState.HandShakeSucc;
 		}
 
+		public override string GetDebugInfo()
+		{
+			return "KOKOSession";
+		}
+
 		TimeCounter pingTimer_ = new TimeCounter("");
 		TimeCounter pingCostCounter_ = new TimeCounter("");
 		float pingTimeCost_ = 0.0f;

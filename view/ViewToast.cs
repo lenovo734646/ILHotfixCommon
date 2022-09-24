@@ -22,22 +22,24 @@ namespace Hotfix.Common
 
 		public static ViewToast Create(string content, float autoCloseTime = 3.0f)
 		{
+			if (opening != null) {
+				opening.Close();
+			}
+			MyDebug.LogFormat("ViewToastCreate:{0}", content);
 			ViewToast toast = new ViewToast(null);
 			toast.SetParams(content, autoCloseTime);
-			toast.Start();
+			App.ins.currentApp.game.OpenView(toast);
 			return toast;
 		}
 
 		public ViewToast(IShowDownloadProgress ip) : base(ip)
 		{
-			if (opening != null) {
-				opening.Close();
-			}
-			opening = this;
+			
 		}
 
 		protected override void OnStop()
 		{
+			GameObject.Destroy(mainObject_);
 			opening = null;
 		}
 
@@ -54,18 +56,18 @@ namespace Hotfix.Common
 
 		protected override IEnumerator OnResourceReady()
 		{
-			var canv = GameObject.Find("Canvas");
-			if(canv != null) {
-				var txt = canv.FindChildDeeply("Text_tips").GetComponent<Text>();
-				txt.text = text_;
 
-				if (autoCloseTime_ > 0.01f) {
-					this.RunAction(autoCloseTime_, () => {
-						Close();
-					});
-				}
+			var txt = mainObject_.FindChildDeeply("Text_tips").GetComponent<Text>();
+			txt.text = text_;
+
+			if (autoCloseTime_ > 0.01f) {
+				App.ins.RunAction(autoCloseTime_, () => {
+					Close();
+				});
 			}
+
 			mainObject_?.DoPopup();
+			opening = this;
 			yield return 0;
 		}
 

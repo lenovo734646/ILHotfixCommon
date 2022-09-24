@@ -235,10 +235,12 @@ namespace Hotfix.Common
 
 		public IEnumerator WaitResult()
 		{
+			isWaiting = true;
 			while(!resultSetted) {
 				yield return 0;
 			}
 			yield return 1;
+			isWaiting = false;
 		}
 		
 		public T result
@@ -248,6 +250,7 @@ namespace Hotfix.Common
 
 		T result_;
 		bool resultSetted = false;
+		public bool isWaiting = false;
 	}
 
 	public static class Utils

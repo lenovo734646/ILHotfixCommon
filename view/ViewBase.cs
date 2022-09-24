@@ -18,7 +18,7 @@ namespace Hotfix.Common
 	//ViewBase, 资源生存周期和视图一样
 	//AppBase,资源生存周期和游戏一样
 	//AppController,资源生存周期与整个APP一样
-	public class ResourceMonitor : ControllerBase
+	public abstract class ResourceMonitor : ControllerBase
 	{
 		public enum Result
 		{
@@ -101,6 +101,11 @@ namespace Hotfix.Common
 					canv = can.gameObject;
 			}
 			return canv;
+		}
+
+		public override string GetDebugInfo()
+		{
+			return "ViewBase";
 		}
 
 		public static GameObject GetPopupLayer()
@@ -331,19 +336,20 @@ namespace Hotfix.Common
 		//玩家货币变币
 		public virtual void OnGoldChange(msg_deposit_change2 msg)
 		{
-			int pos = App.ins.currentApp.game.Self.serverPos;
-			if (int.Parse(msg.pos_) == pos) {
-				if (int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_sync_gold) {
-					App.ins.currentApp.game.Self.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-					App.ins.currentApp.game.Self.DispatchDataChanged();
-				}
+			if (int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_sync_gold ||
+				int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_gold_change) {
+				if(AssemblyCommon.Config.showNetWorkLog) MyDebug.LogFormat("OnGoldChange:{0}, {1},{2}", msg.pos_, msg.credits_, msg.display_type_);
+				var pp = App.ins.currentApp.game.GetPlayer(int.Parse(msg.pos_));
+				pp.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+				pp.DispatchDataChanged();
 			}
 		}
+
 		//玩家货币变币
 		public virtual void OnGoldChange(msg_currency_change msg)
 		{
-			
-
+			App.ins.currentApp.game.Self?.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+			App.ins.currentApp.game.Self?.DispatchDataChanged();
 		}
 
 		public void OnServerShutdown(msg_system_showdown msg)

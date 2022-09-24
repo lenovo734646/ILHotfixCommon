@@ -12,9 +12,13 @@ namespace Hotfix.Model
 	{
 		GOLD = 1,
 		BANK_GOLD = 5,
+
+		LevelSet = 3000,
+		EXP = 3001,
+		Level = 3002,
 	}
 
-	public class PlayerBase : ControllerBase
+	public abstract class PlayerBase : ControllerBase
 	{
 		public string nickName;
 		public Dictionary<int, long> items = new Dictionary<int, long>();
@@ -71,11 +75,21 @@ namespace Hotfix.Model
 	public class GamePlayer : PlayerBase
 	{
 		public int serverPos;
+
+		public override string GetDebugInfo()
+		{
+			return "GamePlayer";
+		}
 	}
 
 	public class SelfPlayer : PlayerBase
 	{
 		public string bankPsw;
 		public string phone;
+
+		public override string GetDebugInfo()
+		{
+			return "SelfPlayer";
+		}
 	}
 }

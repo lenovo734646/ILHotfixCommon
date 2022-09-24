@@ -266,6 +266,11 @@ namespace Hotfix.Common
 			}
 		}
 
+		public override string GetDebugInfo()
+		{
+			return "AppController";
+		}
+
 		public static App ins = null;
 		public Config conf = new Config();
 		public AppBase currentApp = null;
@@ -287,7 +292,7 @@ namespace Hotfix.Common
 		public AudioManager audio = new AudioManager();
 
 		List<string> cachedCatalog = new List<string>();
-		ControllerBase runQueue = new ControllerBase();
+		ControllerDefault runQueue = new ControllerDefault();
 		bool runningGame_ = false;
 
 	}

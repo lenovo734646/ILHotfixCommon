@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Hotfix.Common
 {
-	public class SessionBase : ControllerBase
+	public abstract class SessionBase : ControllerBase
 	{
 		public enum EnState
 		{

@@ -168,6 +168,11 @@ namespace Hotfix.Common
 			}
 		}
 
+		public override string GetDebugInfo()
+		{
+			return "AudioManager";
+		}
+
 		bool enableEffect_ = true, enableMusic_ = true;
 		AudioSource audioMusic;
 		List<AudioSource> audioEffectPool = new List<AudioSource>();

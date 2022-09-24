@@ -71,6 +71,7 @@ namespace Hotfix.Common
 
 		public bool SendMessage(ushort subCmd, string json, int toserver)
 		{
+			if (!Globals.net.IsWorking()) return false;
 			sendStream_.Reset();
 			MsgJsonForm msg = new MsgJsonForm();
 			msg.subCmd = subCmd;
@@ -86,6 +87,7 @@ namespace Hotfix.Common
 
 		public void SendPing()
 		{
+			if (!Globals.net.IsWorking()) return;
 			lastPingSend_++;
 			sendStream_.Reset();
 			//先写个头长度占位
@@ -655,7 +657,7 @@ namespace Hotfix.Common
 						var succ = msgHandlers.TryGetValue(msg.subCmd, out handlers);
 						if (succ) {
 
-							if(msg.subCmd != 0xFFFF) 
+							if(msg.subCmd != 0xFFFF && AssemblyCommon.Config.showNetWorkLog) 
 								MyDebug.Log(string.Format("Msg is Recved:{0}, {1}", msg.subCmd, msg.content), 3);
 
 							tmpUse.Clear(); tmpUse.AddRange(handlers);
@@ -664,7 +666,7 @@ namespace Hotfix.Common
 							}
 						}
 						else {
-							MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.subCmd, msg.content);
+							if(AssemblyCommon.Config.showNetWorkLog) MyDebug.LogWarningFormat("Msg is ignored:{0}, {1}", msg.subCmd, msg.content);
 						}
 					}
 					break;
@@ -696,7 +698,7 @@ namespace Hotfix.Common
 						HandlePing_();
 					}
 					else {
-						MyDebug.LogWarningFormat("Msg is ignored:{0}", cmd);
+							if (AssemblyCommon.Config.showNetWorkLog) MyDebug.LogWarningFormat("Msg is ignored:{0}", cmd);
 					}
 				}
 				break;
