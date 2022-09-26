@@ -41,6 +41,7 @@ namespace Hotfix.Common
 			BaiJiaLe = 35,
 			JiuXianLaWang = 41,
 			ShuiHuZhuan = 42,
+			ZJH = 12,
 		}
 
 		public const string HuanleBY = "HuanleBY";
@@ -297,6 +298,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
+				game.gameID = GameConfig.GameID.ZJH;
 				games.Add(game.name, game);
 			}
 
