@@ -28,7 +28,7 @@ namespace Hotfix.Common
 			MyDebug.LogFormat("ViewToastCreate:{0}", content);
 			ViewToast toast = new ViewToast(null);
 			toast.SetParams(content, autoCloseTime);
-			App.ins.currentApp.game.OpenView(toast);
+			App.ins.currentApp?.game?.OpenView(toast);
 			return toast;
 		}
 

@@ -168,12 +168,16 @@ namespace Hotfix.Common
 
 		protected override void OnLazyUpdate()
 		{
-			if (prepared_) {
-				for (int i = 0; i < closing_.Count; i++) {
-					closing_[i].Stop();
-				}
-				closing_.Clear();
+			
+		}
+
+		public override void LazyUpdate()
+		{
+			base.LazyUpdate();
+			for (int i = 0; i < closing_.Count; i++) {
+				closing_[i].Stop();
 			}
+			closing_.Clear();
 		}
 
 		protected override void OnStop()
