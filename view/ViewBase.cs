@@ -344,14 +344,21 @@ namespace Hotfix.Common
 					pp.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
 					pp.DispatchDataChanged();
 				}
+
+				if(pp.uid == App.ins.self.uid) {
+					App.ins.self.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+					App.ins.self.DispatchDataChanged();
+				}
 			}
 		}
 
 		//玩家货币变币
 		public virtual void OnGoldChange(msg_currency_change msg)
 		{
-			App.ins.currentApp.game.Self?.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-			App.ins.currentApp.game.Self?.DispatchDataChanged();
+			if (msg.why_ == "0") {
+				App.ins.currentApp.game.Self?.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+				App.ins.currentApp.game.Self?.DispatchDataChanged();
+			}
 		}
 
 		public void OnServerShutdown(msg_system_showdown msg)
