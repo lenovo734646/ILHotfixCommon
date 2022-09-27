@@ -41,6 +41,11 @@ namespace Hotfix.Common
 		{
 			mainView_ = null;
 		}
+		
+		public override string GetDebugInfo()
+		{
+			return "GameController";
+		}
 
 		public ViewGameSceneBase mainView
 		{
@@ -358,6 +363,11 @@ namespace Hotfix.Common
 
 	public abstract class GameControllerSlot : GameControllerBase
 	{
+		public override string GetDebugInfo()
+		{
+			return ToString();
+		}
+
 		protected override void InstallMsgHandler()
 		{
 			base.InstallMsgHandler();
