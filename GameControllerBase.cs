@@ -79,17 +79,6 @@ namespace Hotfix.Common
 			yield return 0;
 		}
 
-		protected virtual IEnumerator OnGameLoginSucc()
-		{
-			yield return 0;
-		}
-
-		public IEnumerator GameLoginSucc()
-		{
-			prepared_ = true;
-			yield return OnGameLoginSucc();
-		}
-
 		protected virtual void InstallMsgHandler()
 		{
 			App.ins.network.RegisterMsgHandler((int)CommID.msg_common_reply, (cmd, json) => {
@@ -144,21 +133,35 @@ namespace Hotfix.Common
 			}, this);
 		}
 
+		public IEnumerator GameLoginSucc()
+		{
+			prepared_ = true;
+			yield return OnGameLoginSucc();
+		}
+
 		public IEnumerator PrepareGameRoom()
 		{
 			yield return OnPrepareGameRoom();
 		}
-		protected virtual IEnumerator OnPrepareGameRoom()
-		{
-			yield return 0;
-		}
-
 		public IEnumerator GameRoomEnterSucc()
 		{
 			isEntering = false;
 			yield return OnGameRoomSucc();
 		}
 
+		//登录游戏服务器成功,要求显示游戏大厅界面
+		protected virtual IEnumerator OnGameLoginSucc()
+		{
+			yield return 0;
+		}
+
+		//进入房间阶段1,服务器位置已锁定,框架要求客户端加载房间资源.
+		protected virtual IEnumerator OnPrepareGameRoom()
+		{
+			yield return 0;
+		}
+
+		//进入游戏房间成功,服务器已经把房间数据同步完成,可以安全使用服务器数据了.
 		protected virtual IEnumerator OnGameRoomSucc()
 		{
 			yield return 0;
@@ -185,11 +188,13 @@ namespace Hotfix.Common
 			closing_.Clear();
 		}
 
-		protected override void OnStop()
+		public override void AboutToStop()
 		{
+			MyDebug.LogFormat("About To Stop GameController");
 			App.ins.network.RemoveMsgHandler(this);
+			base.AboutToStop();
 		}
-		
+
 		public virtual GamePlayer CreateGamePlayer()
 		{
 			return new GamePlayer();
