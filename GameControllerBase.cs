@@ -14,6 +14,19 @@ using UnityEngine;
 namespace Hotfix.Common
 {
 
+	public abstract class ViewLoadingBase : ViewBase
+	{
+		public IShowDownloadProgress loading;
+		public ViewLoadingBase(IShowDownloadProgress loadingProgress) : base(loadingProgress)
+		{
+		}
+		public void CreateProgressShower()
+		{
+			loading = OnCreateProgressShower();
+		}
+		protected abstract IShowDownloadProgress OnCreateProgressShower();
+	}
+
 	//每个小游戏的GameController基类
 	//用来管理每个小游戏的逻辑,包括视图管理,游戏逻辑,网络消息处理,流程处理等等.
 	//总之,和小游戏相关的东西,都在这里开始
@@ -37,6 +50,7 @@ namespace Hotfix.Common
 		}
 
 		ViewGameSceneBase mainView_;
+		protected ViewLoadingBase loading_;
 		void OnMainViewClose(object sender, EventArgs e)
 		{
 			mainView_ = null;
@@ -45,6 +59,22 @@ namespace Hotfix.Common
 		public override string GetDebugInfo()
 		{
 			return "GameController";
+		}
+
+		protected abstract ViewGameSceneBase OnCreateViewGameScene(IShowDownloadProgress loadingProgress);
+		protected abstract ViewLoadingBase OnCreateLoading(IShowDownloadProgress loadingProgress);
+
+		public ViewGameSceneBase CreateViewGameScene()
+		{
+			mainView = OnCreateViewGameScene(loading_.loading);
+			return mainView;
+		}
+
+		public ViewLoadingBase CreateLoading()
+		{
+			loading_ = OnCreateLoading(progressOfLoading);
+			loading_.CreateProgressShower();
+			return loading_;
 		}
 
 		public ViewGameSceneBase mainView
@@ -363,6 +393,22 @@ namespace Hotfix.Common
 				msg_apply_banker_canceled msg = JsonMapper.ToObject<msg_apply_banker_canceled>(json);
 				mainViewThis?.OnCancelBanker(msg);
 			}, this);
+		}
+
+		protected override IEnumerator OnGameLoginSucc()
+		{
+			yield return loading_.WaitingForReady();
+
+			var view = CreateViewGameScene();
+			OpenView(view);
+			view.WaitingForReady();
+
+			//百人类游戏直接进游戏房间
+			var handle1 = App.ins.network.CoEnterGameRoom(1, 0);
+			yield return handle1;
+			if ((int)handle1.Current == 0) {
+				ViewToast.Create(LangNetWork.EnterRoomFailed);
+			}
 		}
 	}
 
