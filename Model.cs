@@ -12,9 +12,13 @@ namespace Hotfix.Model
 	{
 		GOLD = 1,
 		BANK_GOLD = 5,
+
+		LevelSet = 3000,
+		EXP = 3001,
+		Level = 3002,
 	}
 
-	public class PlayerBase
+	public abstract class PlayerBase : ControllerBase
 	{
 		public string nickName;
 		public Dictionary<int, long> items = new Dictionary<int, long>();
@@ -23,11 +27,12 @@ namespace Hotfix.Model
 		public int lv;
 		public string headIco;
 		public string headFrame;
+		public bool isBot = false;
 		public event System.EventHandler onDataChanged;
-		public long Item(int id)
+		public long Item(ITEMID id)
 		{
-			if (items.ContainsKey(id)) {
-				return items[id];
+			if (items.ContainsKey((int)id)) {
+				return items[(int)id];
 			}
 			return 0;
 		}
@@ -67,23 +72,24 @@ namespace Hotfix.Model
 	}
 
 	//玩家时数据
-	public partial class GamePlayer : PlayerBase
+	public class GamePlayer : PlayerBase
 	{
 		public int serverPos;
+
+		public override string GetDebugInfo()
+		{
+			return "GamePlayer";
+		}
 	}
 
-	public class SelfPlayer
+	public class SelfPlayer : PlayerBase
 	{
-		public GamePlayer gamePlayer{
-			set{
-				pp_ = value;
-			}
-			get {
-				return pp_;
-			}
-		} 
-		GamePlayer pp_ = new GamePlayer();
 		public string bankPsw;
 		public string phone;
+
+		public override string GetDebugInfo()
+		{
+			return "SelfPlayer";
+		}
 	}
 }

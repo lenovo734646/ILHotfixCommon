@@ -8,12 +8,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static AssemblyCommon.MySocket;
+using static Hotfix.Common.ResourceMonitor;
 
 namespace Hotfix.Lobby
 {
 	public class KoKoSession : SessionBase
 	{
-		public override void Update()
+		protected override void OnLazyUpdate ()
 		{
 			if (pingTimer_.Elapse() > 2.0f) {
 				pingTimer_.Restart();
@@ -52,18 +53,17 @@ namespace Hotfix.Lobby
 				return ret;
 			};
 
-			var handle = App.ins.network.Rpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb);
+			var handle = App.ins.network.CoRpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb);
 			yield return handle;
 
-			int result = -2;
+			Result result = Result.Failure;
 			var msgRet = (MsgRpcRet)handle.Current;
 			if (msgRet.err_ == 0) {
 				var msg1 = (msg_handshake_ret)msgRet.msg;
 				if (msg1.ret_ == "0") {
-					result = 1;
+					result = Result.Success;
 				}
 				else {
-					result = -2;
 					if (msg1 != null) MyDebug.LogFormat("Handshake failed with:{0}", msg1.ret_);
 				}
 			}
@@ -101,7 +101,7 @@ namespace Hotfix.Lobby
 			}
 		}
 
-		IEnumerator DoStart()
+		protected override IEnumerator OnStart()
 		{
 			MyDebug.LogFormat("New FLLSession Runing:{0}", GetHashCode());
 			st = EnState.HandShake;
@@ -120,7 +120,7 @@ namespace Hotfix.Lobby
 			
 			var wait1 = Globals.net.WaitingForReady(App.ins.conf.networkTimeout);
 			yield return wait1;
-			if((int)wait1.Current == 0) {
+			if((Result)wait1.Current == Result.Failure) {
 				progressOfLoading?.Desc(LangNetWork.ConnectFailed);
 				MyDebug.LogFormat("KoKoSession failed with !Globals.net.IsWorking()");
 				goto Clean;
@@ -135,7 +135,7 @@ namespace Hotfix.Lobby
 				var handle1 = Handshake_();
 				yield return handle1;
 				//如果握手失败
-				if ((int)handle1.Current != 1) {
+				if ((Result)handle1.Current != Result.Success) {
 					progressOfLoading?.Desc(LangNetWork.HandShakeFailed);
 					MyDebug.LogFormat("KoKoSession failed with Handshake");
 					goto Clean;
@@ -147,7 +147,6 @@ namespace Hotfix.Lobby
 			st = EnState.HandShakeSucc;
 			closeByManual = 2;
 			while (Globals.net.IsWorking() && closeByManual == 2) {
-				Update();
 				yield return new WaitForSeconds(0.1f);
 			}
 			MyDebug.LogFormat("Session will exit! Globals.net.IsWorking():{0}, closeByManual:{1}", Globals.net.IsWorking(), closeByManual);
@@ -159,27 +158,29 @@ namespace Hotfix.Lobby
 			ViewToast.Clear();
 		}
 
-		public override void Start()
-		{
-			MyDebug.LogFormat("New FLLSession Start {0}", GetHashCode());
-			//这个协程进行排队.避免多个一起进行
-			App.ins.StartCor(DoStart(), true);
-		}
-
 		//session手动关闭,不重连
 		//Global.net.Stop 关闭网络连接,会自动重连
-		public override void Stop()
+		protected override void OnStop()
 		{
 			if (closeByManual <= 2)
 				closeByManual = 4;
 			MyDebug.LogFormat("====>Session Stop:{0}", closeByManual);
-			RemoveInstance();
 		}
 
 		//获取消息延时
 		public float GetLatency()
 		{
 			return pingTimeCost_ / pingSucc_;
+		}
+
+		public override bool IsReady()
+		{
+			return st == EnState.HandShakeSucc;
+		}
+
+		public override string GetDebugInfo()
+		{
+			return "KOKOSession";
 		}
 
 		TimeCounter pingTimer_ = new TimeCounter("");

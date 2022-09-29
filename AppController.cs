@@ -16,16 +16,18 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static Hotfix.Common.ResourceMonitor;
 
 namespace Hotfix.Common
 {
 	//热更入口类
 	public class App : ResourceMonitor
 	{
-		public class GameRunQueue { };
 		public App()
 		{
 			ins = this;
+			AddChild(network);
+			AddChild(audio);
 		}
 
 		public IEnumerator DoCheckUpdate(GameConfig conf, IShowDownloadProgress ip)
@@ -37,14 +39,13 @@ namespace Hotfix.Common
 
 				var handleCatalog = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
 				yield return handleCatalog;
-				if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
-
+				//失败继续,这里不用goto
+				//if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
+				MyDebug.LogFormat("DownloadDependency:{0}", conf.folder);
 				var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
 				yield return handleDep;
 
 				if (handleDep.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
-				MyDebug.LogFormat("DownloadDependency:{0}", address);
-
 
 				succ = true;
 			}
@@ -55,24 +56,25 @@ namespace Hotfix.Common
 		Clean:
 			if (!succ) {
 				MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
-				yield return -1;
+				yield return Result.Failure;
 			}
 			else
-				yield return 0;
+				yield return Result.Success;
 			
 		}
 
-		IEnumerator DoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
+		IEnumerator CoDoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
 			MyDebug.LogFormat("===================>CheckUpdateAndRun showlogin={0}", showLogin);
 
 			var chkUpdate = DoCheckUpdate(conf, ip);
 			yield return chkUpdate;
-			if ((int)chkUpdate.Current != 0) {
+			if ((Result)chkUpdate.Current != Result.Success) {
 				goto Clean;
 			}
 
 			AppBase oldApp = currentApp;
+			currentApp?.AboutToStop();
 			//清理本游戏声音资源
 			audio.StopAll();
 			currentApp = null;
@@ -80,10 +82,10 @@ namespace Hotfix.Common
 			if (!disableNetwork) {
 				MyDebug.LogFormat("network.ValidSession");
 				network.progressOfLoading = ip;
-				var handleSess = network.ValidSession();
+				var handleSess = network.CoValidSession();
 				yield return handleSess;
 
-				if ((int)handleSess.Current != 1) {
+				if ((Result)handleSess.Current != Result.Success) {
 					if (ins.conf.defaultGame == conf) {
 						MyDebug.LogFormat("network.ValidSession failed, will show login.");
 						showLogin = true;
@@ -102,6 +104,8 @@ namespace Hotfix.Common
 			currentApp = (AppBase)Activator.CreateInstance(entryClass);
 			currentApp.progressOfLoading = ip;
 			currentApp.Start();
+			AddChild(currentApp);
+
 			yield return currentApp.WaitingForReady();
 
 			network.lastState = SessionBase.EnState.Initiation;
@@ -111,60 +115,70 @@ namespace Hotfix.Common
 			if (showLogin)
 				yield return currentApp.game.ShowLogin();
 			else {
-				var loginHandle = network.EnterGame(conf);
+				var loginHandle = network.CoEnterGame(conf);
 				yield return loginHandle;
 				//登录失败
-				if ((int)loginHandle.Current == 0) {
+				if ((Result)loginHandle.Current == Result.Failure) {
 					//如果是登录大厅失败,返回登录界面
 					if (conf == ins.conf.defaultGame) {
 						yield return currentApp.game.ShowLogin();
 					}
 					//如果登录游戏失败,返回登录大厅
 					else {
-						yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
+						yield return CoDoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 					}
 				}
 			}
 
 			//清理旧游戏资源
 			oldApp?.Stop();
-
+			yield return Result.Success;
 			yield break;
 
 		Clean:
 			if (ins.conf.defaultGame != conf) {
-				yield return DoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
+				yield return CoDoCheckUpdateAndRun(ins.conf.defaultGame, ip, false);
 			}
 			else {
 				ip?.Desc(LangNetWork.GameStartFailed);
+				yield return Result.Failure;
 			}
 		}
 
-		public IEnumerator CheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
+		public IEnumerator CoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
 			if (!runningGame_) {
 				runningGame_ = true;
-				yield return DoCheckUpdateAndRun(conf, ip, showLogin);
+				yield return CoDoCheckUpdateAndRun(conf, ip, showLogin);
 				runningGame_ = false;
 			}
 		}
 
+		//只是为了ILRuntime能调用到函数
 		public override void Start()
 		{
-			
+			base.Start();
+		}
+		//只是为了ILRuntime能调用到函数
+		public override void Update()
+		{
+			base.Update();
+		}
+		//只是为了ILRuntime能调用到函数
+		public override void Stop()
+		{
+			base.Stop();
+		}
+
+		protected override IEnumerator OnStart()
+		{
 			MyDebug.LogFormat("Hotfix Module Begins.");
 			//注册protobuf类
 			ILRuntime_CLGT.Initlize();
 			ILRuntime_CLPF.Initlize();
 			ILRuntime_Global.Initlize();
-
-			network.Start();
-
 			InstallMsgHandler();
-			audio.Start();
-
-			runQueue.StartCor(DoStart_(), true);
-			this.StartCor(DoLazyUpdate(), false);
+			yield return DoStart_();
 		}
 
 		public void InstallMsgHandler()
@@ -172,15 +186,30 @@ namespace Hotfix.Common
 			network.RegisterMsgHandler((int)AccRspID.msg_same_account_login, (cmd, json) => {
 				ins.disableNetwork = true;
 				ViewPopup.Create(LangUITip.SameAccountLogin, ViewPopup.Flag.BTN_OK_ONLY, () => {
-					ins.StartCor(ins.CheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
+					ins.StartCor(ins.CoCheckUpdateAndRun(ins.conf.defaultGame, null, true), false);
 				});
 			}, this);
 
 			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
 				msg_sync_item msg = JsonMapper.ToObject<msg_sync_item>(json);
 				int itemId = int.Parse(msg.item_id_);
-				if (!self.gamePlayer.items.ContainsKey(itemId)) {
-					self.gamePlayer.items[itemId] = int.Parse(msg.count_);
+				//刷新大厅里的我
+				if (self.items.ContainsKey(itemId)) {
+					self.items[itemId] = int.Parse(msg.count_);
+				}
+				else {
+					self.items.Add(itemId, int.Parse(msg.count_));
+				}
+
+				//刷新游戏里的我
+				var gself = App.ins.currentApp.game.Self;
+				if (gself != null) {
+					if (gself.items.ContainsKey(itemId)) {
+						gself.items[itemId] = int.Parse(msg.count_);
+					}
+					else {
+						gself.items.Add(itemId, int.Parse(msg.count_));
+					}
 				}
 			}, this);
 		}
@@ -214,8 +243,10 @@ namespace Hotfix.Common
 			progressOfLoading = progressFromHost;
 			progressOfLoading.Reset();
 
+			StartCor(DoLazyUpdate(), false);
+
 			yield return CachedResources_();
-			yield return CheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
+			yield return CoCheckUpdateAndRun(conf.defaultGame, progressFromHost, !autoLoginFromHost);
 		}
 
 		IEnumerator DoLazyUpdate()
@@ -229,29 +260,17 @@ namespace Hotfix.Common
 					longp.Value.Trigger();
 				}
 
-				for(int i = 0; i  < instances.Count; i++) {
-					if(instances[i].IsReady())
-						instances[i].LazyUpdate();
-				}
+				LazyUpdate();
+
 				yield return new WaitForSeconds(0.1f);
 			}
 		}
 
-		public override  void Update()
+		public override string GetDebugInfo()
 		{
-			network.Update();
-			if(currentApp != null) currentApp.Update();
+			return "AppController";
 		}
 
-		public override void Stop()
-		{
-			audio.Stop();
-			if (currentApp != null) currentApp.Stop();
-			network.Stop();
-
-			this.StopAllCor();
-			base.Stop();
-		}
 		public static App ins = null;
 		public Config conf = new Config();
 		public AppBase currentApp = null;
@@ -273,7 +292,7 @@ namespace Hotfix.Common
 		public AudioManager audio = new AudioManager();
 
 		List<string> cachedCatalog = new List<string>();
-		GameRunQueue runQueue = new GameRunQueue();
+		ControllerDefault runQueue = new ControllerDefault();
 		bool runningGame_ = false;
 
 	}

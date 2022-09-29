@@ -6,24 +6,21 @@ using System.Collections.Generic;
 namespace Hotfix.Common
 {
 	//每个小游戏都有一个MyApp,
-	public class AppBase : ResourceMonitor
+	public abstract class AppBase : ResourceMonitor
 	{
+		GameControllerBase game_ = null;
 		//每个小游戏都有一个GameController
-		public GameControllerBase game = null;
-		public override void Start()
-		{
-			game?.Start();
+		public GameControllerBase game {
+			set { 
+				AddChild(value);
+				game_ = value;
+			}
+			get { return game_; }
 		}
 
-		public override void Stop()
+		public override string GetDebugInfo()
 		{
-			game?.Stop();
-			base.Stop();
-		}
-
-		public override void Update()
-		{
-			game?.Update();
+			return "MyApp";
 		}
 	}
 }

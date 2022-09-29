@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Hotfix.Common
 {
-	public class SessionBase : ControllerBase
+	public abstract class SessionBase : ControllerBase
 	{
 		public enum EnState
 		{
@@ -77,11 +77,6 @@ namespace Hotfix.Common
 		public bool IsWorking()
 		{
 			return closeByManual != 4;
-		}
-
-		public override void Stop()
-		{
-			throw new NotImplementedException();
 		}
 
 		public EnState st = EnState.Initiation;

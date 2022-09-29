@@ -26,7 +26,7 @@ namespace Hotfix.Common
 			popup.SetParams(content, flag, okCallback, cancelCallback);
 			if (title != "") popup.SetTitle(title);
 			popup.SetAutoClose(autoCloseTime);
-			popup.Start();
+			App.ins.currentApp.game.OpenView(popup);
 			return popup;
 		}
 		public ViewPopup(IShowDownloadProgress ip) : base(ip)
@@ -61,7 +61,7 @@ namespace Hotfix.Common
 
 		protected override void SetLoader()
 		{
-			LoadPrefab("Assets/AssetsFinal/Common/MessageBoxUI_CN.prefab", AddToPopup);
+			LoadPrefab("Assets/AssetsFinal/Common/MessageBoxUI_CN.prefab", AddToPopup, true);
 		}
 
 		IEnumerator DoAutoClose()
@@ -139,16 +139,15 @@ namespace Hotfix.Common
 			if(canvas_ != null) {
 				var animNode = canvas_.FindChildDeeply("animNode");
 				animNode.StartDoTweenAnim(true);
-				yield return new WaitForSeconds(0.2f);
+				yield return new WaitForSeconds(0.3f);
+				GameObject.Destroy(mainObject_);
 			}
-		
-			base.Close();
 		}
 
-		protected override void OnClose()
+		protected override void OnStop()
 		{
 			if(opening != null) {
-				this.StartCor(DoClose(), true);
+				App.ins.currentApp.game.StartCor(DoClose(), true);
 			}
 			opening = null;
 		}

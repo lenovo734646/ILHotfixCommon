@@ -18,8 +18,14 @@ namespace Hotfix.Common
 	//ViewBase, 资源生存周期和视图一样
 	//AppBase,资源生存周期和游戏一样
 	//AppController,资源生存周期与整个APP一样
-	public class ResourceMonitor : ControllerBase
+	public abstract class ResourceMonitor : ControllerBase
 	{
+		public enum Result
+		{
+			Failure,
+			Success,
+		}
+
 		public void LoadAssets<T>(string path, Action<AddressablesLoader.LoadTask<T>> callback) where T : UnityEngine.Object
 		{
 			Action<AddressablesLoader.LoadTask<T>> callbackWrapper = (AddressablesLoader.LoadTask<T> loader) => {
@@ -30,7 +36,7 @@ namespace Hotfix.Common
 			resourceLoader_.Add(Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading)); 
 		}
 
-		public override void Stop()
+		protected override void OnStop()
 		{
 			ClearResource();
 		}
@@ -68,6 +74,7 @@ namespace Hotfix.Common
 	//画布命名使用Canvas
 	public abstract class ViewBase : ResourceMonitor
 	{
+		public System.WeakReference<GameControllerBase> parent = null;
 		public class ViewLoadTask<T> where T : UnityEngine.Object
 		{
 			public string assetPath;
@@ -75,6 +82,7 @@ namespace Hotfix.Common
 			public Action<T> callback;
 			public bool isMain = false;
 		}
+
 		public ViewBase(IShowDownloadProgress loadingProgress)
 		{
 			progressOfLoading = loadingProgress;
@@ -93,6 +101,11 @@ namespace Hotfix.Common
 					canv = can.gameObject;
 			}
 			return canv;
+		}
+
+		public override string GetDebugInfo()
+		{
+			return "ViewBase";
 		}
 
 		public static GameObject GetPopupLayer()
@@ -137,9 +150,9 @@ namespace Hotfix.Common
 			if (obj != null) GameObject.Destroy(obj);
 		}
 
-		public override void Start()
+		protected override IEnumerator OnStart()
 		{
-			this.StartCor(DoStart_(), false);
+			yield return DoStart_();
 		}
 
 		public override bool IsReady()
@@ -148,23 +161,20 @@ namespace Hotfix.Common
 			return finished_;
 		}
 
-		public override void Stop()
+		public void Close()
 		{
-			RemoveInstance();
-			base.Stop();
+			GameControllerBase ctrl;
+			if(parent != null && parent.TryGetTarget(out ctrl)) {
+				ctrl.OnViewClosed(this);
+			}
 		}
 
-		//每个View必须要调用这个Close才能正确的释放资源.
-		//跳过这个直接清理了Canvas会造成资源泄露,
-		//Adressable资源不能正确释放
-		public  void Close()
+		protected override void OnStop()
 		{
-			OnClose();
 			ClosedEvent?.Invoke(this, new EventArgs());
-			App.ins.currentApp?.game?.OnViewClosed(this);
 			//按加载顺序倒着释放
 			objs.Reverse();
-			foreach(var obj in objs) {
+			foreach (var obj in objs) {
 				GameObject.Destroy(obj);
 			}
 			objs.Clear();
@@ -173,15 +183,6 @@ namespace Hotfix.Common
 			resScenes_ = null;
 
 			App.ins.network.RemoveMsgHandler(this);
-
-			//停止本窗口所有协程
-			this.StopCor(-1);
-			Stop();
-		}
-
-		protected virtual void OnClose()
-		{
-			
 		}
 
 		IEnumerator LoadResources()
@@ -228,6 +229,7 @@ namespace Hotfix.Common
 					progressOfLoading?.Progress((int)resScenes_.loader.SceneHandle.PercentComplete * 100, 100);
 					yield return 0;
 				}
+				yield return resScenes_.loader.ActiveScene();
 				resScenes_ = null;
 				yield return 0;
 			}
@@ -237,15 +239,27 @@ namespace Hotfix.Common
 
 		protected IEnumerator ReadyResource()
 		{
+			bool hasFailed = false;
 			foreach (var it in resNames_) {
-				var obj = it.loader.Instantiate();
-				if (it.isMain) mainObject_ = obj;
-				if (it.callback != null) it.callback(obj);
-				objs.Add(obj);
+				if(it.loader.status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded) {
+					var obj = it.loader.Instantiate();
+					if (it.isMain) mainObject_ = obj;
+					if (it.callback != null) it.callback(obj);
+					objs.Add(obj);
+				}
+				else {
+					hasFailed = true;
+				}
+			}
+
+			if (!hasFailed)
+				//这里很重要,要停一下
+				yield return OnResourceReady();
+			else {
+				MyDebug.LogWarningFormat("some resouce of the view load failed.{0}", resNames_[0].assetPath);
+				yield return 0;
 			}
 			resNames_.Clear();
-			//这里很重要,要停一下
-			yield return OnResourceReady();
 		}
 
 		protected abstract IEnumerator OnResourceReady();
@@ -296,28 +310,24 @@ namespace Hotfix.Common
 
 		public virtual GamePlayer OnPlayerEnter(msg_player_seat msg)
 		{
-			if (App.ins.self.gamePlayer.uid == msg.uid_) {
-				App.ins.self.gamePlayer.serverPos = int.Parse(msg.pos_);
-				App.ins.self.gamePlayer.lv = int.Parse(msg.lv_);
-				return App.ins.self.gamePlayer;
-			}
-			else {
-				var game = App.ins.currentApp.game;
-				var pp = game.CreateGamePlayer();
-				pp.serverPos = int.Parse(msg.pos_);
-				pp.nickName = msg.uname_;
-				pp.headFrame = msg.headframe_id_;
-				pp.headIco = msg.head_ico_;
-				pp.lv = int.Parse(msg.lv_);
-				game.AddPlayer(pp);
-				return pp;
-			}
+			var game = App.ins.currentApp.game;
+			var pp = game.CreateGamePlayer();
+			pp.uid = msg.uid_;
+			pp.serverPos = int.Parse(msg.pos_);
+			pp.nickName = msg.uname_;
+			pp.headFrame = msg.headframe_id_;
+			pp.headIco = msg.head_ico_;
+			pp.lv = int.Parse(msg.lv_);
+			game.AddPlayer(pp);
+			return pp;
 		}
+
 		public virtual void OnPlayerLeave(msg_player_leave msg)
 		{
 			var game = App.ins.currentApp.game;
-			
+			game.RemovePlayer(int.Parse(msg.pos_));
 		}
+
 		public virtual void OnCommonReply(msg_common_reply msg)
 		{
 
@@ -326,19 +336,29 @@ namespace Hotfix.Common
 		//玩家货币变币
 		public virtual void OnGoldChange(msg_deposit_change2 msg)
 		{
-			int pos = App.ins.self.gamePlayer.serverPos;
-			if (int.Parse(msg.pos_) == pos) {
-				if (int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_sync_gold) {
-					App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-					App.ins.self.gamePlayer.DispatchDataChanged();
+			if (int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_sync_gold ||
+				int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_gold_change) {
+				if(AssemblyCommon.Config.showNetWorkLog) MyDebug.LogFormat("OnGoldChange:{0}, {1},{2}", msg.pos_, msg.credits_, msg.display_type_);
+				var pp = App.ins.currentApp.game.GetPlayer(int.Parse(msg.pos_));
+				if (pp != null) {
+					pp.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+					pp.DispatchDataChanged();
+				}
+
+				if(pp.uid == App.ins.self.uid) {
+					App.ins.self.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+					App.ins.self.DispatchDataChanged();
 				}
 			}
 		}
+
 		//玩家货币变币
 		public virtual void OnGoldChange(msg_currency_change msg)
 		{
-			
-
+			if (msg.why_ == "0") {
+				App.ins.currentApp.game.Self?.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+				App.ins.currentApp.game.Self?.DispatchDataChanged();
+			}
 		}
 
 		public void OnServerShutdown(msg_system_showdown msg)
@@ -348,7 +368,7 @@ namespace Hotfix.Common
 
 		public abstract void OnServerParameter(msg_server_parameter msg);
 		public abstract void OnJackpotNumber(msg_get_public_data_ret msg);
-		public virtual void OnRoomEnterSucc() { }
+		public virtual IEnumerator OnRoomEnterSucc() { yield return 0; }
 	}
 
 	public abstract class ViewSlotScene : ViewGameSceneBase

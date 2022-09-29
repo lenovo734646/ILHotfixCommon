@@ -14,6 +14,19 @@ using UnityEngine;
 namespace Hotfix.Common
 {
 
+	public abstract class ViewLoadingBase : ViewBase
+	{
+		public IShowDownloadProgress loading;
+		public ViewLoadingBase(IShowDownloadProgress loadingProgress) : base(loadingProgress)
+		{
+		}
+		public void CreateProgressShower()
+		{
+			loading = OnCreateProgressShower();
+		}
+		protected abstract IShowDownloadProgress OnCreateProgressShower();
+	}
+
 	//每个小游戏的GameController基类
 	//用来管理每个小游戏的逻辑,包括视图管理,游戏逻辑,网络消息处理,流程处理等等.
 	//总之,和小游戏相关的东西,都在这里开始
@@ -37,9 +50,31 @@ namespace Hotfix.Common
 		}
 
 		ViewGameSceneBase mainView_;
+		protected ViewLoadingBase loading_;
 		void OnMainViewClose(object sender, EventArgs e)
 		{
 			mainView_ = null;
+		}
+		
+		public override string GetDebugInfo()
+		{
+			return "GameController";
+		}
+
+		protected abstract ViewGameSceneBase OnCreateViewGameScene(IShowDownloadProgress loadingProgress);
+		protected abstract ViewLoadingBase OnCreateLoading(IShowDownloadProgress loadingProgress);
+
+		public ViewGameSceneBase CreateViewGameScene()
+		{
+			mainView = OnCreateViewGameScene(loading_.loading);
+			return mainView;
+		}
+
+		public ViewLoadingBase CreateLoading()
+		{
+			loading_ = OnCreateLoading(progressOfLoading);
+			loading_.CreateProgressShower();
+			return loading_;
 		}
 
 		public ViewGameSceneBase mainView
@@ -59,7 +94,8 @@ namespace Hotfix.Common
 		//创建和管理View
 		public void OpenView(ViewBase view)
 		{
-			views_.Add(view);
+			view.parent = new WeakReference<GameControllerBase>(this);
+			AddChild(view);
 			view.Start();
 		}
 
@@ -68,31 +104,9 @@ namespace Hotfix.Common
 			closing_.Add(view);
 		}
 
-		public void CloseAllView()
-		{
-			List<ViewBase> viewsCopy = new List<ViewBase>();
-			viewsCopy.AddRange(views_);
-			foreach (var view in viewsCopy) {
-				view.Close();
-			}
-			views_.Clear();
-		}
-
-
 		public virtual IEnumerator ShowLogin()
 		{
 			yield return 0;
-		}
-
-		protected virtual IEnumerator OnGameLoginSucc()
-		{
-			yield return 0;
-		}
-
-		public IEnumerator GameLoginSucc()
-		{
-			prepared_ = true;
-			yield return OnGameLoginSucc();
 		}
 
 		protected virtual void InstallMsgHandler()
@@ -126,8 +140,10 @@ namespace Hotfix.Common
 				msg_currency_change msg = JsonMapper.ToObject<msg_currency_change>(json);
 				if (msg.why_ == "0" || msg.why_ == "5") {
 					MyDebug.LogFormat("OnGoldChange:{0}", long.Parse(msg.credits_));
-					App.ins.self.gamePlayer.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
-					App.ins.self.gamePlayer.DispatchDataChanged();
+					if(App.ins.currentApp.game.Self != null) {
+						App.ins.currentApp.game.Self.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
+						App.ins.currentApp.game.Self.DispatchDataChanged();
+					}
 				}
 				mainView?.OnGoldChange(msg);
 			}, this);
@@ -147,53 +163,67 @@ namespace Hotfix.Common
 			}, this);
 		}
 
+		public IEnumerator GameLoginSucc()
+		{
+			yield return OnGameLoginSucc();
+		}
+
 		public IEnumerator PrepareGameRoom()
 		{
 			yield return OnPrepareGameRoom();
 		}
-		protected virtual IEnumerator OnPrepareGameRoom()
-		{
-			yield return 0;
-		}
-
 		public IEnumerator GameRoomEnterSucc()
 		{
 			isEntering = false;
 			yield return OnGameRoomSucc();
 		}
 
+		//登录游戏服务器成功,要求显示游戏大厅界面
+		protected virtual IEnumerator OnGameLoginSucc()
+		{
+			yield return 0;
+		}
+
+		//进入房间阶段1,服务器位置已锁定,框架要求客户端加载房间资源.
+		protected virtual IEnumerator OnPrepareGameRoom()
+		{
+			yield return 0;
+		}
+
+		//进入游戏房间成功,服务器已经把房间数据同步完成,可以安全使用服务器数据了.
 		protected virtual IEnumerator OnGameRoomSucc()
 		{
 			yield return 0;
 		}
 
-		public override void Start()
+		protected override IEnumerator OnStart()
 		{
 			UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
 			InstallMsgHandler();
-			base.Start();
+			yield return 0;
 		}
 
-		public override void Update()
+		protected override void OnLazyUpdate()
 		{
-			if (prepared_) {
-				for (int i = 0; i < closing_.Count; i++) {
-					views_.Remove(closing_[i]);
-				}
-				closing_.Clear();
+			
+		}
 
-				for (int i = 0; i < views_.Count; i++) {
-					views_[i].Update();
-				}
+		public override void LazyUpdate()
+		{
+			base.LazyUpdate();
+			for (int i = 0; i < closing_.Count; i++) {
+				closing_[i].Stop();
 			}
+			closing_.Clear();
 		}
 
-		public override void Stop()
+		public override void AboutToStop()
 		{
-			CloseAllView();
+			MyDebug.LogFormat("About To Stop GameController");
 			App.ins.network.RemoveMsgHandler(this);
+			base.AboutToStop();
 		}
-		
+
 		public virtual GamePlayer CreateGamePlayer()
 		{
 			return new GamePlayer();
@@ -205,12 +235,20 @@ namespace Hotfix.Common
 				players.Remove(p.serverPos);
 			}
 			players.Add(p.serverPos, p);
-			p.DispatchDataChanged();
+			OnAddPlayer(p);
+			AddChild(p);
+			p.Start();
+		}
+
+		public virtual void OnAddPlayer(GamePlayer p)
+		{
+
 		}
 
 		public GamePlayer GetPlayer(int serverPos)
 		{
-			foreach(var pp in players) {
+			var arr = players.ToArray();
+			foreach(var pp in arr) {
 				if(pp.Value.serverPos == serverPos) {
 					return pp.Value;
 				}
@@ -220,22 +258,39 @@ namespace Hotfix.Common
 
 		public GamePlayer GetPlayer(string uid)
 		{
-			foreach (var pp in players) {
+			var arr = players.ToArray();
+			foreach (var pp in arr) {
 				if (pp.Value.uid == uid) {
 					return pp.Value;
 				}
 			}
 			return null;
 		}
+		public GamePlayer Self
+		{
+			get {
+				var arr = players.ToArray();
+				foreach (var pp in arr) {
+					if (pp.Value.uid == App.ins.self.uid) {
+						return pp.Value;
+					}
+				}
+				return null;
+			}
+			
+		}
 
 		public void RemovePlayer(int serverPos)
 		{
+			if (players.ContainsKey(serverPos)) {
+				players[serverPos].Stop();
+			}
 			players.Remove(serverPos);
 		}
+
+		public DictionaryCached<int, GamePlayer> players = new DictionaryCached<int, GamePlayer>();
+		
 		List<ViewBase> closing_ = new List<ViewBase>();
-		List<ViewBase> views_ = new List<ViewBase>();
-		Dictionary<int, GamePlayer> players = new Dictionary<int,GamePlayer>();
-		bool prepared_ = true;
 	}
 
 	public abstract class GameControllerMultiplayer : GameControllerBase
@@ -337,10 +392,31 @@ namespace Hotfix.Common
 				mainViewThis?.OnCancelBanker(msg);
 			}, this);
 		}
+
+		protected override IEnumerator OnGameLoginSucc()
+		{
+			yield return loading_.WaitingForReady();
+
+			var view = CreateViewGameScene();
+			OpenView(view);
+			yield return view.WaitingForReady();
+
+			//百人类游戏直接进游戏房间
+			var handle1 = App.ins.network.CoEnterGameRoom(1, 0);
+			yield return handle1;
+			if ((int)handle1.Current == 0) {
+				ViewToast.Create(LangNetWork.EnterRoomFailed);
+			}
+		}
 	}
 
 	public abstract class GameControllerSlot : GameControllerBase
 	{
+		public override string GetDebugInfo()
+		{
+			return ToString();
+		}
+
 		protected override void InstallMsgHandler()
 		{
 			base.InstallMsgHandler();

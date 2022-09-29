@@ -100,7 +100,7 @@ namespace Hotfix.Common.Slot
 		
 	}
 
-	public abstract class SlotRollGameBase
+	public abstract class SlotRollGameBase : ControllerBase
 	{
 		public SlotRollGameBase(List<GameObject> cols, RollingConfigBase conf)
 		{
@@ -279,7 +279,7 @@ namespace Hotfix.Common.Slot
 			
 		}
 
-		public virtual void Close()
+		protected override void OnStop()
 		{
 			foreach (var it in rollItems_) {
 				it.Close();

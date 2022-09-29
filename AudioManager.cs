@@ -13,10 +13,11 @@ namespace Hotfix.Common
 {
 	public class AudioManager:ResourceMonitor
 	{
-		public override void Start()
+		protected override IEnumerator OnStart()
 		{
 			//加入音乐播放
 			audioMusic = BridgeToHotfix.ins.gameObject.AddComponent<AudioSource>();
+			yield return 0;
 		}
 
 		//停止所有声音
@@ -32,10 +33,9 @@ namespace Hotfix.Common
 		}
 
 		//停止这个模块
-		public override void Stop()
+		protected override void OnStop()
 		{
 			StopAll();
-			base.Stop();
 		}
 
 		public void PlayMusicOneShot(string path)
@@ -149,17 +149,28 @@ namespace Hotfix.Common
 				foreach (var eff in audioEffectPool) {
 					eff.Stop();
 				}
+			}else if (enableEffect_)
+            {
+				foreach (var eff in audioEffectPool)
+				{
+					eff.Play();
+				}
 			}
 		}
 
 		void OnMusicEnableChanged_()
 		{
 			if (enableMusic_) {
-
+				audioMusic.Play();
 			}
 			else {
 				audioMusic.Stop();
 			}
+		}
+
+		public override string GetDebugInfo()
+		{
+			return "AudioManager";
 		}
 
 		bool enableEffect_ = true, enableMusic_ = true;
