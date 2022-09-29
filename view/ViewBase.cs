@@ -445,4 +445,26 @@ namespace Hotfix.Common
 		}
 		string path_;
 	}
+
+
+	public abstract class ViewLoadingBase : ViewBase
+	{
+		public IShowDownloadProgress loading;
+		public ViewLoadingBase(IShowDownloadProgress loadingProgress) : base(loadingProgress)
+		{
+		}
+		public void CreateProgressShower()
+		{
+			loading = OnCreateProgressShower();
+		}
+		protected abstract IShowDownloadProgress OnCreateProgressShower();
+	}
+
+	public abstract class ViewRoomListBase : ViewBase
+	{
+		protected ViewRoomListBase(IShowDownloadProgress loadingProgress) : base(loadingProgress)
+		{
+		}
+	}
+
 }

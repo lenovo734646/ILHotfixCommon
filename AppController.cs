@@ -190,6 +190,8 @@ namespace Hotfix.Common
 				});
 			}, this);
 
+			//由于玩家进游戏时,平台的钱会兑换到游戏里,然后这里会同步消息平台的钱变为0
+			//这里需要注意处理
 			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
 				msg_sync_item msg = JsonMapper.ToObject<msg_sync_item>(json);
 				int itemId = int.Parse(msg.item_id_);
@@ -200,6 +202,7 @@ namespace Hotfix.Common
 				else {
 					self.items.Add(itemId, int.Parse(msg.count_));
 				}
+
 
 				//刷新游戏里的我
 				var gself = App.ins.currentApp.game.Self;

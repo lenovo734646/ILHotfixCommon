@@ -13,20 +13,6 @@ using UnityEngine;
 
 namespace Hotfix.Common
 {
-
-	public abstract class ViewLoadingBase : ViewBase
-	{
-		public IShowDownloadProgress loading;
-		public ViewLoadingBase(IShowDownloadProgress loadingProgress) : base(loadingProgress)
-		{
-		}
-		public void CreateProgressShower()
-		{
-			loading = OnCreateProgressShower();
-		}
-		protected abstract IShowDownloadProgress OnCreateProgressShower();
-	}
-
 	//每个小游戏的GameController基类
 	//用来管理每个小游戏的逻辑,包括视图管理,游戏逻辑,网络消息处理,流程处理等等.
 	//总之,和小游戏相关的东西,都在这里开始
@@ -192,7 +178,7 @@ namespace Hotfix.Common
 		//进入游戏房间成功,服务器已经把房间数据同步完成,可以安全使用服务器数据了.
 		protected virtual IEnumerator OnGameRoomSucc()
 		{
-			yield return 0;
+			yield return mainView.OnRoomEnterSucc();
 		}
 
 		protected override IEnumerator OnStart()
@@ -415,6 +401,34 @@ namespace Hotfix.Common
 		{
 			return ToString();
 		}
+
+		protected override IEnumerator OnPrepareGameRoom()
+		{
+			var view = CreateViewGameScene();
+			OpenView(view);
+			yield return view.WaitingForReady();
+		}
+		
+		IEnumerator DoLoadRoomList()
+		{
+			var view = CreateViewRoomList();
+			OpenView(view);
+
+			yield return view.WaitingForReady();
+			yield return 0;
+		}
+
+		protected override IEnumerator OnGameLoginSucc()
+		{
+			yield return DoLoadRoomList();
+		}
+
+		public ViewRoomListBase CreateViewRoomList()
+		{
+			return OnCreateViewRoomList(loading_.loading);
+		}
+
+		protected abstract ViewRoomListBase OnCreateViewRoomList(IShowDownloadProgress loadingProgress);
 
 		protected override void InstallMsgHandler()
 		{

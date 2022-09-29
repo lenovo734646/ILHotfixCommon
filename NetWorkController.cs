@@ -664,7 +664,7 @@ namespace Hotfix.Common
 						if (succ) {
 
 							if(msg.subCmd != 0xFFFF && AssemblyCommon.Config.showNetWorkLog) 
-								MyDebug.Log(string.Format("Msg is Recved:{0}, {1}", msg.subCmd, msg.content), 3);
+								MyDebug.Log(string.Format("Msg is Recved:{0}, {1}", msg.subCmd, msg.content));
 
 							tmpUse.Clear(); tmpUse.AddRange(handlers);
 							foreach (var handler in tmpUse) {
@@ -704,7 +704,7 @@ namespace Hotfix.Common
 						HandlePing_();
 					}
 					else {
-							if (AssemblyCommon.Config.showNetWorkLog) MyDebug.LogWarningFormat("Msg is ignored:{0}", cmd);
+						if (AssemblyCommon.Config.showNetWorkLog) MyDebug.LogWarningFormat("Msg is ignored:{0}", cmd);
 					}
 				}
 				break;
