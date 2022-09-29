@@ -104,8 +104,8 @@ namespace Hotfix.Common
 		public void Start()
 		{
 			gameHosts.Add("127.0.0.1", 8990);
-			//gameHosts.Add("192.168.102.110", 8990);
-			//gameHosts.Add("8.210.20.24", 8990);
+			gameHosts.Add("192.168.102.110", 8990);
+			gameHosts.Add("8.210.20.24", 8990);
 			webRoots.Add("139.224.233.71", 8083);
 			{
 				GameConfig game = new GameConfig();
@@ -299,6 +299,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				game.gameID = GameConfig.GameID.ZJH;
+				game.enabled = true;
 				games.Add(game.name, game);
 			}
 
