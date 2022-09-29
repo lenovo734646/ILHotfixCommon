@@ -165,7 +165,6 @@ namespace Hotfix.Common
 
 		public IEnumerator GameLoginSucc()
 		{
-			prepared_ = true;
 			yield return OnGameLoginSucc();
 		}
 
@@ -292,7 +291,6 @@ namespace Hotfix.Common
 		public DictionaryCached<int, GamePlayer> players = new DictionaryCached<int, GamePlayer>();
 		
 		List<ViewBase> closing_ = new List<ViewBase>();
-		bool prepared_ = true;
 	}
 
 	public abstract class GameControllerMultiplayer : GameControllerBase
@@ -401,7 +399,7 @@ namespace Hotfix.Common
 
 			var view = CreateViewGameScene();
 			OpenView(view);
-			view.WaitingForReady();
+			yield return view.WaitingForReady();
 
 			//百人类游戏直接进游戏房间
 			var handle1 = App.ins.network.CoEnterGameRoom(1, 0);
