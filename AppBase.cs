@@ -17,5 +17,10 @@ namespace Hotfix.Common
 			}
 			get { return game_; }
 		}
+
+		public override string GetDebugInfo()
+		{
+			return "MyApp";
+		}
 	}
 }

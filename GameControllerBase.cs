@@ -41,6 +41,11 @@ namespace Hotfix.Common
 		{
 			mainView_ = null;
 		}
+		
+		public override string GetDebugInfo()
+		{
+			return "GameController";
+		}
 
 		public ViewGameSceneBase mainView
 		{
@@ -168,12 +173,16 @@ namespace Hotfix.Common
 
 		protected override void OnLazyUpdate()
 		{
-			if (prepared_) {
-				for (int i = 0; i < closing_.Count; i++) {
-					closing_[i].Stop();
-				}
-				closing_.Clear();
+			
+		}
+
+		public override void LazyUpdate()
+		{
+			base.LazyUpdate();
+			for (int i = 0; i < closing_.Count; i++) {
+				closing_[i].Stop();
 			}
+			closing_.Clear();
 		}
 
 		protected override void OnStop()
@@ -354,6 +363,11 @@ namespace Hotfix.Common
 
 	public abstract class GameControllerSlot : GameControllerBase
 	{
+		public override string GetDebugInfo()
+		{
+			return ToString();
+		}
+
 		protected override void InstallMsgHandler()
 		{
 			base.InstallMsgHandler();

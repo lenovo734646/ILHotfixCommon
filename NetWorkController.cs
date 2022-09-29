@@ -404,7 +404,7 @@ namespace Hotfix.Common
 				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
 				if (rpcd.err_ != 0) {
 					progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
-					MyDebug.LogFormat("Get Coordinate failed,error:{0},game:{1}", rpcd.err_, toGame.gameID);
+					MyDebug.LogFormat("Get Coordinate failed,error:{0},game:{1},{2}", rpcd.err_, toGame.gameID,(int)toGame.gameID);
 					goto Clean;
 				}
 				msg_channel_server r = (msg_channel_server)(rpcd.msg);
@@ -469,7 +469,13 @@ namespace Hotfix.Common
 				yield return resultOfRpc;
 				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
 				if (rpcd.err_ != 0) {
-					MyDebug.LogFormat("enter game room msg_enter_game_req failed");
+					MyDebug.LogFormat("enter game room failed.");
+					if(rpcd.err_ == 2005) {
+						ViewToast.Create(LangUITip.NotEnoughMoney);
+					}
+					else {
+						ViewToast.Create(LangUITip.EnterGameFailed);
+					}
 					goto Clean;
 				}
 				MyDebug.LogFormat("PrepareGameRoom");

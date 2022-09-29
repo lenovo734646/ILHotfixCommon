@@ -20,7 +20,7 @@ namespace Hotfix.Common.CircleGame
 		public float uniformSpeed = -1.0f;
 	}
 
-	public abstract class CirleRollItemBase
+	public abstract class CirleRollItemBase : ControllerDefault
 	{
 		public CirleRollItemBase(int d, int i)
 		{
@@ -35,7 +35,7 @@ namespace Hotfix.Common.CircleGame
 		public int index;
 	}
 
-	public abstract class CircleRollGameBase
+	public abstract class CircleRollGameBase : ControllerDefault
 	{
 		public CircleRollGameBase(CirleRollGameConfigBase conf)
 		{
