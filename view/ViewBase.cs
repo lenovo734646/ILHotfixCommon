@@ -338,7 +338,6 @@ namespace Hotfix.Common
 		{
 			if (int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_sync_gold ||
 				int.Parse(msg.display_type_) == (int)msg_deposit_change2.dp.display_type_gold_change) {
-				if(AssemblyCommon.Config.showNetWorkLog) MyDebug.LogFormat("OnGoldChange:{0}, {1},{2}", msg.pos_, msg.credits_, msg.display_type_);
 				var pp = App.ins.currentApp.game.GetPlayer(int.Parse(msg.pos_));
 				if (pp != null) {
 					pp.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));

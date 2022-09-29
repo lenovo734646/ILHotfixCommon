@@ -139,7 +139,6 @@ namespace Hotfix.Common
 			App.ins.network.RegisterMsgHandler((int)GameRspID.msg_currency_change, (cmd, json) => {
 				msg_currency_change msg = JsonMapper.ToObject<msg_currency_change>(json);
 				if (msg.why_ == "0" || msg.why_ == "5") {
-					MyDebug.LogFormat("OnGoldChange:{0}", long.Parse(msg.credits_));
 					if(App.ins.currentApp.game.Self != null) {
 						App.ins.currentApp.game.Self.items.SetKeyVal((int)ITEMID.GOLD, long.Parse(msg.credits_));
 						App.ins.currentApp.game.Self.DispatchDataChanged();
