@@ -191,15 +191,15 @@ namespace Hotfix.Common
 			}, this);
 
 			//由于玩家进游戏时,平台的钱会兑换到游戏里,然后这里会同步消息平台的钱变为0
-			//这里需要注意处理
+			//这里需要注意处理,目前处理方式是忽略数据为0的同步.
 			network.RegisterMsgHandler((int)CommID.msg_sync_item, (cmd, json) => {
 				msg_sync_item msg = JsonMapper.ToObject<msg_sync_item>(json);
 				int itemId = int.Parse(msg.item_id_);
 				//刷新大厅里的我
-				if (self.items.ContainsKey(itemId)) {
+				if (self.items.ContainsKey(itemId) && int.Parse(msg.count_) > 0) {
 					self.items[itemId] = int.Parse(msg.count_);
 				}
-				else {
+				else if (!self.items.ContainsKey(itemId)) {
 					self.items.Add(itemId, int.Parse(msg.count_));
 				}
 
@@ -207,10 +207,10 @@ namespace Hotfix.Common
 				//刷新游戏里的我
 				var gself = App.ins.currentApp.game.Self;
 				if (gself != null) {
-					if (gself.items.ContainsKey(itemId)) {
+					if (gself.items.ContainsKey(itemId) && int.Parse(msg.count_) > 0) {
 						gself.items[itemId] = int.Parse(msg.count_);
 					}
-					else {
+					else if(!gself.items.ContainsKey(itemId)) {
 						gself.items.Add(itemId, int.Parse(msg.count_));
 					}
 				}
