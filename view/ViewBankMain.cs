@@ -26,6 +26,117 @@ namespace Hotfix.Common
 
 		}
 
+		protected IEnumerator OnBankOpResult(InputField txt, int op)
+		{
+			if (txt.text == "") {
+				ViewToast.Create(LangUITip.PleaseEnterValue);
+			}
+			else {
+
+				msg_bank_op msg = new msg_bank_op();
+				msg.op_ = op;
+				msg.psw_ = App.ins.self.bankPsw;
+				msg.type_ = 1;
+				msg.count_ = long.Parse(txt.text);
+
+				App.ins.network.SendMessage((ushort)CorReqID.msg_bank_op, msg);
+				var resultOfRpc = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+				yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
+
+				if (resultOfRpc.resultSetted) {
+					var result = App.ins.network.ToRpcResult<msg_common_reply>(resultOfRpc.result.subCmd, resultOfRpc.result.json, (ushort)CorReqID.msg_bank_op);
+					
+					if (result.err_ == 1) {
+						ViewToast.Create(LangUITip.OperationSucc);
+						GetBankInfo();
+					}
+					else if (result.err_ == -999) {
+						ViewToast.Create(LangUITip.PasswordIncorrect);
+					}
+					else if (result.err_ == 3) {
+						ViewToast.Create(LangUITip.NotEnoughBankMoney);
+					}
+				}
+				else {
+					ViewToast.Create(LangUITip.OperationTimeOut);
+				}
+			}
+		}
+
+		protected IEnumerator OnTransfer(InputField txt)
+		{
+			MyDebug.LogFormat("TransferView onOK");
+			if (txt.text == "") {
+				ViewToast.Create(LangUITip.PleaseEnterValue);
+				yield break;
+			}
+
+			var recverTag = TransferView.FindChildDeeply("recverTag").GetComponentInChildren<InputField>();
+			if (recverTag.text == "") {
+				ViewToast.Create(LangUITip.PleaseEnterValue);
+				yield break;
+			}
+
+			msg_send_present msg = new msg_send_present();
+			msg.present_id_ = (int)ITEMID.BANK_GOLD;
+			msg.count_ = long.Parse(txt.text);
+			msg.to_ = recverTag.text;
+			App.ins.network.SendMessage((ushort)CorReqID.msg_send_present, msg);
+
+			var result = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+			if (result.resultSetted) {
+				var rpl = JsonMapper.ToObject<msg_common_reply>(result.result.json);
+				if (rpl.err_ == "1") {
+					ViewToast.Create(LangUITip.OperationSucc);
+					GetBankInfo();
+				}
+				else if (rpl.err_ == "-995") {
+					ViewToast.Create(LangUITip.CantFindPlayer);
+				}
+				else if (rpl.err_ == "3") {
+					ViewToast.Create(LangUITip.NotEnoughBankMoney);
+				}
+			}
+			yield break;
+		}
+
+		protected IEnumerator OnChangePsw()
+		{
+			var oldTag = ChangePasswordView.FindChildDeeply("oldTag").GetComponentInChildren<InputField>();
+			var newTag = ChangePasswordView.FindChildDeeply("newTag").GetComponentInChildren<InputField>();
+			var confirmTag = ChangePasswordView.FindChildDeeply("confirmTag").GetComponentInChildren<InputField>();
+
+			if (oldTag.text == "" || newTag.text == "" || confirmTag.text == "") {
+				ViewToast.Create(LangUITip.PleaseEnterValue);
+				yield break;
+			}
+
+			if (newTag.text != confirmTag.text) {
+				ViewToast.Create(LangUITip.ConfirmFailed);
+				yield break;
+			}
+
+			msg_set_bank_psw msg = new msg_set_bank_psw();
+			msg.old_psw_ = oldTag.text;
+			msg.psw_ = newTag.text;
+			msg.func_ = 1;
+
+			App.ins.network.SendMessage((ushort)CorReqID.msg_set_bank_psw, msg);
+			var result = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+			if (result.resultSetted) {
+				var rpl = JsonMapper.ToObject<msg_common_reply>(result.result.json);
+				if (rpl.err_ == "1") {
+					ViewToast.Create(LangUITip.OperationSucc);
+				}
+				else if (rpl.err_ == "-999") {
+					ViewToast.Create(LangUITip.PasswordIncorrect);
+				}
+				else {
+					ViewToast.Create(LangUITip.OperationFailed);
+				}
+			}
+		}
+
 		protected override IEnumerator OnResourceReady()
 		{
 			yield return 0;
@@ -49,7 +160,6 @@ namespace Hotfix.Common
 
 			goldText = GoldCommonView.FindChildDeeply("goldText").GetComponent<Text>();
 			bankGoldText = GoldCommonView.FindChildDeeply("bankGoldText").GetComponent<Text>();
-
 
 			HideAll();
 			var obj = ToggleGroup.FindChildDeeply("tog_Get");
@@ -103,39 +213,10 @@ namespace Hotfix.Common
 			});
 
 			{
-				var btnOk = GetView.FindChildDeeply("btn_OK").GetComponent<Button>();
+				var btnOk = GetView.FindChildDeeply("btn_OK");
 				var txt = GetView.FindChildDeeply("getTag").GetComponentInChildren<InputField>();
-				btnOk.onClick.AddListener(() => {
-					MyDebug.LogFormat("GetView onOK");
-					if (txt.text == "") {
-						ViewToast.Create(LangUITip.PleaseEnterValue);
-					}
-					else {
-
-						msg_bank_op msg = new msg_bank_op();
-						msg.op_ = 0;
-						msg.psw_ = App.ins.self.bankPsw;
-						msg.type_ = 1;
-						msg.count_ = long.Parse(txt.text);
-
-						bool succ = App.ins.network.Rpc((ushort)CorReqID.msg_bank_op, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
-							var rpl = JsonMapper.ToObject<msg_common_reply>(json);
-							if (rpl.err_ == "1") {
-								ViewToast.Create(LangUITip.OperationSucc);
-								GetBankInfo();
-							}
-							else if (rpl.err_ == "-999") {
-								ViewToast.Create(LangUITip.PasswordIncorrect);
-							}
-							else if (rpl.err_ == "3") {
-								ViewToast.Create(LangUITip.NotEnoughBankMoney);
-							}
-						});
-
-						if (!succ) {
-							ViewToast.Create(LangUITip.PleaseWait);
-						}
-					}
+				btnOk.OnClick(() => {
+					this.StartCor(OnBankOpResult(txt, 0), false);
 				});
 
 				var slider = GetView.FindChildDeeply("Slider").GetComponent<Slider>();
@@ -156,39 +237,11 @@ namespace Hotfix.Common
 			}
 
 			{
-				var btnOk = PutView.FindChildDeeply("btn_OK").GetComponent<Button>();
+				var btnOk = PutView.FindChildDeeply("btn_OK");
 				var txt = PutView.FindChildDeeply("putTag").GetComponentInChildren<InputField>();
 
-				btnOk.onClick.AddListener(() => {
-					MyDebug.LogFormat("PutView onOK");
-					if (txt.text == "") {
-						ViewToast.Create(LangUITip.PleaseEnterValue);
-					}
-					else {
-						msg_bank_op msg = new msg_bank_op();
-						msg.op_ = 1;
-						msg.psw_ = App.ins.self.bankPsw;
-						msg.type_ = 1;
-						msg.count_ = long.Parse(txt.text);
-
-						bool succ = App.ins.network.Rpc((ushort)CorReqID.msg_bank_op, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
-							var rpl = JsonMapper.ToObject<msg_common_reply>(json);
-							if (rpl.err_ == "1") {
-								ViewToast.Create(LangUITip.OperationSucc);
-								GetBankInfo();
-							}
-							else if (rpl.err_ == "-999") {
-								ViewToast.Create(LangUITip.PasswordIncorrect);
-							}
-							else if (rpl.err_ == "3") {
-								ViewToast.Create(LangUITip.NotEnoughMoney);
-							}
-						});
-
-						if (!succ) {
-							ViewToast.Create(LangUITip.PleaseWait);
-						}
-					}
+				btnOk.OnClick(() => {
+					this.StartCor(OnBankOpResult(txt, 1), false);
 				});
 
 				var slider = PutView.FindChildDeeply("Slider").GetComponent<Slider>();
@@ -208,43 +261,10 @@ namespace Hotfix.Common
 			}
 
 			{
-				var btnOk = TransferView.FindChildDeeply("btn_OK").GetComponent<Button>();
+				var btnOk = TransferView.FindChildDeeply("btn_OK");
 				var txt = TransferView.FindChildDeeply("amountTag").GetComponentInChildren<InputField>();
-				btnOk.onClick.AddListener(() => {
-					MyDebug.LogFormat("TransferView onOK");
-					if (txt.text == "") {
-						ViewToast.Create(LangUITip.PleaseEnterValue);
-						return;
-					}
-
-					var recverTag = TransferView.FindChildDeeply("recverTag").GetComponentInChildren<InputField>();
-					if (recverTag.text == "") {
-						ViewToast.Create(LangUITip.PleaseEnterValue);
-						return;
-					}
-					else {
-						msg_send_present msg = new msg_send_present();
-						msg.present_id_ = (int)ITEMID.BANK_GOLD;
-						msg.count_ = long.Parse(txt.text);
-						msg.to_ = recverTag.text;
-						bool succ = App.ins.network.Rpc((ushort)CorReqID.msg_send_present, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
-							var rpl = JsonMapper.ToObject<msg_common_reply>(json);
-							if (rpl.err_ == "1") {
-								ViewToast.Create(LangUITip.OperationSucc);
-								GetBankInfo();
-							}
-							else if(rpl.err_ == "-995") {
-								ViewToast.Create(LangUITip.CantFindPlayer);
-							}
-							else if(rpl.err_ == "3") {
-								ViewToast.Create(LangUITip.NotEnoughBankMoney);
-							}
-						});
-
-						if (!succ) {
-							ViewToast.Create(LangUITip.PleaseWait);
-						}
-					}
+				btnOk.OnClick(() => {
+					this.StartCor(OnTransfer(txt), false);
 				});
 
 				var btn_Reset = TransferView.FindChildDeeply("btn_Reset").GetComponent<Button>();
@@ -274,40 +294,9 @@ namespace Hotfix.Common
 			}
 
 			{
-				var btnOk = ChangePasswordView.FindChildDeeply("btn_OK").GetComponent<Button>();
-				btnOk.onClick.AddListener(() => {
-
-					var oldTag = ChangePasswordView.FindChildDeeply("oldTag").GetComponentInChildren<InputField>();
-					var newTag = ChangePasswordView.FindChildDeeply("newTag").GetComponentInChildren<InputField>();
-					var confirmTag = ChangePasswordView.FindChildDeeply("confirmTag").GetComponentInChildren<InputField>();
-
-					if (oldTag.text == "" || newTag.text == "" || confirmTag.text == "") {
-						ViewToast.Create(LangUITip.PleaseEnterValue);
-						return;
-					}
-
-					if (newTag.text != confirmTag.text) {
-						ViewToast.Create(LangUITip.ConfirmFailed);
-						return;
-					}
-
-					msg_set_bank_psw msg = new msg_set_bank_psw();
-					msg.old_psw_ = oldTag.text;
-					msg.psw_ = newTag.text;
-					msg.func_ = 1;
-					App.ins.network.Rpc((ushort)CorReqID.msg_set_bank_psw, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
-						var rpl = JsonMapper.ToObject<msg_common_reply>(json);
-						if (rpl.err_ == "1") {
-							ViewToast.Create(LangUITip.OperationSucc);
-						}
-						else if (rpl.err_ == "-999") {
-							ViewToast.Create(LangUITip.PasswordIncorrect);
-						}
-						else {
-							ViewToast.Create(LangUITip.OperationFailed);
-						}
-					});
-
+				var btnOk = ChangePasswordView.FindChildDeeply("btn_OK");
+				btnOk.OnClick(() => {
+					this.StartCor(OnChangePsw(), false);
 				});
 			}
 
@@ -338,14 +327,22 @@ namespace Hotfix.Common
 			img.SetActive(true);
 		}
 
-		void GetBankInfo()
+		IEnumerator DoGetBankInfo()
 		{
 			msg_get_bank_info msg = new msg_get_bank_info();
-			App.ins.network.Rpc((ushort)CorReqID.msg_get_bank_info, msg, (ushort)CorRspID.msg_get_bank_info_ret, (cmd, json) => {
-				var info = JsonMapper.ToObject<msg_get_bank_info_ret>(json);
+			App.ins.network.SendMessage((ushort)CorReqID.msg_get_bank_info, msg);
+			var waitor = App.ins.network.BuildRpcWaitor((ushort)CorRspID.msg_get_bank_info_ret);
+			yield return waitor.WaitResult();
+			if (waitor.resultSetted) {
+				var info = JsonMapper.ToObject<msg_get_bank_info_ret>(waitor.result.json);
 				App.ins.self.items.SetKeyVal((int)ITEMID.BANK_GOLD, long.Parse(info.bank_gold_game_));
 				App.ins.self.DispatchDataChanged();
-			});
+			}
+		}
+
+		void GetBankInfo()
+		{
+			this.StartCor(DoGetBankInfo(), true);
 		}
 
 		void HideAll()

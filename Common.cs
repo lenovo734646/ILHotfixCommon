@@ -227,20 +227,25 @@ namespace Hotfix.Common
 
 	public class Waitor<T>
 	{
+		public bool resultSetted
+		{
+			get { return result_ != null; }
+		}
+
+		public System.Action OnComplete = null;
+
 		public void Complete(T val)
 		{
 			result_ = val;
-			resultSetted = true;
+			if(OnComplete != null) OnComplete();
 		}
 
-		public IEnumerator WaitResult()
+		public IEnumerator WaitResult(float waitTime = float.MaxValue)
 		{
-			isWaiting = true;
 			while(!resultSetted) {
 				yield return 0;
 			}
 			yield return 1;
-			isWaiting = false;
 		}
 		
 		public T result
@@ -248,9 +253,7 @@ namespace Hotfix.Common
 			get { return result_; }
 		}
 
-		T result_;
-		bool resultSetted = false;
-		public bool isWaiting = false;
+		T result_ = default(T);
 	}
 
 	public static class Utils

@@ -49,6 +49,7 @@ namespace Hotfix.Common
 		public const string NotEnoughBankMoney = "银行余额不足.";
 		public const string OperationSucc = "操作成功.";
 		public const string OperationFailed = "操作失败.";
+		public const string OperationTimeOut = "操作超时";
 		public const string CantFindPlayer = "玩家不存在.";
 		public const string ConfirmFailed = "密码不一致.";
 		public const string PleaseWait = "操作太频繁,请稍后再试.";

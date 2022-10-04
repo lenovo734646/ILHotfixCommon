@@ -53,12 +53,11 @@ namespace Hotfix.Common
 			rect.localScale = scale;
 			yield return 0;
 		}
-
-		protected void OnBtnOK()
+		protected IEnumerator DoOnBtnOK()
 		{
 			var layer = GameObject.Find("Popup_BankLoginPanel");
 			var psw = layer.FindChildDeeply("InputField").GetComponent<InputField>();
-			if(psw.text == "") {
+			if (psw.text == "") {
 				ViewToast.Create(LangUITip.PleaseEnterPassword);
 			}
 			else {
@@ -66,9 +65,11 @@ namespace Hotfix.Common
 				msg.func_ = 2;
 				msg.psw_ = psw.text;
 				msg.old_psw_ = psw.text;
-
-				App.ins.network.Rpc((ushort)CorReqID.msg_set_bank_psw, msg, (ushort)CommID.msg_common_reply, (cmd, json) => {
-					var rpl = JsonMapper.ToObject<msg_common_reply>(json);
+				App.ins.network.SendMessage((ushort)CorReqID.msg_set_bank_psw, msg);
+				var waitor = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+				yield return waitor.WaitResult();
+				if (waitor.resultSetted) {
+					var rpl = JsonMapper.ToObject<msg_common_reply>(waitor.result.json);
 					if (rpl.err_ == "1") {
 						Close();
 						var view = new ViewBankMain(null);
@@ -80,8 +81,13 @@ namespace Hotfix.Common
 							ViewToast.Create(LangUITip.PasswordIncorrect);
 						}
 					}
-				});
+				}
 			}
+			yield return 0;
+		}
+		protected void OnBtnOK()
+		{
+			this.StartCor(DoOnBtnOK(), false);
 		}
 
 		protected void OnBtnForget()

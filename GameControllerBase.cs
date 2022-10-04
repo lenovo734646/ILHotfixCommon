@@ -202,11 +202,10 @@ namespace Hotfix.Common
 			closing_.Clear();
 		}
 
-		public override void AboutToStop()
+		protected override void OnAboutToStop()
 		{
 			MyDebug.LogFormat("About To Stop GameController");
 			App.ins.network.RemoveMsgHandler(this);
-			base.AboutToStop();
 		}
 
 		public virtual GamePlayer CreateGamePlayer()

@@ -64,6 +64,12 @@ namespace Hotfix.Common
 			WebGL = 6,
 		}
 
+		public class MsgContent
+		{
+			public ushort subCmd;
+			public string json;
+		}
+
 		public override string GetDebugInfo()
 		{
 			return $"Network:Time Since Last Ping:{TimeElapseSinceLastPing()}s, msgHandlers={msgHandlers.Count}, rpcWaiting={rpcWaiting.Count}";
@@ -97,51 +103,54 @@ namespace Hotfix.Common
 			Globals.net.SendMessage(sendStream_);
 		}
 
-		//做RPC调用,方便代码编写
-		public IEnumerator CoRpc(ushort msgid, MsgBase proto, ushort rspID, Func<int, string, int, MsgRpcRet> callback)
+		//commonRplID是CommonReply回复中的请求命令ID.0xFFFF表示没有CommonReply
+		public Waitor<MsgContent> BuildRpcWaitor(ushort rspID, ushort commonRplID = 0xFFFF)
 		{
-			bool responsed = false;
-			
+			Waitor<MsgContent> waitor = new Waitor<MsgContent>();
+
 			MsgRpcRet ret = new MsgRpcRet();
 			Action<int, string> wrapCallback = (cmd, json) => {
-				if (responsed) return;
-				var rpcRet = callback(cmd, json, msgid);
-				if (rpcRet != null) {
-					responsed = true;
-					ret = rpcRet;
+				if(cmd == (int)CommID.msg_common_reply) {
+					var msg = JsonMapper.ToObject<msg_common_reply>(json);
+					if(msg.rp_cmd_ == commonRplID.ToString()) {
+						MsgContent cont = new MsgContent() { subCmd = (ushort)cmd, json = json };
+						waitor.Complete(cont);
+					}
+				}
+				else {
+					MsgContent cont = new MsgContent() { subCmd = (ushort)cmd, json = json };
+					waitor.Complete(cont);
 				}
 			};
 
-			var handler = RegisterMsgHandler(rspID, wrapCallback, this);
-			var handlerCommonRpl = RegisterMsgHandler((int)CommID.msg_common_reply, wrapCallback, this);
-
-			SendMessage(msgid, proto);
-
-			TimeCounter tc = new TimeCounter("");
-			while (!responsed && tc.Elapse() < App.ins.conf.networkTimeout) {
-				yield return new WaitForSeconds(0.1f);
+			MsgHandler handler = RegisterMsgHandler(rspID, wrapCallback, this);
+			MsgHandler handlerCommonRpl = null;
+			if (rspID != (int)CommID.msg_common_reply) {
+				handlerCommonRpl = RegisterMsgHandler((int)CommID.msg_common_reply, wrapCallback, this);
 			}
-			//超时回调
-			if (!responsed) {
-				ret.err_ = -9999;
-			}
-			RemoveMsgHandler(handler);
-			RemoveMsgHandler(handlerCommonRpl);
-			yield return ret;
+
+			waitor.OnComplete = () => {
+				RemoveMsgHandler(handler);
+				if(handlerCommonRpl != null) RemoveMsgHandler(handlerCommonRpl);
+			};
+
+			return waitor;
 		}
 
-		public bool Rpc(ushort msgid, MsgBase proto, Action<string> callback)
+		public Waitor<msg_rpc_call_ret> Rpc(ushort msgid, MsgBase proto)
 		{
+			Waitor<msg_rpc_call_ret> waitor = new Waitor<msg_rpc_call_ret>();
 			MsgHandler handler = null;
 			bool responsed = false;
 			proto.rpc_sequence_ = Globals.Random_Range(1, 1000000).ToString();
+
 			Action<int, string> wrapCallback = (cmd, json) => {
 				if (responsed) return;
 
-				var rpl = LitJson.JsonMapper.ToObject<msg_rpc_call_ret>(json);
+				var rpl = JsonMapper.ToObject<msg_rpc_call_ret>(json);
 				if (rpl.rpc_sequence_ == proto.rpc_sequence_) {
 					responsed = true;
-					callback(rpl.data_);
+					waitor.Complete(rpl);
 				}
 
 				if (responsed) {
@@ -149,53 +158,13 @@ namespace Hotfix.Common
 					rpcWaiting.Remove(handler);
 				}
 			};
-
 
 			handler = RegisterMsgHandler((int)CommID.msg_rpc_call_ret, wrapCallback, this);
 			rpcWaiting.Add(handler);
 
-
-			return SendMessage(msgid, proto);
+			SendMessage(msgid, proto);
+			return waitor;
 		}
-
-		public bool Rpc(ushort msgid, MsgBase proto, ushort rspID, Action<int, string> callback, float timeout = float.MaxValue)
-		{
-			MsgHandler handler = null, handlerCommonRpl = null;
-			bool responsed = false;
-
-			Action<int, string> wrapCallback = (cmd, json) => {
-				if (responsed) return;
-
-				if (cmd == (int)CommID.msg_common_reply) {
-					var rpl = LitJson.JsonMapper.ToObject<msg_common_reply>(json);
-					if(int.Parse(rpl.rp_cmd_) == msgid) {
-						responsed = true;
-						callback(cmd, json);
-					}
-				}
-				else {
-					responsed = true;
-					callback(cmd, json);
-				}
-
-				if (responsed) {
-					RemoveMsgHandler(handler);
-					RemoveMsgHandler(handlerCommonRpl);
-
-					rpcWaiting.Remove(handler);
-					rpcWaiting.Remove(handlerCommonRpl);
-				}
-			};
-
-
-			handler = RegisterMsgHandler(rspID, wrapCallback, this);
-			handlerCommonRpl = RegisterMsgHandler((int)CommID.msg_common_reply, wrapCallback, this);
-
-			rpcWaiting.Add(handler);
-			rpcWaiting.Add(handlerCommonRpl);
-			return SendMessage(msgid, proto);
-		}
-
 
 		public bool SendMessage(ushort subCmd, MsgBase content)
 		{
@@ -298,7 +267,7 @@ namespace Hotfix.Common
 				yield return Result.Success;
 		}
 
-		public MsgRpcRet RPCCallback<T>(int cmd, string json, int reqID) where T: MsgBase
+		public MsgRpcRet ToRpcResult<T>(ushort cmd, string json, ushort reqID) where T: MsgBase
 		{
 			MsgRpcRet msgr = new MsgRpcRet();
 			if (cmd ==(int)CommID.msg_common_reply) {
@@ -348,17 +317,24 @@ namespace Hotfix.Common
 					msg.pwd_hash_ = Globals.Md5Hash(app.lastUseAccount.psw);
 					msg.machine_mark_ = app.conf.GetDeviceID();
 					msg.sign_ = Globals.Md5Hash(msg.acc_name_ + msg.pwd_hash_ + msg.machine_mark_ + "{51B539D8-0D9A-4E35-940E-22C6EBFA86A8}");
-					var resultOfRpc = app.network.CoRpc((ushort)AccReqID.msg_user_register, msg, (ushort)CommID.msg_common_reply,
-						RPCCallback<msg_common_reply>);
-					yield return resultOfRpc;
 
-					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-					if (rpcd.err_ == -994) {
-						progressOfLoading?.Desc(LangUITip.ServerIsBusy);
-						goto Clean;
+					app.network.SendMessage((ushort)AccReqID.msg_user_register, msg);
+					var resultOfRpc = app.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+					yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
+
+					if (resultOfRpc.resultSetted) {
+						MsgRpcRet rpcd = ToRpcResult<msg_common_reply>(resultOfRpc.result.subCmd, resultOfRpc.result.json, (ushort)AccReqID.msg_user_register);
+						if (rpcd.err_ == -994) {
+							progressOfLoading?.Desc(LangUITip.ServerIsBusy);
+							goto Clean;
+						}
+						else if (rpcd.err_ != 0 && rpcd.err_ != -995) {
+							progressOfLoading?.Desc(LangUITip.RegisterFailed);
+							goto Clean;
+						}
 					}
-					else if (rpcd.err_ != 0 && rpcd.err_ != -995) {
-						progressOfLoading?.Desc(LangUITip.RegisterFailed);
+					else {
+						progressOfLoading?.Desc(LangUITip.OperationTimeOut + ":1");
 						goto Clean;
 					}
 				}
@@ -371,24 +347,30 @@ namespace Hotfix.Common
 					msgReq.sign_ = Globals.Md5Hash(msgReq.acc_name_ + msgReq.pwd_hash_ + msgReq.machine_mark_ + "{51B539D8-0D9A-4E35-940E-22C6EBFA86A8}");
 					MyDebug.LogFormat($"Login Use:{msgReq.acc_name_},{msgReq.machine_mark_}");
 
-					var resultOfRpc = app.network.CoRpc((ushort)AccReqID.msg_user_login, msgReq,
-						(ushort)AccRspID.msg_user_login_ret, RPCCallback<msg_user_login_ret>);
-					yield return resultOfRpc;
+					app.network.SendMessage((ushort)AccReqID.msg_user_login, msgReq);
+					var resultOfRpc = app.network.BuildRpcWaitor((ushort)AccRspID.msg_user_login_ret);
+					yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
-					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-					if (rpcd.err_ != 0) {
-						MyDebug.LogFormat("登录失败.{0}", rpcd.err_);
-						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
+					if (resultOfRpc.resultSetted) {
+						MsgRpcRet rpcd = (MsgRpcRet)ToRpcResult<msg_user_login_ret>(resultOfRpc.result.subCmd, resultOfRpc.result.json,	(ushort)AccReqID.msg_user_login);
+						if (rpcd.err_ != 0) {
+							MyDebug.LogFormat("登录失败.{0}", rpcd.err_);
+							progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
+							goto Clean;
+						}
+
+						msg_user_login_ret r = (msg_user_login_ret)(rpcd.msg);
+						var player = app.self;
+						player.iid = int.Parse(r.iid_);
+						player.nickName = r.nickname_;
+						player.uid = r.uid_;
+						player.headIco = r.headico_;
+						app.self.phone = r.phone;
+					}
+					else {
+						progressOfLoading?.Desc(LangUITip.OperationTimeOut + ":2");
 						goto Clean;
 					}
-
-					msg_user_login_ret r = (msg_user_login_ret)(rpcd.msg);
-					var player = app.self;
-					player.iid = int.Parse(r.iid_);
-					player.nickName = r.nickname_;
-					player.uid = r.uid_;
-					player.headIco = r.headico_;
-					app.self.phone = r.phone;
 				}
 			}
 
@@ -397,19 +379,24 @@ namespace Hotfix.Common
 				msg.gameid_ = ((int)toGame.gameID);
 				msg.uid_ = app.self.uid;
 
-				var resultOfRpc = app.network.CoRpc((ushort)AccReqID.msg_get_game_coordinate, msg, (ushort)AccRspID.msg_channel_server,
-					RPCCallback<msg_channel_server>);
-				yield return resultOfRpc;
+				app.network.SendMessage((ushort)AccReqID.msg_get_game_coordinate, msg);
+				var resultOfRpc = app.network.BuildRpcWaitor((ushort)AccRspID.msg_channel_server);
+				yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
-				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-				if (rpcd.err_ != 0) {
-					progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
-					MyDebug.LogFormat("Get Coordinate failed,error:{0},game:{1},{2}", rpcd.err_, toGame.gameID,(int)toGame.gameID);
+				if (resultOfRpc.resultSetted) {
+					MsgRpcRet rpcd = ToRpcResult<msg_channel_server>(resultOfRpc.result.subCmd, resultOfRpc.result.json, (ushort)AccReqID.msg_get_game_coordinate);
+					if (rpcd.err_ != 0) {
+						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
+						MyDebug.LogFormat("Get Coordinate failed,error:{0},game:{1},{2}", rpcd.err_, toGame.gameID, (int)toGame.gameID);
+						goto Clean;
+					}
+					msg_channel_server r = (msg_channel_server)(rpcd.msg);
+					MyDebug.LogFormat($"Get Coordinate:{r.ip_},{r.port_},game:{toGame.gameID}");
+				}
+				else {
+					progressOfLoading?.Desc(LangUITip.OperationTimeOut + ":3");
 					goto Clean;
 				}
-				msg_channel_server r = (msg_channel_server)(rpcd.msg);
-				MyDebug.LogFormat($"Get Coordinate:{r.ip_},{r.port_},game:{toGame.gameID}");
-
 			}
 
 			succ = true;
@@ -425,19 +412,27 @@ namespace Hotfix.Common
 					msg_alloc_game_server msg = new msg_alloc_game_server();
 					msg.game_id_ = (int)toGame.gameID;
 
-					var resultOfRpc = app.network.CoRpc((ushort)CorReqID.msg_alloc_game_server, msg, (ushort)CorRspID.msg_switch_game_server, 
-						RPCCallback<msg_switch_game_server>);
-					yield return resultOfRpc;
-					MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-					if (rpcd.err_ != 0) {
-						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
-						MyDebug.LogFormat("alloc game server failed");
-						goto Clean;
+					app.network.SendMessage((ushort)CorReqID.msg_alloc_game_server, msg);
+					var resultOfRpc = app.network.BuildRpcWaitor((ushort)CorRspID.msg_switch_game_server);
+					yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
+
+
+					if (resultOfRpc.resultSetted) {
+						MsgRpcRet rpcd = ToRpcResult<msg_channel_server>(resultOfRpc.result.subCmd, resultOfRpc.result.json, (ushort)CorReqID.msg_alloc_game_server);
+						if (rpcd.err_ != 0) {
+							progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
+							MyDebug.LogFormat("alloc game server failed");
+							goto Clean;
+						}
+						else {
+							MyDebug.LogFormat("alloc game server succ.");
+
+							msg_switch_game_server r = (msg_switch_game_server)(rpcd.msg);
+						}
 					}
 					else {
-						MyDebug.LogFormat("alloc game server succ.");
-
-						msg_switch_game_server r = (msg_switch_game_server)(rpcd.msg);
+						progressOfLoading?.Desc(LangUITip.OperationTimeOut + ":4");
+						goto Clean;
 					}
 
 				}
@@ -465,37 +460,53 @@ namespace Hotfix.Common
 			{
 				msg_enter_game_req msg = new msg_enter_game_req();
 				msg.room_id_ = configid << 24 | roomid;
-				var resultOfRpc = App.ins.network.CoRpc((ushort)GameReqID.msg_enter_game_req, msg, (ushort)GameRspID.msg_prepare_enter, RPCCallback<msg_prepare_enter>);
-				yield return resultOfRpc;
-				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-				if (rpcd.err_ != 0) {
-					MyDebug.LogFormat("enter game room failed.");
-					if(rpcd.err_ == 2005) {
-						ViewToast.Create(LangUITip.NotEnoughMoney);
+
+				App.ins.network.SendMessage((ushort)GameReqID.msg_enter_game_req, msg);
+				var resultOfRpc = App.ins.network.BuildRpcWaitor((ushort)GameRspID.msg_prepare_enter);
+				yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
+
+				if (resultOfRpc.resultSetted) {
+					MsgRpcRet rpcd = ToRpcResult<msg_common_reply>(resultOfRpc.result.subCmd, resultOfRpc.result.json, (ushort)GameReqID.msg_enter_game_req);
+					if (rpcd.err_ != 0) {
+						MyDebug.LogFormat("enter game room failed.");
+						if (rpcd.err_ == 2005) {
+							ViewToast.Create(LangUITip.NotEnoughMoney);
+						}
+						else {
+							ViewToast.Create(LangUITip.EnterGameFailed);
+						}
+						goto Clean;
 					}
-					else {
-						ViewToast.Create(LangUITip.EnterGameFailed);
-					}
+					MyDebug.LogFormat("PrepareGameRoom");
+					yield return App.ins.currentApp.game.PrepareGameRoom();
+				}
+				else {
 					goto Clean;
 				}
-				MyDebug.LogFormat("PrepareGameRoom");
-				yield return App.ins.currentApp.game.PrepareGameRoom();
 			}
 
 			{
 				msg_prepare_enter_complete msg = new msg_prepare_enter_complete();
-				var resultOfRpc = App.ins.network.CoRpc((ushort)GameReqID.msg_prepare_enter_complete, msg, (ushort)CommID.msg_common_reply, RPCCallback<msg_common_reply>);
-				yield return resultOfRpc;
-				MsgRpcRet rpcd = (MsgRpcRet)(resultOfRpc.Current);
-				if (rpcd.err_ == 0) {
-					MyDebug.LogFormat("OnGameRoomSucc");
-					yield return App.ins.currentApp.game.GameRoomEnterSucc();
+
+				App.ins.network.SendMessage((ushort)GameReqID.msg_prepare_enter_complete, msg);
+				var resultOfRpc = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+				yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
+
+				if (resultOfRpc.resultSetted) {
+					MsgRpcRet rpcd = ToRpcResult<msg_common_reply>(resultOfRpc.result.subCmd, resultOfRpc.result.json, (ushort)GameReqID.msg_prepare_enter_complete);
+					if (rpcd.err_ == 0) {
+						MyDebug.LogFormat("OnGameRoomSucc");
+						yield return App.ins.currentApp.game.GameRoomEnterSucc();
+					}
+					else {
+						MyDebug.LogFormat("msg_prepare_enter_complete msg_common_reply failed {0}", rpcd.err_);
+						goto Clean;
+					}
+					succ = true;
 				}
 				else {
-					MyDebug.LogFormat("msg_prepare_enter_complete msg_common_reply failed {0}", rpcd.err_);
 					goto Clean;
 				}
-				succ = true;
 			}
 			lastState = SessionBase.EnState.Gaming;
 			lastConfigid = configid;

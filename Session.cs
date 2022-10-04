@@ -46,28 +46,20 @@ namespace Hotfix.Lobby
 			msg.machine_id_ = App.ins.conf.GetDeviceID();
 			msg.sign_ = Globals.Md5Hash(msg.machine_id_ + "1EBE295C-BE45-45C0-9AA1-496C1CEE4BDB");
 
-			Func<int, string, int, MsgRpcRet> cb = (cmd, json, reqID) => {
-				MsgRpcRet ret = new MsgRpcRet();
-				ret.msg = JsonMapper.ToObject<msg_handshake_ret>(json);
-				ret.err_ = 0;
-				return ret;
-			};
-
-			var handle = App.ins.network.CoRpc((ushort)GateReqID.msg_handshake, msg, (ushort)GateRspID.msg_handshake_ret, cb);
-			yield return handle;
+			App.ins.network.SendMessage((ushort)GateReqID.msg_handshake, msg);
+			var resultOfRpc = App.ins.network.BuildRpcWaitor((ushort)GateRspID.msg_handshake_ret);
+			yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
 			Result result = Result.Failure;
-			var msgRet = (MsgRpcRet)handle.Current;
-			if (msgRet.err_ == 0) {
-				var msg1 = (msg_handshake_ret)msgRet.msg;
-				if (msg1.ret_ == "0") {
+			if (resultOfRpc.resultSetted) {
+				var msg1 = JsonMapper.ToObject<msg_handshake_ret>(resultOfRpc.result.json);
+				if (msg1 != null && msg1.ret_ == "0") {
 					result = Result.Success;
 				}
 				else {
 					if (msg1 != null) MyDebug.LogFormat("Handshake failed with:{0}", msg1.ret_);
 				}
 			}
-
 			yield return result;
 		}
 
