@@ -8,115 +8,37 @@ namespace Hotfix.Common.MultiPlayer
 {
 	public enum GameMultiReqID
 	{
-		msg_set_bets_req=5,
-		msg_pk_req=6,
-		msg_open_card_req=7,
-		msg_show_card_req=8,
-
-		msg_turn_to_do =11,
-		msg_cards=12,
-		msg_player_setbet=13,
-		msg_pk_result=14,
-		msg_game_report=15,
-		msg_card_match_result=16,
-		msg_new_turn=17,
-		msg_card_opened=18,
-		msg_cards_complete=19,
-		msg_promote_banker=20,
-
-		
-	}
-	//需要客户端操作了。
-	public class msg_turn_to_do:msg_room_msg
-    {
-		public string uid_;//玩家UID.
-		public string wait_key_;//操作标识，需要带回服务器
-		public string must_greater_;//最低下注额
-		public string time_left_ ;//超时时间
-		public string func_ ;//0请下注, 1.以后再说目前没有
+		msg_cancel_banker_req = 3,
+		msg_apply_banker_req = 4,
+		msg_set_bets_req = 5,
+		msg_get_player_count = 6,
+		msg_get_lottery_record = 7,
+		msg_get_banker_ranking = 8,
+		msg_clear_my_bets = 9,
 	}
 
-	//发牌消息
-	public class msg_cards :  msg_room_msg
-    {
-		public string uid_;//玩家UID.
-		public string cards_;//玩家牌
-		public string type_;//1-亮牌
-
-	}
-
-	public class msg_cards_complete :  msg_room_msg
-    {
-		public string data_;//第几轮发牌结束。有些游戏发牌要发好几次的
-	}
-	//玩家下注
-	public class msg_player_setbet :  msg_room_msg
-    {
-		public string uid_;//玩家UID
-		public string bet_type_;//下注类型 0-底注,1-跟注, 2-加注, 3-allin. 4-弃牌
-		public string bet_;//玩家下注额
-
-	}
-	//牌形结果
-	public class msg_card_match_result : msg_room_msg
-    {
-		public string uid_;//哪个玩家
-		public string card_type_;//0.散牌，1.对子，2.顺子，3.同花，4.同花顺，5.豹子
-	}
-	//PK比牌结果
-	public class msg_pk_result :  msg_room_msg
-    {
-		public string from_;//发起人
-		public string to_;//目标
-		public string winner_;
-
-	}
-	//最后结果
-	public class msg_game_report :  msg_room_msg
-    {
-		public string uid_;//谁
-		public string win_;//赢了多少钱。负的表示输了
-
-	}
-	//新一轮下注开始，(超过最大下注轮数会强制结算游戏）
-	public class msg_new_turn :  msg_room_msg
-    {
-		public string turn_; //第几轮下注了
-	}
-	//广播玩家看牌了
-	public class msg_card_opened : msg_room_msg
-    {
-		public string uid_;//谁
-	}
-	//本轮庄家
-	public class msg_promote_banker : msg_room_msg
-    {
-		public string pos_;
-	}
-	//下注
-	public class msg_set_bets_req :  MsgBase
-    {
-		public string wait_key_;//事务标识，由msg_turn_to_do传来
-		public string bet_type_;//0底注 1-跟注,2-加注,3-allin 4 弃牌, 5
-		public string bet_;
-
-	}
-	//PK请求
-	public class msg_pk_req : MsgBase
+	public class msg_set_bets_req : msg_from_client
 	{
-		public string wait_key_;	//事务标识，由msg_turn_to_do传来
-		public string target_;  //PK目标
+		//筹码ID
+		public int pid_;
+		//压注项
+		public int present_id_;
 	}
-	//看牌请求
-	public class msg_open_card_req : MsgBase
+
+	public class msg_clear_my_bets : msg_from_client
 	{
 
-    }
+	}
 
-	public class msg_show_card_req : MsgBase
+	public class msg_apply_banker_req : msg_from_client
 	{
 
-    }
+	}
+
+	public class msg_cancel_banker_req : msg_from_client
+	{
+
+	}
 
 	public enum GameMultiRspID
 	{
@@ -149,6 +71,158 @@ namespace Hotfix.Common.MultiPlayer
 	}
 
 
-	
+	public class msg_banker_promote : msg_player_seat
+	{
+		public string deposit_;                //资金池 8字节
+		public string is_sys_banker_;         //是否是系统庄 1是
+		public string banker_turn;            //连庄次数
+		public string totalwin_;
+	}
+
+	public class msg_game_report : msg_room_msg
+	{
+		public string uid_;
+		public string nickname_;
+		public string pay_;               //付出多少钱
+		public string actual_win_;        //实际赢多少	8字节
+		public string should_win_;        //理论上赢多少，由于庄家爆庄，可能会少赔 8字节
+		public string banker_win;         //庄家赢了多少
+	}
+
+	public class msg_banker_deposit_change : msg_currency_change
+	{
+		public string turn_left_;
+		public string total_win_;
+		public string this_win_;
+	}
+
+	//新增主公列表玩家
+	public class msg_new_banker_applyed : msg_player_seat
+	{
+
+	};
+
+	//删除主公列表玩家
+	public class msg_apply_banker_canceled : msg_room_msg
+	{
+		public string uid_;
+	}
+
+
+//状态机变化
+	public class msg_state_change : msg_room_msg
+	{
+		public string change_to_;         //0开始下注, 1,开始转转,2,休息时间
+		public string time_left;
+		public string time_total_;
+		public string data_;              //状态机客外数据,比如"removplayer"
+	}
+
+	public class msg_player_setbet : msg_room_msg
+	{
+		public string uid_;
+		public string pid_;           //筹码id
+		public string present_id_;    //美女id
+		public string max_setted_;    //这个注一共已下注
+	}
+
+	public class msg_my_setbet : msg_room_msg
+	{
+		public string pid_;           //筹码id
+		public string present_id_;
+		public string set_;
+		public string my_total_set_;  //我的本注总计
+		public string total_set_;     //本注总计 
+	}
+
+
+	public class msg_send_color : msg_room_msg
+	{
+		public string colors_;
+		public string rates_;
+	}
+
+	public class msg_random_result_base : msg_room_msg
+	{
+		public string turn_;
+	}
+
+	public class msg_last_random_base : msg_room_msg
+	{
+
+	}
+
+	public class msg_random_result_slwh : msg_random_result_base
+	{
+		public string animal_pid_;
+		public string bigsmall_;
+		public string color_;
+		public string animals_;
+	}
+
+
+	public class msg_cards : msg_room_msg
+	{
+		public string step_;
+		public string pos_;               //位置
+		public string cards_;    //0-12，方块A-K,13-25, 梅花A-K, 26-38,红桃A-K, 39-51,黑桃A-K, 52 小王,53大王
+	}
+
+	//牌型匹配结果
+	public class msg_card_match_result : msg_room_msg
+	{
+		public string pos_;               //位置
+		public string niuniu_point_;  //牛牛点数, 
+		public string niuniu_level_;  //牛牛级别, <0-无牛，0-普通牛牛,1-4花牛,2-5花牛,3-炸弹,4-5小牛
+		public string card3_;  //配0的3张牌
+		public string card2_;  //配点的2点张牌
+		public string replace_id1_;   //大王替换成
+		public string replace_id2_;   //小王替换成
+	}
+
+	public class msg_player_win : msg_room_msg
+	{
+		public string uid_;
+		public string betid_;     //庄注项
+		public string win_;       //赢多少
+	}
+
+	public class msg_brnn_result : msg_random_result_base
+	{
+		public string wins;
+	}
+
+	public class msg_bjl_result : msg_random_result_base
+	{
+		public string card_result_; //庄和闲点数
+	}
+
+	public class msg_game_info_longhu : MsgBase
+	{
+		public string dafuhao_;       //大富豪位置
+		public string shensuanz_;     //神算子位置
+		public string accurate_;      //准确率
+		public string pred_;          //预测龙赢概率
+	}
+
+	//开奖历史记录
+	public class msg_last_random_slwh : msg_last_random_base
+	{
+		public string pids_;
+		public string bigsmall_;
+		public string color_;
+		public string ani_;
+		public string turn_;
+		public string data_;
+	}
+
+	public class msg_game_info : MsgBase
+	{
+		public string turn_;
+		//出奖项ID
+		public string pids_;
+		//出奖数量
+		public string counts_;
+	}
 
 }
