@@ -95,6 +95,16 @@ namespace Hotfix.Common
 			yield return 0;
 		}
 
+		public virtual void WillLeaveGameRoom()
+		{
+			mainView.AboutToStop();
+		}
+		
+		public virtual void LeaveGameRoom()
+		{
+			mainView.Close();
+		}
+
 		protected virtual void InstallMsgHandler()
 		{
 			App.ins.network.RegisterMsgHandler((int)CommID.msg_common_reply, (cmd, json) => {
@@ -157,6 +167,7 @@ namespace Hotfix.Common
 		{
 			yield return OnPrepareGameRoom();
 		}
+
 		public IEnumerator GameRoomEnterSucc()
 		{
 			isEntering = false;
@@ -172,7 +183,9 @@ namespace Hotfix.Common
 		//进入房间阶段1,服务器位置已锁定,框架要求客户端加载房间资源.
 		protected virtual IEnumerator OnPrepareGameRoom()
 		{
-			yield return 0;
+			var view = CreateViewGameScene();
+			OpenView(view);
+			yield return view.WaitingForReady();
 		}
 
 		//进入游戏房间成功,服务器已经把房间数据同步完成,可以安全使用服务器数据了.
@@ -271,6 +284,7 @@ namespace Hotfix.Common
 			}
 			players.Remove(serverPos);
 		}
+
 
 		public DictionaryCached<int, GamePlayer> players = new DictionaryCached<int, GamePlayer>();
 		
@@ -377,20 +391,24 @@ namespace Hotfix.Common
 			}, this);
 		}
 
-		protected override IEnumerator OnGameLoginSucc()
+		IEnumerator AutoEnterGameRoom()
 		{
-			yield return loading_.WaitingForReady();
-
-			var view = CreateViewGameScene();
-			OpenView(view);
-			yield return view.WaitingForReady();
-
 			//百人类游戏直接进游戏房间
 			var handle1 = App.ins.network.CoEnterGameRoom(1, 0);
 			yield return handle1;
 			if ((int)handle1.Current == 0) {
-				ViewToast.Create(LangNetWork.EnterRoomFailed);
+				Debug.Log("CoEnterGameRoom failed.");
+				yield return App.ins.CoCheckUpdateAndRun(App.ins.conf.defaultGame, null, false);
 			}
+		}
+
+		protected override IEnumerator OnGameLoginSucc()
+		{
+			yield return loading_.WaitingForReady();
+
+			RunAction(0.1f, () => {
+				StartCor(AutoEnterGameRoom(), true);
+			});
 		}
 	}
 
@@ -401,19 +419,13 @@ namespace Hotfix.Common
 			return ToString();
 		}
 
-		protected override IEnumerator OnPrepareGameRoom()
-		{
-			var view = CreateViewGameScene();
-			OpenView(view);
-			yield return view.WaitingForReady();
-		}
-		
 		IEnumerator DoLoadRoomList()
 		{
 			var view = CreateViewRoomList();
 			OpenView(view);
 
 			yield return view.WaitingForReady();
+			loading_.Close();
 			yield return 0;
 		}
 

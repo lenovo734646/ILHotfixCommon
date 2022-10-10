@@ -240,9 +240,10 @@ namespace Hotfix.Common
 			if(OnComplete != null) OnComplete();
 		}
 
+		TimeCounter tc = new TimeCounter("");
 		public IEnumerator WaitResult(float waitTime = float.MaxValue)
 		{
-			while(!resultSetted) {
+			while(!resultSetted && tc.Elapse() < waitTime) {
 				yield return 0;
 			}
 			yield return 1;
@@ -254,10 +255,5 @@ namespace Hotfix.Common
 		}
 
 		T result_ = default(T);
-	}
-
-	public static class Utils
-	{
-		
 	}
 }

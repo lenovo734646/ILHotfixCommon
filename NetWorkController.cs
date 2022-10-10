@@ -104,7 +104,7 @@ namespace Hotfix.Common
 		}
 
 		//commonRplID是CommonReply回复中的请求命令ID.0xFFFF表示没有CommonReply
-		public Waitor<MsgContent> BuildRpcWaitor(ushort rspID, ushort commonRplID = 0xFFFF)
+		public Waitor<MsgContent> BuildResponseWaitor(ushort rspID, ushort reqID, MsgBase reqMsg)
 		{
 			Waitor<MsgContent> waitor = new Waitor<MsgContent>();
 
@@ -112,7 +112,7 @@ namespace Hotfix.Common
 			Action<int, string> wrapCallback = (cmd, json) => {
 				if(cmd == (int)CommID.msg_common_reply) {
 					var msg = JsonMapper.ToObject<msg_common_reply>(json);
-					if(msg.rp_cmd_ == commonRplID.ToString()) {
+					if(msg.rp_cmd_ == reqID.ToString()) {
 						MsgContent cont = new MsgContent() { subCmd = (ushort)cmd, json = json };
 						waitor.Complete(cont);
 					}
@@ -134,6 +134,10 @@ namespace Hotfix.Common
 				if(handlerCommonRpl != null) RemoveMsgHandler(handlerCommonRpl);
 			};
 
+			//如果发送失败,则直接失败
+			if(!SendMessage(reqID, reqMsg)) {
+				waitor.Complete(null);
+			}
 			return waitor;
 		}
 
@@ -318,8 +322,7 @@ namespace Hotfix.Common
 					msg.machine_mark_ = app.conf.GetDeviceID();
 					msg.sign_ = Globals.Md5Hash(msg.acc_name_ + msg.pwd_hash_ + msg.machine_mark_ + "{51B539D8-0D9A-4E35-940E-22C6EBFA86A8}");
 
-					app.network.SendMessage((ushort)AccReqID.msg_user_register, msg);
-					var resultOfRpc = app.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+					var resultOfRpc = app.network.BuildResponseWaitor((ushort)CommID.msg_common_reply, (ushort)AccReqID.msg_user_register, msg);
 					yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
 					if (resultOfRpc.resultSetted) {
@@ -347,8 +350,7 @@ namespace Hotfix.Common
 					msgReq.sign_ = Globals.Md5Hash(msgReq.acc_name_ + msgReq.pwd_hash_ + msgReq.machine_mark_ + "{51B539D8-0D9A-4E35-940E-22C6EBFA86A8}");
 					MyDebug.LogFormat($"Login Use:{msgReq.acc_name_},{msgReq.machine_mark_}");
 
-					app.network.SendMessage((ushort)AccReqID.msg_user_login, msgReq);
-					var resultOfRpc = app.network.BuildRpcWaitor((ushort)AccRspID.msg_user_login_ret);
+					var resultOfRpc = app.network.BuildResponseWaitor((ushort)AccRspID.msg_user_login_ret, (ushort)AccReqID.msg_user_login, msgReq);
 					yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
 					if (resultOfRpc.resultSetted) {
@@ -379,14 +381,15 @@ namespace Hotfix.Common
 				msg.gameid_ = ((int)toGame.gameID);
 				msg.uid_ = app.self.uid;
 
-				app.network.SendMessage((ushort)AccReqID.msg_get_game_coordinate, msg);
-				var resultOfRpc = app.network.BuildRpcWaitor((ushort)AccRspID.msg_channel_server);
+				var resultOfRpc = app.network.BuildResponseWaitor((ushort)AccRspID.msg_channel_server, (ushort)AccReqID.msg_get_game_coordinate, msg);
 				yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
 				if (resultOfRpc.resultSetted) {
 					MsgRpcRet rpcd = ToRpcResult<msg_channel_server>(resultOfRpc.result.subCmd, resultOfRpc.result.json, (ushort)AccReqID.msg_get_game_coordinate);
 					if (rpcd.err_ != 0) {
-						progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
+						progressOfLoading?.Desc(LangNetWork.AcquireServiceFailed);
+						ViewToast.Create(LangNetWork.AcquireServiceFailed);
+						yield return new WaitForSeconds(0.5f);
 						MyDebug.LogFormat("Get Coordinate failed,error:{0},game:{1},{2}", rpcd.err_, toGame.gameID, (int)toGame.gameID);
 						goto Clean;
 					}
@@ -412,13 +415,12 @@ namespace Hotfix.Common
 					msg_alloc_game_server msg = new msg_alloc_game_server();
 					msg.game_id_ = (int)toGame.gameID;
 
-					app.network.SendMessage((ushort)CorReqID.msg_alloc_game_server, msg);
-					var resultOfRpc = app.network.BuildRpcWaitor((ushort)CorRspID.msg_switch_game_server);
+					var resultOfRpc = app.network.BuildResponseWaitor((ushort)CorRspID.msg_switch_game_server, (ushort)CorReqID.msg_alloc_game_server, msg);
 					yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
 
 					if (resultOfRpc.resultSetted) {
-						MsgRpcRet rpcd = ToRpcResult<msg_channel_server>(resultOfRpc.result.subCmd, resultOfRpc.result.json, (ushort)CorReqID.msg_alloc_game_server);
+						MsgRpcRet rpcd = ToRpcResult<msg_switch_game_server>(resultOfRpc.result.subCmd, resultOfRpc.result.json, (ushort)CorReqID.msg_alloc_game_server);
 						if (rpcd.err_ != 0) {
 							progressOfLoading?.Desc(LangNetWork.AuthorizeFailed);
 							MyDebug.LogFormat("alloc game server failed");
@@ -462,7 +464,7 @@ namespace Hotfix.Common
 				msg.room_id_ = configid << 24 | roomid;
 
 				App.ins.network.SendMessage((ushort)GameReqID.msg_enter_game_req, msg);
-				var resultOfRpc = App.ins.network.BuildRpcWaitor((ushort)GameRspID.msg_prepare_enter);
+				var resultOfRpc = App.ins.network.BuildResponseWaitor((ushort)GameRspID.msg_prepare_enter, (ushort)GameReqID.msg_enter_game_req, msg);
 				yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
 				if (resultOfRpc.resultSetted) {
@@ -475,21 +477,21 @@ namespace Hotfix.Common
 						else {
 							ViewToast.Create(LangUITip.EnterGameFailed);
 						}
+						yield return new WaitForSeconds(0.5f);
 						goto Clean;
 					}
 					MyDebug.LogFormat("PrepareGameRoom");
 					yield return App.ins.currentApp.game.PrepareGameRoom();
 				}
 				else {
+					MyDebug.LogFormat("msg_enter_game_req timeout");
 					goto Clean;
 				}
 			}
 
 			{
 				msg_prepare_enter_complete msg = new msg_prepare_enter_complete();
-
-				App.ins.network.SendMessage((ushort)GameReqID.msg_prepare_enter_complete, msg);
-				var resultOfRpc = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+				var resultOfRpc = App.ins.network.BuildResponseWaitor((ushort)CommID.msg_common_reply, (ushort)GameReqID.msg_prepare_enter_complete, msg);
 				yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
 				if (resultOfRpc.resultSetted) {

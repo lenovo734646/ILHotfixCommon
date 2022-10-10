@@ -35,6 +35,41 @@ namespace Hotfix.Common
 		public const string DownloadGame = "正在下载游戏...";
 	}
 
+	public static class LangGame
+	{
+		public const string HuanleBY = "欢乐捕鱼";
+		public const string Lobby = "游戏大厅";
+		public const string BaiRenNiuniu = "百人牛牛";
+		public const string BaiJiaLe = "百家乐";
+		public const string BenChiBaoMa = "奔驰宝马";
+		public const string FeiQingZhouSou = "飞禽走兽";
+		public const string HongHeiDaZhan = "HHDZ";
+		public const string HuhuShengWei = "HHSW";
+		public const string ShenLingWuHui = "森林舞会";
+		public const string DeZhouPuke = "DZPK";
+		public const string DouDiZhu = "DDZN";
+		public const string MaJiang2 = "MJ2";
+		public const string QiangZhuangNiuniu = "QZNN";
+		public const string ShiSanShui = "SSS";
+		public const string TongBiNiuniu = "TBNN";
+		public const string ZhaJingHua = "炸金花";
+		public const string Bianlian2 = "BL2";
+		public const string CaiShenDao = "CSD";
+		public const string DaHuaXiYou = "DHXY";
+		public const string DuoCaiDuofu = "DFDC";
+		public const string HuoYuanLianji = "HYLJ";
+		public const string JiuXianLaWang = "九线拉王";
+		public const string XingGanNvYou = "XGNY";
+		public const string LuoMaDaMaoXian = "LMDMX";
+		public const string ShuiGuoMali = "SGML";
+		public const string ShuiHuZhuan = "水浒传";
+		public const string JiJieHaoBY = "集结号捕鱼";
+		public const string LingDianBY = "Fishing3D";
+		public const string ShenHaiBY = "FishingSH";
+		public const string CaoFangBY = "FishingCF";
+		public const string LaBa3D = "LHJC";
+	}
+
 	public static class LangUITip
 	{
 		public const string PopupAutoCloseInTime = "{0}秒后自动关闭";
@@ -58,6 +93,7 @@ namespace Hotfix.Common
 		public const string DownloadSucc = "下载成功.";
 		public const string ConfirmDelete = "是否需要删除游戏 {0}?";
 		public const string SameAccountLogin = "账号已在其它地方登录.";
+		public const string PleaseHoldOn = "正在返回大厅,请稍等.";
 	}
 
 	public static class LangMultiplayer

@@ -46,8 +46,7 @@ namespace Hotfix.Lobby
 			msg.machine_id_ = App.ins.conf.GetDeviceID();
 			msg.sign_ = Globals.Md5Hash(msg.machine_id_ + "1EBE295C-BE45-45C0-9AA1-496C1CEE4BDB");
 
-			App.ins.network.SendMessage((ushort)GateReqID.msg_handshake, msg);
-			var resultOfRpc = App.ins.network.BuildRpcWaitor((ushort)GateRspID.msg_handshake_ret);
+			var resultOfRpc = App.ins.network.BuildResponseWaitor((ushort)GateRspID.msg_handshake_ret, (ushort)GateReqID.msg_handshake, msg);
 			yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
 			Result result = Result.Failure;

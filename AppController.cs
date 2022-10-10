@@ -30,29 +30,50 @@ namespace Hotfix.Common
 			AddChild(audio);
 		}
 
+		IEnumerator DoRunGame_(GameConfig game)
+		{
+			if (game == null) {
+				var view = ViewToast.Create(LangUITip.PleaseHoldOn);
+				game = conf.defaultGame;
+				yield return view.WaitingForReady();
+			}
+			yield return App.ins.CoCheckUpdateAndRun(App.ins.conf.defaultGame, null, false);
+		}
+
+		public void RunGame(GameConfig game = null)
+		{
+			App.ins.StartCor(DoRunGame_(game), false);
+		}
+
 		public IEnumerator DoCheckUpdate(GameConfig conf, IShowDownloadProgress ip)
 		{
 			bool succ = false;
-			if (conf.contentCatalog.Length > 0) {
-				var address = conf.GetCatalogAddress(AddressablesLoader.usingUpdateUrl, Globals.resLoader.GetPlatformString());
-				//下载过的catalog不用再下了
+			//已经更新过的
+			if (!updateChecked_.ContainsKey(conf)) {
+				if (conf.contentCatalog.Length > 0) {
+					var address = conf.GetCatalogAddress(AddressablesLoader.usingUpdateUrl, Globals.resLoader.GetPlatformString());
+					//下载过的catalog不用再下了
 
-				var handleCatalog = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
-				yield return handleCatalog;
-				//失败继续,这里不用goto
-				//if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
-				MyDebug.LogFormat("DownloadDependency:{0}", conf.folder);
-				var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
-				yield return handleDep;
+					var handleCatalog = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadCatalog>(address, ip);
+					yield return handleCatalog;
+					//失败继续,这里不用goto
+					//if (handleCatalog.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
+					MyDebug.LogFormat("DownloadDependency:{0}", conf.folder);
+					var handleDep = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadDependency>(conf.folder, ip);
+					yield return handleDep;
 
-				if (handleDep.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
-
-				succ = true;
+					if (handleDep.Current.status != AsyncOperationStatus.Succeeded) goto Clean;
+					succ = true;
+					MyDebug.LogFormat("DownloadDependency:{0} finished.", conf.folder);
+					if (!updateChecked_.ContainsKey(conf)) updateChecked_.Add(conf, Time.time);
+				}
+				else {
+					throw new Exception($"Game {conf.name} Config Error, contentCatalog not set.");
+				}
 			}
 			else {
-				throw new Exception($"Game {conf.name} Config Error, contentCatalog not set.");
+				succ = true;
 			}
-
 		Clean:
 			if (!succ) {
 				MyDebug.LogFormat("CheckUpdateAndRun failed! will return to default game.", conf.name);
@@ -62,22 +83,30 @@ namespace Hotfix.Common
 				yield return Result.Success;
 			
 		}
-
+		Dictionary<GameConfig, float> updateChecked_ = new Dictionary<GameConfig, float>();
 		IEnumerator CoDoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
 			MyDebug.LogFormat("===================>CheckUpdateAndRun showlogin={0}", showLogin);
 
+			//已经更新过的
 			var chkUpdate = DoCheckUpdate(conf, ip);
 			yield return chkUpdate;
 			if ((Result)chkUpdate.Current != Result.Success) {
 				goto Clean;
 			}
 
+			//切换游戏前的准备工作
+			//为了让屏幕不黑一下,这里先不删除东西.只是标记
+			//保存当前的GameObject以待新游戏加载完成后删除
+			var oldGameObjects = SceneManager.GetActiveScene().GetRootGameObjects();
 			AppBase oldApp = currentApp;
 			currentApp?.AboutToStop();
 			//清理本游戏声音资源
 			audio.StopAll();
 			currentApp = null;
+
+
+			//开始切换游戏.
 			//确保连接
 			if (!disableNetwork) {
 				MyDebug.LogFormat("network.ValidSession");
@@ -130,8 +159,13 @@ namespace Hotfix.Common
 				}
 			}
 
-			//清理旧游戏资源
+			//现在开始清理旧游戏资源
 			oldApp?.Stop();
+			//删除旧的GameObjects
+			foreach(var it in oldGameObjects) {
+				GameObject.Destroy(it);
+			}
+
 			yield return Result.Success;
 			yield break;
 
@@ -145,8 +179,29 @@ namespace Hotfix.Common
 			}
 		}
 
+		public IEnumerator CoLeaveGame()
+		{
+			msg_leave_room msg = new msg_leave_room();
+			var waitor = network.BuildResponseWaitor((ushort)CommID.msg_common_reply, (ushort)GameReqID.msg_leave_room, msg);
+			yield return waitor.WaitResult(conf.networkTimeout);
+
+			if (waitor.resultSetted) {
+				//多人游戏退出到大厅
+				if ((currentGameConfig.tag & (int)GameConfig.Tag.MultiPlayer) != 0) {
+					yield return CoCheckUpdateAndRun(App.ins.conf.defaultGame, null, false);
+				}
+				//其它游戏退出到房间选择
+				else {
+					currentApp.game.WillLeaveGameRoom();
+					yield return currentApp.game.GameLoginSucc();
+					currentApp.game.LeaveGameRoom();
+				}
+			}
+		}
+
 		public IEnumerator CoCheckUpdateAndRun(GameConfig conf, IShowDownloadProgress ip, bool showLogin)
 		{
+			//同时只允许存在1个游戏正在运行.
 			if (!runningGame_) {
 				runningGame_ = true;
 				yield return CoDoCheckUpdateAndRun(conf, ip, showLogin);
@@ -178,6 +233,7 @@ namespace Hotfix.Common
 			ILRuntime_CLPF.Initlize();
 			ILRuntime_Global.Initlize();
 			InstallMsgHandler();
+
 			yield return DoStart_();
 		}
 
@@ -255,12 +311,22 @@ namespace Hotfix.Common
 		IEnumerator DoLazyUpdate()
 		{
 			while (true) {
+
+				//长按事件驱动
 				var arr = longPress.ToArray();
 				for (int i = 0; i < arr.Count; i++) {
 					var longp = arr[i];
 					if (longp.Value.triggered) continue;
 					if (!longp.Value.IsTimeout()) continue;
 					longp.Value.Trigger();
+				}
+
+				//缓存过期
+				var arr2 = updateChecked_.ToArray();
+				foreach(var it in arr2) {
+					if((Time.time - it.Value) > 1800.0f) {
+						updateChecked_.Remove(it.Key);
+					}
 				}
 
 				LazyUpdate();

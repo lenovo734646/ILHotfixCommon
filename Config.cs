@@ -75,7 +75,7 @@ namespace Hotfix.Common
 		public const string ShenHaiBY = "FishingSH";
 		public const string CaoFangBY = "FishingCF";
 		public const string LaBa3D = "LHJC";
-		public string name;
+		public string name, desc;
 		public string folder;
 		public string entryClass;
 		public ScriptType scriptType = ScriptType.CSharp;
@@ -116,7 +116,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.YuanSan;
 				game.tag = (int)GameConfig.Tag.Fishing;
 				game.gameID = GameConfig.GameID.HuanleBY;
-				game.enabled = true;
+				game.desc = LangGame.LingDianBY;
 				games.Add(game.name, game);
 			}
 
@@ -130,6 +130,7 @@ namespace Hotfix.Common
 				game.contentCatalog = "{0}/{1}/{2}/catalog_{1}.json";
 				games.Add(game.name, game);
 				game.gameID = GameConfig.GameID.Lobby;
+				game.desc = LangGame.Lobby;
 			}
 
 			{
@@ -141,6 +142,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
 				games.Add(game.name, game);
+				game.desc = LangGame.BaiRenNiuniu;
 			}
 
 			{
@@ -154,6 +156,7 @@ namespace Hotfix.Common
 				game.gameID = GameConfig.GameID.BaiJiaLe;
 				game.enabled = true;
 				games.Add(game.name, game);
+				game.desc = LangGame.BaiJiaLe;
 			}
 
 			{
@@ -167,6 +170,7 @@ namespace Hotfix.Common
 				game.gameID = GameConfig.GameID.BenChiBaoMa;
 				game.enabled = true;
 				games.Add(game.name, game);
+				game.desc = LangGame.BenChiBaoMa;
 			}
 
 			{
@@ -180,6 +184,7 @@ namespace Hotfix.Common
 				game.gameID = GameConfig.GameID.FeiQingZhouSou;
 				game.enabled = true;
 				games.Add(game.name, game);
+				game.desc = LangGame.FeiQingZhouSou;
 			}
 
 			{
@@ -192,6 +197,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
 				game.show = false;
 				games.Add(game.name, game);
+				game.desc = LangGame.HongHeiDaZhan;
 			}
 
 			{
@@ -204,6 +210,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.MultiPlayer | (int)GameConfig.Tag.Hot;
 				game.show = false;
 				games.Add(game.name, game);
+				game.desc = LangGame.HuhuShengWei;
 			}
 
 			{
@@ -218,6 +225,7 @@ namespace Hotfix.Common
 
 				game.enabled = true;
 				games.Add(game.name, game);
+				game.desc = LangGame.ShenLingWuHui;
 			}
 
 			{
@@ -230,6 +238,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.MultiPlayer;
 				game.show = false;
 				games.Add(game.name, game);
+				game.desc = LangGame.DeZhouPuke;
 			}
 
 
@@ -242,6 +251,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				games.Add(game.name, game);
+				game.desc = LangGame.DouDiZhu;
 			}
 
 			{
@@ -253,6 +263,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				games.Add(game.name, game);
+				game.desc = LangGame.MaJiang2;
 			}
 
 			{
@@ -264,6 +275,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Compete;
 				games.Add(game.name, game);
+				game.desc = LangGame.QiangZhuangNiuniu;
 			}
 
 			{
@@ -276,6 +288,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.Compete;
 				game.show = false;
 				games.Add(game.name, game);
+				game.desc = LangGame.ShiSanShui;
 			}
 
 			{
@@ -288,6 +301,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.Compete;
 				game.show = false;
 				games.Add(game.name, game);
+				game.desc = LangGame.TongBiNiuniu;
 			}
 
 			{
@@ -300,6 +314,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.Compete;
 				game.gameID = GameConfig.GameID.ZJH;
 				games.Add(game.name, game);
+				game.desc = LangGame.ZhaJingHua;
 			}
 
 			{
@@ -312,6 +327,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
 				games.Add(game.name, game);
+				game.desc = LangGame.Bianlian2;
 			}
 
 			{
@@ -323,7 +339,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
-
+				game.desc = LangGame.CaiShenDao;
 				games.Add(game.name, game);
 			}
 
@@ -336,7 +352,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
-
+				game.desc = LangGame.DaHuaXiYou;
 				games.Add(game.name, game);
 			}
 
@@ -349,6 +365,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
+				game.desc = LangGame.DuoCaiDuofu;
 				games.Add(game.name, game);
 			}
 
@@ -361,6 +378,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
+				game.desc = LangGame.HuoYuanLianji;
 				games.Add(game.name, game);
 			}
 
@@ -374,6 +392,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.Slots | (int)GameConfig.Tag.Hot;
 				game.gameID = GameConfig.GameID.JiuXianLaWang;
 				game.enabled = true;
+				game.desc = LangGame.JiuXianLaWang;
 				games.Add(game.name, game);
 			}
 
@@ -385,6 +404,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
+				game.desc = LangGame.XingGanNvYou;
 				games.Add(game.name, game);
 			}
 
@@ -397,6 +417,7 @@ namespace Hotfix.Common
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
 				game.show = false;
+				game.desc = LangGame.LuoMaDaMaoXian;
 				games.Add(game.name, game);
 			}
 
@@ -408,6 +429,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
+				game.desc = LangGame.ShuiGuoMali;
 				games.Add(game.name, game);
 			}
 
@@ -421,6 +443,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.Slots |(int)GameConfig.Tag.Hot;
 				game.enabled = true;
 				game.gameID = GameConfig.GameID.ShuiHuZhuan;
+				game.desc = LangGame.ShuiHuZhuan;
 				games.Add(game.name, game);
 			}
 
@@ -434,6 +457,7 @@ namespace Hotfix.Common
 				game.tag = (int)GameConfig.Tag.Fishing | (int)GameConfig.Tag.Hot;
 				game.enabled = true;
 				game.gameID = GameConfig.GameID.HuanleBY;
+				game.desc = LangGame.JiJieHaoBY;
 				games.Add(game.name, game);
 			}
 
@@ -456,6 +480,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Fishing | (int)GameConfig.Tag.Hot;
+				game.desc = LangGame.ShenHaiBY;
 				games.Add(game.name, game);
 			}
 			{
@@ -466,6 +491,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Fishing | (int)GameConfig.Tag.Hot;
+				game.desc = LangGame.CaoFangBY;
 				games.Add(game.name, game);
 			}
 
@@ -477,6 +503,7 @@ namespace Hotfix.Common
 				game.scriptType = GameConfig.ScriptType.CSharp;
 				game.module = GameConfig.Module.FLLU3d;
 				game.tag = (int)GameConfig.Tag.Slots;
+				game.desc = LangGame.LaBa3D;
 				games.Add(game.name, game);
 			}
 		}

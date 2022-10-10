@@ -56,6 +56,7 @@ namespace Hotfix.Common
 	public enum GameReqID
 	{
 		msg_enter_game_req = 502,
+		msg_leave_room = 505,
 		msg_prepare_enter_complete = 1997,
 		msg_get_public_data = 1212,
 	}
@@ -297,6 +298,11 @@ namespace Hotfix.Common
 	public class msg_get_public_data : msg_from_client
 	{
 		public string data_;
+		public override int to_server() { return 2; }
+	}
+
+	public class msg_leave_room : msg_from_client
+	{
 		public override int to_server() { return 2; }
 	}
 }

@@ -17,6 +17,11 @@ namespace Hotfix.Common
 		{
 			//加入音乐播放
 			audioMusic = BridgeToHotfix.ins.gameObject.AddComponent<AudioSource>();
+
+			var ust = Globals.GetFromFile<UserSettingSaved>("userSetting.txt");
+			enableMusic = ust.audioMusicEnabled;
+			enableEffect = ust.audioEffectEnabled;
+
 			yield return 0;
 		}
 

@@ -36,9 +36,10 @@ namespace Hotfix.Common
 			resourceLoader_.Add(Globals.resLoader.LoadAsync(path, callbackWrapper, progressOfLoading)); 
 		}
 
-		protected override void OnStop()
+		public override void Stop()
 		{
 			ClearResource();
+			base.Stop();
 		}
 
 		public void ClearResource()
@@ -144,12 +145,6 @@ namespace Hotfix.Common
 			if(canv != null) canv.AddChild(obj);
 		}
 
-		public static void RemoveGameObject(string name)
-		{
-			var obj = GameObject.Find(name);
-			if (obj != null) GameObject.Destroy(obj);
-		}
-
 		protected override IEnumerator OnStart()
 		{
 			yield return DoStart_();
@@ -168,6 +163,12 @@ namespace Hotfix.Common
 				ctrl.OnViewClosed(this);
 			}
 		}
+		
+		public override void AboutToStop()
+		{
+			App.ins.network.RemoveMsgHandler(this);
+			base.AboutToStop();
+		}
 
 		protected override void OnStop()
 		{
@@ -180,12 +181,29 @@ namespace Hotfix.Common
 			objs.Clear();
 
 			resNames_.Clear();
-			resScenes_ = null;
-
-			App.ins.network.RemoveMsgHandler(this);
+			resScene_ = null;
+			base.OnStop();
+		}
+		
+		public GameObject FindChild(string path)
+		{
+			if (mainObject_ == null && openedScene_ != null) {
+				foreach(var obj in openedScene_.GetRootGameObjects()) {
+					if (obj.name == path) return obj;
+					var finded = obj.FindChildDeeply(path);
+					if(finded != null) {
+						return finded;
+					}
+				}
+				return null;
+			}
+			else {
+				return mainObject_.FindChildDeeply(path);
+			}
 		}
 
-		IEnumerator LoadResources()
+		int loaded = 0;
+		protected IEnumerator LoadResources()
 		{
 			foreach (var it in resNames_) {
 				var tsk = it;
@@ -205,7 +223,7 @@ namespace Hotfix.Common
 			};
 
 			progressOfLoading?.Desc(LangUITip.LoadingResource + $"(0/{resourceLoader_.Count})");
-			int loaded = 0;
+
 			while (loaded < resourceLoader_.Count) {
 				progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{resourceLoader_.Count})");
 				progressOfLoading?.Progress(loaded, resourceLoader_.Count);
@@ -218,26 +236,31 @@ namespace Hotfix.Common
 
 			yield return new WaitForSeconds(0.1f);
 
-			if(resScenes_ != null) {
-				resScenes_.loader = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(resScenes_.assetPath, t => {
+			if(resScene_ != null) {
+				resScene_.loader = Globals.resLoader.LoadAsync<AddressablesLoader.DownloadScene>(resScene_.assetPath, t => {
 					loaded++;
 				}, progressOfLoading);
 
 
-				while (!resScenes_.loader.SceneHandle.IsDone) {
+				while (!resScene_.loader.SceneHandle.IsDone) {
 					progressOfLoading?.Desc(LangUITip.LoadingResource + $"({loaded}/{resourceLoader_.Count})");
-					progressOfLoading?.Progress((int)resScenes_.loader.SceneHandle.PercentComplete * 100, 100);
+					progressOfLoading?.Progress((int)resScene_.loader.SceneHandle.PercentComplete * 100, 100);
 					yield return 0;
 				}
-				yield return resScenes_.loader.ActiveScene();
-				resScenes_ = null;
+
+				progressOfLoading?.Progress(100, 100);
+				yield return 0;
+
+				yield return resScene_.loader.ActiveScene();
+				openedScene_ = resScene_.loader.SceneHandle.Result.Scene;
+				resScene_ = null;
 				yield return 0;
 			}
 		}
 
 		protected abstract void SetLoader();
 
-		protected IEnumerator ReadyResource()
+		protected IEnumerator ReadyResource(bool callCallback)
 		{
 			bool hasFailed = false;
 			foreach (var it in resNames_) {
@@ -252,14 +275,16 @@ namespace Hotfix.Common
 				}
 			}
 
-			if (!hasFailed)
+			if (!hasFailed) {
+				resNames_.Clear();
 				//这里很重要,要停一下
-				yield return OnResourceReady();
-			else {
+				if (callCallback) yield return OnResourceReady();
+			}
+			else if(resNames_.Count > 0) {
 				MyDebug.LogWarningFormat("some resouce of the view load failed.{0}", resNames_[0].assetPath);
 				yield return 0;
 			}
-			resNames_.Clear();
+
 		}
 
 		protected abstract IEnumerator OnResourceReady();
@@ -278,7 +303,7 @@ namespace Hotfix.Common
 			ViewLoadTask<AddressablesLoader.DownloadScene> task = new ViewLoadTask<AddressablesLoader.DownloadScene>();
 			task.assetPath = path;
 			task.callback = cb;
-			resScenes_ = task;
+			resScene_ = task;
 		}
 
 		protected IEnumerator DoStart_()
@@ -287,16 +312,16 @@ namespace Hotfix.Common
 			SetLoader();
 
 			yield return LoadResources();
-			yield return ReadyResource();
+			yield return ReadyResource(true);
 			finished_ = true;
 		}
 
 		public event EventHandler ClosedEvent;
 
 		protected GameObject mainObject_;
-
+		protected Scene openedScene_;
 		List<ViewLoadTask<GameObject>> resNames_ = new List<ViewLoadTask<GameObject>>();
-		ViewLoadTask<AddressablesLoader.DownloadScene> resScenes_;
+		ViewLoadTask<AddressablesLoader.DownloadScene> resScene_;
 		List<GameObject> objs = new List<GameObject>();
 		protected bool finished_ = false;
 	}

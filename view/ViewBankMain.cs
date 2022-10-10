@@ -39,8 +39,7 @@ namespace Hotfix.Common
 				msg.type_ = 1;
 				msg.count_ = long.Parse(txt.text);
 
-				App.ins.network.SendMessage((ushort)CorReqID.msg_bank_op, msg);
-				var resultOfRpc = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+				var resultOfRpc = App.ins.network.BuildResponseWaitor((ushort)CommID.msg_common_reply, (ushort)CorReqID.msg_bank_op, msg);
 				yield return resultOfRpc.WaitResult(App.ins.conf.networkTimeout);
 
 				if (resultOfRpc.resultSetted) {
@@ -81,9 +80,8 @@ namespace Hotfix.Common
 			msg.present_id_ = (int)ITEMID.BANK_GOLD;
 			msg.count_ = long.Parse(txt.text);
 			msg.to_ = recverTag.text;
-			App.ins.network.SendMessage((ushort)CorReqID.msg_send_present, msg);
 
-			var result = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+			var result = App.ins.network.BuildResponseWaitor((ushort)CommID.msg_common_reply, (ushort)CorReqID.msg_send_present, msg);
 			if (result.resultSetted) {
 				var rpl = JsonMapper.ToObject<msg_common_reply>(result.result.json);
 				if (rpl.err_ == "1") {
@@ -121,8 +119,7 @@ namespace Hotfix.Common
 			msg.psw_ = newTag.text;
 			msg.func_ = 1;
 
-			App.ins.network.SendMessage((ushort)CorReqID.msg_set_bank_psw, msg);
-			var result = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+			var result = App.ins.network.BuildResponseWaitor((ushort)CommID.msg_common_reply, (ushort)CorReqID.msg_set_bank_psw, msg);
 			if (result.resultSetted) {
 				var rpl = JsonMapper.ToObject<msg_common_reply>(result.result.json);
 				if (rpl.err_ == "1") {
@@ -330,8 +327,7 @@ namespace Hotfix.Common
 		IEnumerator DoGetBankInfo()
 		{
 			msg_get_bank_info msg = new msg_get_bank_info();
-			App.ins.network.SendMessage((ushort)CorReqID.msg_get_bank_info, msg);
-			var waitor = App.ins.network.BuildRpcWaitor((ushort)CorRspID.msg_get_bank_info_ret);
+			var waitor = App.ins.network.BuildResponseWaitor((ushort)CorRspID.msg_get_bank_info_ret, (ushort)CorReqID.msg_get_bank_info, msg);
 			yield return waitor.WaitResult();
 			if (waitor.resultSetted) {
 				var info = JsonMapper.ToObject<msg_get_bank_info_ret>(waitor.result.json);

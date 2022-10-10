@@ -65,8 +65,7 @@ namespace Hotfix.Common
 				msg.func_ = 2;
 				msg.psw_ = psw.text;
 				msg.old_psw_ = psw.text;
-				App.ins.network.SendMessage((ushort)CorReqID.msg_set_bank_psw, msg);
-				var waitor = App.ins.network.BuildRpcWaitor((ushort)CommID.msg_common_reply);
+				var waitor = App.ins.network.BuildResponseWaitor((ushort)CommID.msg_common_reply, (ushort)CorReqID.msg_set_bank_psw, msg);
 				yield return waitor.WaitResult();
 				if (waitor.resultSetted) {
 					var rpl = JsonMapper.ToObject<msg_common_reply>(waitor.result.json);
